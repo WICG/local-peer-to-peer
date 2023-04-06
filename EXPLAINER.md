@@ -45,7 +45,7 @@ Multi-user:
 
 Build a generic local peer-to-peer API and provide an arbitrary bidirectional channel on the web for devices under short-range wireless communication environment.
 
-The API will abstract over peer-to-peer technology (including Wi-Fi Direct, AWDL) and provide a high-level interface for two instances of a web app running on peer devices to discover and connect to each other.
+The API will abstract over peer-to-peer technology (including [Wi-Fi Direct](https://www.wi-fi.org/discover-wi-fi/wi-fi-direct), [AWDL](https://owlink.org/wiki/#what-is-apple-wireless-direct-link-awdl)) and provide a high-level interface for two instances of a web app running on peer devices to discover and connect to each other.
 
 The Local Peer-to-Peer API will cover following main parts:
 
@@ -111,7 +111,7 @@ in which case you should link to any active discussion threads.]
 
 [etc.]
 
-## Considered alternatives
+## Considered Alternatives
 
 ### [Alternative 1]
 
