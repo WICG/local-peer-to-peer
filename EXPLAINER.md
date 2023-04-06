@@ -4,7 +4,7 @@ https://github.com/w3c/web-share/blob/main/docs/explainer.md
 
 ## Introduction
 
-The Local Peer-to-Peer API enables supported mobile and desktop devices to transfer files through close-range wireless communication on the web.
+The Local Peer-to-Peer API enables supported mobile and desktop devices to transfer messages or files through close-range wireless communication on the web.
 
 - [Wi-Fi Direct](https://www.wi-fi.org/discover-wi-fi/wi-fi-direct) (aka. Wi-Fi P2P)
 - [Wi-Fi Certified TDLS](https://www.wi-fi.org/news-events/newsroom/wi-fi-alliance-now-certifying-tunneled-direct-link-setup)
