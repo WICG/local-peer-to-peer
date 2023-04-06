@@ -1,19 +1,23 @@
 # Local Peer-to-Peer API
 
-View proposals in the [EXPLAINER](EXPLAINER.md).
+View proposals in the [Local Peer-to-Peer API Explainer](EXPLAINER.md).
 
 ## Problem
 
+When transfer files to other devices or share files to friends or colleagues on the web in the same Wi-Fi environment, usually we have two following approaches with their limiations.
+
+1. The centralized service, member fee, long round trip through internet, data wastage, and privacy concern are the drawbacks to share files by using cloud storage service.
+
+2. Send the file directly through the WebRTC peer to peer on the web requires internet connection to communicate with WebRTC signaling server which establishes and manages the connections between devices.
+
+We need an optimized network path to use a local network connected by the devices for web applications.
+
 ## Introduction
 
-_Describe the challenge or problem on the web you are proposing we address._
+The Local Peer-to-Peer API enables supported mobile and desktop devices to transfer messages or files through close-range wireless communication on the web.
 
 [Read the complete Explainer](EXPLAINER.md).
 
-## Feedback (Choose One)
+## Feedback
 
-Please provide all feedback below.
-
-I welcome feedback in this thread, but encourage you to file bugs against [the Explainer](EXPLAINER.md).
-
-[explainer]: http://domain.tld/your/explainer.md "Local Peer-to-Peer API"
+I welcome feedback in this thread, but encourage you to file bugs against the [Explainer](EXPLAINER.md).

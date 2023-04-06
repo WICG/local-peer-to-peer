@@ -35,7 +35,7 @@ Multi-user:
 
 ## User Flow
 
-![User flow](./mocks/process.svg)
+![User flow](./mocks/userflow.svg)
 
 ## Possible Shapes
 
