@@ -69,6 +69,8 @@ Figure 6: (Potential) Play a web game across two nearby devices with 2 players
 
 ## User Flow
 
+Here's how a user to discover, connect and share files from one device to the other device.
+
 ![User flow](./mocks/userflow.svg)
 
 ## Goals
