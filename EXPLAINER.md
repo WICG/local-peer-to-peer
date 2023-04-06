@@ -87,8 +87,6 @@ The Local Peer-to-Peer API will cover following main parts:
 
 ## Proposed API
 
-[For each related element of the proposed solution - be it an additional JS method, a new object, a new element, a new concept etc., create a section which briefly describes it.]
-
 ```js
 // Provide example code - not IDL - demonstrating the design of the feature.
 
@@ -99,14 +97,21 @@ The Local Peer-to-Peer API will cover following main parts:
 // (initialized, or using permissions, etc.), include that too.
 ```
 
-[Where necessary, provide links to longer explanations of the relevant pre-existing concepts and API.
-If there is no suitable external documentation, you might like to provide supplementary information as an appendix in this document, and provide an internal link where appropriate.]
+## OS API
 
-[If this is already specced, link to the relevant section of the spec.]
+### Android OS API
 
-[If spec work is in progress, link to the PR or draft of the spec.]
+Wi-Fi Direct (P2P) allows devices with the appropriate hardware to connect directly to each other via Wi-Fi without an intermediate access point. Android 4.4 introduces a seamless way to stream media and other data faster between devices already on the same Wi-Fi network by supporting Wi-Fi Tunneled Direct Link Setup (TDLS). TDLS enables two wireless endpoints to talk to each other directly without going through the access point that is managing the local network.
 
-[etc.]
+### ChromeOS OS API
+
+### Windows OS API
+
+Wi-Fi Direct was added to the Native Wifi API starting on Windows 8, it became a stable rather than experimental API.
+
+### macOS OS API
+
+The peer-to-peer Wi-Fi implemented by iOS (and recent versions of OS X) is not compatible with Wi-Fi Direct. 
 
 ## Considered Alternatives
 
