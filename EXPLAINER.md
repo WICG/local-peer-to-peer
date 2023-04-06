@@ -110,8 +110,6 @@ If there is no suitable external documentation, you might like to provide supple
 
 ## Considered Alternatives
 
-### [Alternative 1]
-
 Part of requirements can be met through the Web Share and Web Share Target APIs, as platforms which already provide a peer-to-peer file sharing option. The generic Local Peer-to-Peer API could generate unlimited possibilities for web applications to work with their specific features together seamlessly, the Web Share and Web Share Target cannot provide the consistent experience e.g. In-Web Share or In-Web Message Sync.
 
 ## References & Acknowledgements
