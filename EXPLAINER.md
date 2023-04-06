@@ -28,7 +28,7 @@ Figure 1: Proposed Web Local Peer-to-Peer along with other existed options
 
 In a Wi-Fi P2P environment, use cases such as message synchronization, file transfer, multiple users file sharing, device screen projection, multi-screen collaboration and connection with smart home devices can benefit from web apps through the support of Local Peer-to-Peer API.
 
-Single-user:
+### Single User Multiple Devices
 
 - Send and receive files instantly, including photos or videos, between mobile phone, tablet, and PC without using mobile data or internet connection
 - Add the "Import file nearby" and “Export to nearby” buttons in web version of Figma on desktop to access images from mobile devices"
@@ -51,7 +51,7 @@ Figure 4: (Potential) Open a file from nearby devices in Google Doc
 
 Figure 5: (Potential) Play web game cross smart TV and mobile phone
 
-Multi-user:
+### Multiple Users and Devices
 
 - In-App Sharing, quickly share group photos or videos with friends without relying on cloud services
 - Share web packaging / web bundles offline while on an airplane, with Wi-Fi connection only
@@ -108,54 +108,11 @@ If there is no suitable external documentation, you might like to provide supple
 
 [etc.]
 
-## Key scenarios
-
-[If there are a suite of interacting APIs, show how they work together to solve the key scenarios described.]
-
-### Scenario 1
-
-[Description of the end-user scenario]
-
-```js
-// Sample code demonstrating how to use these APIs to address that scenario.
-```
-
-### Scenario 2
-
-[etc.]
-
-## Detailed design discussion
-
-### [Tricky design choice #1]
-
-[Talk through the tradeoffs in coming to the specific design point you want to make.]
-
-```js
-// Illustrated with example code.
-```
-
-[This may be an open question,
-in which case you should link to any active discussion threads.]
-
-### [Tricky design choice 2]
-
-[etc.]
-
 ## Considered Alternatives
 
 ### [Alternative 1]
 
 Part of requirements can be met through the Web Share and Web Share Target APIs, as platforms which already provide a peer-to-peer file sharing option. The generic Local Peer-to-Peer API could generate unlimited possibilities for web applications to work with their specific features together seamlessly, the Web Share and Web Share Target cannot provide the consistent experience e.g. In-Web Share or In-Web Message Sync.
-
-## Stakeholder Feedback / Opposition
-
-[Implementors and other stakeholders may already have publicly stated positions on this work. If you can, list them here with links to evidence as appropriate.]
-
-- [Implementor A] : Positive
-- [Stakeholder B] : No signals
-- [Implementor C] : Negative
-
-[If appropriate, explain the reasons given by other implementors for their concerns.]
 
 ## References & Acknowledgements
 
