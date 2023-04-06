@@ -14,7 +14,17 @@ The maturity of those Project Fugu APIs, specially Web Bluetooth, Web NFC, File 
 
 ## Problem Description
 
+When transfer files to other devices or share files to friends or colleagues on the web in the same Wi-Fi environment, usually we have two following approaches with their limiations.
+
+1. The centralized service, member fee, long round trip through internet, data wastage, and privacy concern are the drawbacks to share files by using cloud storage service.
+
+2. Send the file directly through the WebRTC peer to peer on the web requires internet connection to communicate with WebRTC signaling server which establishes and manages the connections between devices.
+
+We need an optimized network path to use a local network connected by the devices for web applications.
+
 ![problem](./mocks/problem.svg)
+
+Figure 1: Proposed Web Local Peer-to-Peer along with other existed options
 
 ## Use-Cases
 
@@ -23,9 +33,25 @@ In a Wi-Fi P2P environment, use cases such as message synchronization, file tran
 Single-user:
 
 - Send and receive files instantly, including photos or videos, between mobile phone, tablet, and PC without using mobile data or internet connection
-- Add the "Import file nearby" and “Export to nearby” buttons in web version of Figma on desktop to access images from mobile devices
-- Have a "Upload nearby" button in Open a file dialog of Google doc
+- Add the "Import file nearby" and “Export to nearby” buttons in web version of Figma on desktop to access images from mobile devices"
+- Open files in "Nearby" tab in "Open a file" dialog of Google doc
 - Run a game in web app on the smart TV, use mobile phone as the game controller via this local peer-to-peer API to send control messages
+
+![Web Drop](./mocks/drop.svg)
+
+Figure 2: Web Drop, an In-App Sharing featue based on Local Peer-to-Peer API compare with cloud-client solution
+
+![F](./mocks/n1.svg)
+
+Figure 3: (Potential) Import file from nearby devices in web based Figma app
+
+![G](./mocks/n2.svg)
+
+Figure 4: (Potential) Open a file from nearby devices in Google Doc
+
+![Game 1](./mocks/n3.svg)
+
+Figure 5: (Potential) Play web game cross smart TV and mobile phone
 
 Multi-user:
 
@@ -33,13 +59,17 @@ Multi-user:
 - Share web packaging / web bundles offline while on an airplane, with Wi-Fi connection only
 - Run 2 players web game on two mobile phones, sync messages for two players instantly
 
-## User Flow
+![Game 2](./mocks/n4.svg)
 
-![User flow](./mocks/userflow.svg)
+Figure 6: (Potential) Play a web game across two nearby devices with 2 players
 
 ## Possible Shapes
 
 ![Shapes](./mocks/shape.svg)
+
+## User Flow
+
+![User flow](./mocks/userflow.svg)
 
 ## Goals
 
