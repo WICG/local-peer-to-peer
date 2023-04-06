@@ -1,5 +1,3 @@
-https://github.com/w3c/web-share/blob/main/docs/explainer.md
-
 # Local Peer-to-Peer API Explained
 
 ## Introduction
