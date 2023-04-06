@@ -12,7 +12,7 @@ The maturity of those Project Fugu APIs, specially Web Bluetooth, Web NFC, File 
 
 ## Problem Description
 
-When transfer files to other devices or share files to friends or colleagues on the web in the same Wi-Fi environment, usually we have two following approaches with their limiations.
+When transfer files to other devices or share files to friends or colleagues on the web in the same Wi-Fi environment, usually we have two following approaches with some limiations.
 
 1. The centralized service, member fee, long round trip through internet, data wastage, and privacy concern are the drawbacks to share files by using cloud storage service.
 
@@ -111,7 +111,7 @@ Wi-Fi Direct was added to the Native Wifi API starting on Windows 8, it became a
 
 ### macOS OS API
 
-The peer-to-peer Wi-Fi implemented by iOS (and recent versions of OS X) is not compatible with Wi-Fi Direct. 
+The peer-to-peer Wi-Fi implemented by iOS (and recent versions of OS X) is not compatible with Wi-Fi Direct.
 
 ## Considered Alternatives
 
