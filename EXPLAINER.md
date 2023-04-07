@@ -132,7 +132,7 @@ Initial restrictions must be implemented to balance the risk trade-offs in accor
 
 The generic Local Peer-to-Peer API could generate unlimited possibilities for web apps to work with their specific features together seamlessly.
 
-The Web Share and Web Share Target can fulfill partial requirements, usually reply on the nearby peer-to-peer sharing only that system application already provided, but they cannot provide the consistent and immersive experiences in web app context e.g. In-Web Share or In-Web Message Sync, which causes UX friction that unable to accomplish desired continuous actions on the web apps.
+The Web Share and Web Share Target can fulfill partial requirements, usually rely on the nearby peer-to-peer sharing only that system application already provided, but they cannot provide the consistent and immersive experiences in web app context e.g. In-Web Share or In-Web Message Sync, which causes UX friction that unable to accomplish desired continuous actions on the web apps.
 
 ## References & Acknowledgements
 
