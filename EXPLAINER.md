@@ -85,6 +85,8 @@ The Local Peer-to-Peer API will cover following main parts:
 
 ## Non-goals
 
+The ultimate goal might be to discover and share with each other between web apps based on Web Local Peer-to-Peer API and native system apps that support local peer-to-peer, it brings a decently complicated situation.
+
 ## Proposed API
 
 ```js
@@ -113,9 +115,22 @@ Wi-Fi Direct was added to the Native Wifi API starting on Windows 8, it became a
 
 The peer-to-peer Wi-Fi implemented by iOS (and recent versions of OS X) is not compatible with Wi-Fi Direct.
 
+## Security and Privacy
+
+The Local Peer-to-Peer API can minimize security and privacy risks associated with cloud services. Web app users can choose to limit the use to offline mode only (completely disconnect the Internet) which improves the security further and avoids the information leak to cloud.
+
+Initial restrictions must be implemented to balance the risk trade-offs in accordance with security models.
+
+- Web browser restricted access
+- [Secure context](https://w3c.github.io/webappsec-secure-contexts/) required
+- Least privilege principle, permission granted one device to one site
+- Pairing individual device requires at least a user action
+- User informed when the device is connected
+- Disconnect automatically when no activity for 10 minutes
+
 ## Considered Alternatives
 
-Part of requirements can be met through the Web Share and Web Share Target APIs, as platforms which already provide a peer-to-peer file sharing option. The generic Local Peer-to-Peer API could generate unlimited possibilities for web applications to work with their specific features together seamlessly, the Web Share and Web Share Target cannot provide the consistent experience e.g. In-Web Share or In-Web Message Sync.
+Rartial requirements can be fulfilled through the Web Share and Web Share Target APIs, as platforms which already provide a peer-to-peer file sharing option. The generic Local Peer-to-Peer API could generate unlimited possibilities for web applications to work with their specific features together seamlessly, the Web Share and Web Share Target cannot provide the consistent experience e.g. In-Web Share or In-Web Message Sync.
 
 ## References & Acknowledgements
 
