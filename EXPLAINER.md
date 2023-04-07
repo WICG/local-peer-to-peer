@@ -109,7 +109,7 @@ Wi-Fi Direct (P2P) allows devices with the appropriate hardware to connect direc
 
 ### Windows OS API
 
-Wi-Fi Direct was added to the Native Wifi API starting on Windows 8, it became a stable rather than experimental API.
+Wi-Fi Direct was added to the native Wifi API starting on Windows 8, it became a stable rather than experimental API.
 
 ### macOS OS API
 
