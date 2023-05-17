@@ -12,7 +12,7 @@ The maturity of those Project Fugu APIs, specially Web Bluetooth, Web NFC, File 
 
 ## Problem Description
 
-When transfer files to other devices or share files to friends or colleagues on the web in the same LAN subnet, usually we have two following approaches with some limiations.
+When transfer files to other devices or share files to friends or colleagues on the web in the same LAN subnet environment, usually we have two following approaches with some limiations.
 
 1. The centralized service, member fee, long round trip through internet, data wastage, and privacy concern are the drawbacks to share files by using cloud storage service.
 
@@ -26,7 +26,7 @@ Figure 1: Proposed Web Local Peer-to-Peer along with other existed options
 
 ## Use-Cases
 
-In a same LAN subnet environment, use cases such as message synchronization, file transfer, multiple users file sharing, device screen projection, multi-screen collaboration and connection with smart home devices can benefit from web apps through the support of Local Peer-to-Peer API.
+In a same LAN subnet, use cases such as message synchronization, file transfer, multiple users file sharing and connection with smart home devices can benefit from web apps through the support of Local Peer-to-Peer API. The devices covers Wi-Fi direct, Wi-Fi via access point, or other wireless / wired devices in the same LAN subnet.
 
 ### Single User Multiple Devices
 
@@ -34,7 +34,6 @@ In a same LAN subnet environment, use cases such as message synchronization, fil
 - Add the "Import file nearby" and “Export to nearby” buttons in web version of Figma on desktop to access images from mobile devices"
 - Open files in "Nearby" tab in "Open a file" dialog of Google doc
 - Run a game in web app on the smart TV, use mobile phone as the game controller via this local peer-to-peer API to send control messages
-- Ephemeral groups support: Share files to a group with a single “push” vs. sending to each friend one at a time (by web apps?)
 
 ![Web Drop](./mocks/drop.svg)
 
@@ -56,6 +55,7 @@ Figure 5: (Potential) Play web game cross smart TV and mobile phone
 
 - In-App Sharing, quickly share group photos or videos with friends without relying on cloud services
 - Run 2 players web game on two mobile phones, sync messages for two players instantly
+- Ephemeral groups support: Share files to a group with a single “push” vs. sending to each friend one at a time (by web apps?)
 
 ![Game 2](./mocks/n4.svg)
 
