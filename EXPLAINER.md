@@ -26,7 +26,7 @@ Figure 1: Proposed Web Local Peer-to-Peer along with other existed options
 
 ## Use-Cases
 
-In a Wi-Fi P2P environment, use cases such as message synchronization, file transfer, multiple users file sharing, device screen projection, multi-screen collaboration and connection with smart home devices can benefit from web apps through the support of Local Peer-to-Peer API.
+In a same LAN subnet environment, use cases such as message synchronization, file transfer, multiple users file sharing, device screen projection, multi-screen collaboration and connection with smart home devices can benefit from web apps through the support of Local Peer-to-Peer API.
 
 ### Single User Multiple Devices
 
@@ -34,6 +34,7 @@ In a Wi-Fi P2P environment, use cases such as message synchronization, file tran
 - Add the "Import file nearby" and “Export to nearby” buttons in web version of Figma on desktop to access images from mobile devices"
 - Open files in "Nearby" tab in "Open a file" dialog of Google doc
 - Run a game in web app on the smart TV, use mobile phone as the game controller via this local peer-to-peer API to send control messages
+- Ephemeral groups support: Share files to a group with a single “push” vs. sending to each friend one at a time (by web apps?)
 
 ![Web Drop](./mocks/drop.svg)
 
@@ -54,7 +55,6 @@ Figure 5: (Potential) Play web game cross smart TV and mobile phone
 ### Multiple Users and Devices
 
 - In-App Sharing, quickly share group photos or videos with friends without relying on cloud services
-- Share web packaging / web bundles offline while on an airplane, with Wi-Fi connection only
 - Run 2 players web game on two mobile phones, sync messages for two players instantly
 
 ![Game 2](./mocks/n4.svg)
@@ -99,7 +99,15 @@ The ultimate goal might be to discover and share with each other between web app
 // (initialized, or using permissions, etc.), include that too.
 ```
 
-## OS API
+## OS API and Depedencies
+
+The prerequisite to use DNS-SD based discovery would be a broadcast capable medium.
+
+Discovery should be agnostic to whether it is over IP or over another radio technology that does not have IP in the network layer (ex. Bluetooth LE). 
+
+Once discovered through any means, the content transfer could use an IP network over Wi-Fi, WiFi direct, etc.
+
+In the blocked neighbor discovery (that uses broadcast) and client to client connections scenario, e.g. flight’s wifi service, the underlying implementation may need to support discovery over some other radio such as Web Bluetooth or Web NFC, and then use WiFi Direct to transfer content.
 
 ### Android OS API
 
@@ -136,6 +144,7 @@ The Web Share and Web Share Target can fulfill partial requirements, usually rel
 
 ## References & Acknowledgements
 
-Many thanks for valuable feedback and advice from:
+Many thanks for valuable feedback and advices from:
 
 - [Reilly Grant](https://github.com/reillyeon)
+- Sathish K Kuttan
