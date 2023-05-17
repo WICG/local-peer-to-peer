@@ -26,7 +26,7 @@ Figure 1: Proposed Web Local Peer-to-Peer along with other existed options
 
 ## Use-Cases
 
-In a same LAN subnet, use cases such as message synchronization, file transfer, multiple users file sharing and connection with smart home devices can benefit from web apps through the support of Local Peer-to-Peer API. The devices covers Wi-Fi direct, Wi-Fi via access point, or other wireless / wired devices in the same LAN subnet.
+In a same LAN subnet, use cases such as message synchronization, file transfer, multiple users file sharing and connection with smart home devices can benefit from web apps through the support of Local Peer-to-Peer API. The devices cover Wi-Fi direct, Wi-Fi via access point, or other wireless / wired devices.
 
 ### Single User Multiple Devices
 
