@@ -34,6 +34,7 @@ In a same LAN subnet, use cases such as message synchronization, file transfer, 
 - Add the "Import file nearby" and “Export to nearby” buttons in web version of Figma on desktop to access images from mobile devices"
 - Open files in "Nearby" tab in "Open a file" dialog of Google doc
 - Run a game in web app on the smart TV, use mobile phone as the game controller via this local peer-to-peer API to send control messages
+- Video editing web app users to pull a clip from their phone by giving explicit permission for single clip (or a directory) on the phone, select content (or browse) stored on the phone from the PC browser
 
 ![Web Drop](./mocks/drop.svg)
 
@@ -147,4 +148,4 @@ The Web Share and Web Share Target can fulfill partial requirements, usually rel
 Many thanks for valuable feedback and advices from:
 
 - [Reilly Grant](https://github.com/reillyeon)
-- Sathish K Kuttan
+- [Sathish K Kuttan](https://github.com/sathishkuttan)
