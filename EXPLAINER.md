@@ -108,7 +108,7 @@ Discovery should be agnostic to whether it is over IP or over another radio tech
 
 Once discovered through any means, the content transfer could use an IP network over Wi-Fi, WiFi direct, etc.
 
-In the blocked neighbor discovery (that uses broadcast) and client to client connections scenario, e.g. flight’s wifi service, the underlying implementation may need to support discovery over some other radio such as Web Bluetooth or Web NFC, and then use WiFi Direct to transfer content.
+In the blocked neighbor discovery (that uses broadcast) and client to client connections scenario, e.g. flight’s wifi service, the underlying implementation may need to support discovery over some other radio such as Web Bluetooth or Web NFC, and then use peer to peer to transfer content.
 
 ### Android OS API
 
@@ -140,7 +140,7 @@ Initial restrictions must be implemented to balance the risk trade-offs in accor
 
 ## Considered Alternatives
 
-The generic Local Peer-to-Peer API could generate unlimited possibilities for web apps to work with their specific features together seamlessly.
+The generic Local Peer-to-Peer API could generate unlimited possibilities for web apps to work with their specific features together seamlessly, also open opportunities for flexibility.
 
 The Web Share and Web Share Target can fulfill partial requirements, usually rely on the nearby peer-to-peer sharing only that system application already provided, but they cannot provide the consistent and immersive experiences in web app context e.g. In-Web Share or In-Web Message Sync, which causes UX friction that unable to accomplish desired continuous actions on the web apps.
 
@@ -150,3 +150,4 @@ Many thanks for valuable feedback and advices from:
 
 - [Reilly Grant](https://github.com/reillyeon)
 - [Sathish K Kuttan](https://github.com/sathishkuttan)
+- Chia-hung S Kuo
