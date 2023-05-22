@@ -136,6 +136,7 @@ Initial restrictions must be implemented to balance the risk trade-offs in accor
 - Pairing individual device requires at least a user action
 - User informed when the device is connected
 - Disconnect automatically when no activity for 10 minutes
+- Per-session basis authorization: Colleagues, friends, family member or the user themselves can authorize the “content pull request” on the device that can allow pulls for one session (10 minutes).
 
 ## Considered Alternatives
 
