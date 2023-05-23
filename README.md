@@ -1,6 +1,6 @@
 # Authors
-Anssi Kostiainen (Intel)
-Belem Zhang (Intel)
+- Anssi Kostiainen (Intel)
+- Belem Zhang (Intel)
 
 # Local Peer-to-Peer API
 
