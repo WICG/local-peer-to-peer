@@ -1,10 +1,14 @@
+# Authors
+Anssi Kostiainen (Intel)
+Belem Zhang (Intel)
+
 # Local Peer-to-Peer API
 
 View proposals in the [Local Peer-to-Peer API Explainer](EXPLAINER.md).
 
 ## Problem
 
-When transfer files to other devices or share files to friends or colleagues on the web in the same Wi-Fi environment, usually we have two following approaches with their limiations.
+When transfer files to other devices or share files to friends or colleagues on the web in the same LAN subnet, usually the two following approaches have their limitations.
 
 1. The centralized service, member fee, long round trip through internet, data wastage, and privacy concern are the drawbacks to share files by using cloud storage service.
 
@@ -20,4 +24,4 @@ The Local Peer-to-Peer API enables supported mobile and desktop devices to trans
 
 ## Feedback
 
-I welcome feedback in this thread, but encourage you to file bugs against the [Explainer](EXPLAINER.md).
+We welcome feedback in this thread, but encourage you to file bugs against the [Explainer](EXPLAINER.md).
