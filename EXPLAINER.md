@@ -2,13 +2,15 @@
 
 ## Introduction
 
-The Local Peer-to-Peer API enables supported mobile and desktop devices to transfer messages or files through close-range wireless communication on the web.
+The Local Peer-to-Peer API enables mobile and desktop devices to transfer messages or files through close-range wireless communication in a privacy-preserving manner.
+
+This proposed high-level Web API aspires to provide a web-friendly abstraction that hides the complexity of various underlying peer-to-peer technologies from both users and web developers. Examples of such low-level technologies and protocols abstracted out by this proposal include:
 
 - [Wi-Fi Direct](https://www.wi-fi.org/discover-wi-fi/wi-fi-direct) (aka. Wi-Fi P2P)
 - [Wi-Fi Certified TDLS](https://www.wi-fi.org/news-events/newsroom/wi-fi-alliance-now-certifying-tunneled-direct-link-setup)
 - [Apple Wireless Direct Link (AWDL)](https://owlink.org/wiki/#what-is-apple-wireless-direct-link-awdl)
 
-The maturity of those Project Fugu APIs, specially Web Bluetooth, Web NFC, File System Access API (M86) and File Handling API (M102), together with their implementation in browser has had a positive impact on the feasibility of the Local Peer-to-Peer API. We are confident that Web Local Peer-to-Peer API will be an easy to use API that web developers will be comfortable with.
+Existing emergent Web APIs such as Web Bluetooth and Web NFC have enabled short-range local communication between devices. File System Access API and File Handling API have provided access to the user's local files. These two classes of Web APIs have been validated with real-world use cases and adopted by forward-looking web developers. The proposed Local Peer-to-Peer API fills a remaining web feature gap by marrying secure local communication with file access wrapped into a privacy-preserving user experience that maps to a user's mental model. The proposed Local Peer-to-Peer API aims to allow for easy integration into existing web applications by couple of lines of code.
 
 ## Problem Description
 
