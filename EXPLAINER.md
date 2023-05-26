@@ -20,11 +20,15 @@ This proposal sets to make a part of this Tim's vision a reality while adhering 
 
 ## Problem Description
 
-When transfer files to other devices or share files to friends or colleagues on the web in the same LAN subnet environment, usually we have two following approaches with some limiations.
+When a user wants to transfer a file from within her browser to another device nearby—be it another device she owns or her friend's device—she has multiple ways to accomplish this task:
 
-1. The centralized service, member fee, long round trip through internet, data wastage, and privacy concern are the drawbacks to share files by using cloud storage service.
+1. A centralized cloud service. The file is transferred to a third-party cloud service. This requires a round trip through the internet that consumes network bandwidth and can be slow, costly, or both. The file must be stored on a third-party server, which may not be what the user wants for files that can contain privacy-sensitive information.
 
-2. Send the file directly through the WebRTC peer to peer on the web requires internet connection to communicate with WebRTC signaling server which establishes and manages the connections between devices.
+2. A custom WebRTC-based solution. The file is sent between browsers with WebRTC data channels. This solution requires an internet connection for communication with a WebRTC signalling server that is required to establish and manage the connections between the devices.
+
+3. Email. A file can be sent as an email attachment using a webmail service. Arbitrary email attachment size limitations cause frustration and the common Base64 encoding for attachments adds about 37% to the original file size. Arguably an email-as-a-file-sharing-service has a suboptimal user experience.
+
+None of these solutions to this seemingly common task provide a compelling user experience. When the devices are physically nearby the user's expectation is the file transfer would be as quick and seamless process as handing out physical objects to another person close by. With close-range wireless communication technologies widely supported on today's devices we believe this user experience can be vastly improved.
 
 We need an optimized network path to use a local network connected by the devices for web applications.
 
