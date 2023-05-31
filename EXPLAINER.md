@@ -34,13 +34,11 @@ We need an optimized network path to use a local network connected by the device
 
 ![problem](./mocks/problem.svg)
 
-Figure 1: Proposed Web Local Peer-to-Peer along with other existed options
+Figure 1: Proposed Web Local Peer-to-Peer along with other existing options
 
-## Use-Cases
+## Use Cases
 
-In a same LAN subnet, use cases such as message synchronization, file transfer, multiple users file sharing and connection with smart home devices can benefit from web apps through the support of Local Peer-to-Peer API. The devices cover Wi-Fi direct, Wi-Fi via access point, or other wireless / wired devices.
-
-### Single User Multiple Devices
+### UC1: Single User Multiple Devices
 
 - Send and receive files instantly, including photos or videos, between mobile phone, tablet, and PC without using mobile data or internet connection
 - Add the "Import file nearby" and “Export to nearby” buttons in web version of Figma on desktop to access images from mobile devices"
@@ -50,7 +48,7 @@ In a same LAN subnet, use cases such as message synchronization, file transfer, 
 
 ![Web Drop](./mocks/drop.svg)
 
-Figure 2: Web Drop, an In-App Sharing featue based on Local Peer-to-Peer API compare with cloud-client solution
+Figure 2: Web Drop, an In-App Sharing feature based on Local Peer-to-Peer API compare with cloud-client solution
 
 ![F](./mocks/n1.svg)
 
@@ -64,7 +62,7 @@ Figure 4: (Potential) Open a file from nearby devices in Google Doc
 
 Figure 5: (Potential) Play web game cross smart TV and mobile phone
 
-### Multiple Users and Devices
+### UC2: Multiple Users and Devices
 
 - In-App Sharing, quickly share group photos or videos with friends without relying on cloud services
 - Run 2 players web game on two mobile phones, sync messages for two players instantly
@@ -74,13 +72,37 @@ Figure 5: (Potential) Play web game cross smart TV and mobile phone
 
 Figure 6: (Potential) Play a web game across two nearby devices with 2 players
 
-## Possible Shapes
+### Requirements
+
+The following are the high-level requirements derived from the use cases:
+
+- R1: Discover nearby device(s)
+- R2: Push file(s) from one device to nearby device(s)
+- R3: Pull file(s) from a nearby device(s)
+- R4: Establish a bi-directional communication channel between two nearby devices
+
+### Prerequisites
+
+What is a prerequisite for all these use cases is that the participating devices are physically nearby to each other, in the same LAN (and often also in the same subnet) and as such able to establish a direct connection using either a wireless connectivity technology such as Wi-Fi Direct, Wi-Fi via access point, or a wired computer networking technology such as Ethernet. This connection technology and its details are abstracted out by both the Web API  exposed to web developers as well as the UI/UX visible to the user.
+
+In summary, the following are the prerequisites:
+
+- The participating devices are physically nearby (the definition of "nearby" is an implementation detail)
+- The participating devices are in the same LAN and in the same subnet (similarly to "nearby", it is an implementation detail on how to explain to the user this prerequisite)
+
+## User Interface Considerations
+
+ℹ️ This section is informative.
+
+This section presents examples of user interface concepts. Implementers are expected to come up with their own shapes and forms for the user interface elements that fit the conventions of the underlying platform, form factor and the browser.
 
 ![Shapes](./mocks/shape.svg)
 
-## User Flow
+## User Interaction Considerations
 
-Here's how a user to discover, connect and share files from one device to the other device.
+ℹ️ This section is informative.
+
+This section represents concepts of how a user could discover, connect and share files from one device to the other device nearby.
 
 ![User flow](./mocks/userflow.svg)
 
@@ -90,15 +112,16 @@ Build a generic local peer-to-peer API and provide an arbitrary bidirectional ch
 
 The API will abstract over peer-to-peer technology (including [Wi-Fi Direct](https://www.wi-fi.org/discover-wi-fi/wi-fi-direct), [AWDL](https://owlink.org/wiki/#what-is-apple-wireless-direct-link-awdl)) and provide a high-level interface for two instances of a web app running on peer devices to discover and connect to each other.
 
-The Local Peer-to-Peer API will cover following main parts:
+The Local Peer-to-Peer API will cover the following main parts:
 
-- Methods to discover, request, and connect to peers.
-- Listeners to notify of these method calls success or failure, connection status update or new discovered peer.
-- Send and receive data after connecting to a peer device which may open TCP or UDP socket.
+- Methods to discover, request, and connect to peers
+- Listeners to notify if these method calls succeed or fail
+- Listeners to notify if the connection status is updated or a new peer is discovered
+- Means to send and receive data (e.g. over a TCP or UDP socket) after connection to a peer device has been established
 
 ## Non-goals
 
-The ultimate goal might be to discover and share with each other between web apps based on Web Local Peer-to-Peer API and native system apps that support local peer-to-peer, it brings a decently complicated situation.
+A non-goal is to enable web apps to communicate with the native system apps over peer-to-peer technology.
 
 ## Proposed API
 
@@ -112,15 +135,23 @@ The ultimate goal might be to discover and share with each other between web app
 // (initialized, or using permissions, etc.), include that too.
 ```
 
-## OS API and Depedencies
+## Implementation Considerations
 
-The prerequisite to use DNS-SD based discovery would be a broadcast capable medium.
+ℹ️ This section is informative.
 
-Discovery should be agnostic to whether it is over IP or over another radio technology that does not have IP in the network layer (ex. Bluetooth LE). 
+### Discovery
 
-Once discovered through any means, the content transfer could use an IP network over Wi-Fi, WiFi direct, etc.
+There has been past attempts to standardize a discovery mechanism in the context of the web. [Network Service Discovery](https://www.w3.org/TR/discovery-api/) was an early attempt superseded by purpose-built Presentation API and the Remote Playback API that in turn build upon the [Open Screen Protocol](https://www.w3.org/TR/openscreenprotocol/) (OSP) that uses DNS Service Discovery (DNS-SD) and Multicast DNS (mDNS) for discovery.
 
-In the blocked neighbor discovery (that uses broadcast) and client to client connections scenario, e.g. flight’s wifi service, the underlying implementation may need to support discovery over some other radio such as Web Bluetooth or Web NFC, and then use peer to peer to transfer content.
+Discovery in this context is agnostic to whether it happens over IP or another radio technology that does not use IP for addressing. For example, Bluetooth LE identifies devices by their Bluetooth Device Address and listens to advertising packets from other devices. ([Bluetooth LE Primer](https://www.bluetooth.com/wp-content/uploads/2022/05/The-Bluetooth-LE-Primer-V1.1.0.pdf) explains how the Bluetooth LE stack differs from the OSI reference model in this regard.)
+
+DNS-SD protocol is commonly used to discover a named list of service instances in the local network using standard DNS queries while mDNS protocol uses DNS-like operations on the local network to resolve a domain name for a local address. DNS-SD is often used in conjunction with mDNS and may provide one possible implementation for discovery of peers e.g. through a [protocol extension](https://www.w3.org/TR/openscreenprotocol/#protocol-extensions) to the Open Screen Protocol.
+
+If the discovery is blocked by the network (e.g. no broadcast-capable medium exists when on an in-flight Wi-Fi service) the underlying implementation may choose to use other technology such as Bluetooth or NFC for discovery and use an appropriate peer to peer technology to transfer the content once the peer has been discovered.
+
+### Transport
+
+Once the discovery process is completed, the content transfer can use a transport layer protocol of choice such as TCP, UDP, QUIC or other, over any link layer protocol available such as Wi-Fi or WiFi Direct.
 
 ### Android OS API
 
@@ -134,7 +165,7 @@ Wi-Fi Direct was added to the native Wifi API starting on Windows 8, it became a
 
 ### macOS OS API
 
-The peer-to-peer Wi-Fi implemented by iOS (and recent versions of OS X) is not compatible with Wi-Fi Direct.
+The peer-to-peer Wi-Fi implemented by iOS (and recent versions of macOS) is not compatible with Wi-Fi Direct.
 
 ## Security and Privacy
 
@@ -152,13 +183,13 @@ Initial restrictions must be implemented to balance the risk trade-offs in accor
 
 ## Considered Alternatives
 
-The generic Local Peer-to-Peer API could generate unlimited possibilities for web apps to work with their specific features together seamlessly, also open opportunities for flexibility.
+The Web Share and Web Share Target provide a minimal API to share text and files to a user-selected share target, including to another website, utilizing the sharing mechanism of the underlying operating system.
 
-The Web Share and Web Share Target can fulfill partial requirements, usually rely on the nearby peer-to-peer sharing only that system application already provided, but they cannot provide the consistent and immersive experiences in web app context e.g. In-Web Share or In-Web Message Sync, which causes UX friction that unable to accomplish desired continuous actions on the web apps.
+While the Web Share API partially satisfies the requirement R2 set forth above, the Web Share API by its design defines a minimal API surface that is likely not amenable to extensions required to support additional use cases and requirements outlined in this explainer. Notably, the Web Share API is a "push-based" API where content is pushed from one device to another device while the Local Peer-to-Peer API is catering to both the "push-based" as well as "pull-based" use cases as illustrated by "drop files here and share" (Figure 2) and "import file nearby" (Figure 3) concepts respectively. From the UX perspective, The Local Peer-to-Peer API allows for a more seamless in-web app experience in use cases where a system-provided share facility would disrupt the user flow.
 
 ## References & Acknowledgements
 
-Many thanks for valuable feedback and advices from:
+Many thanks for valuable feedback and advice from:
 
 - [Reilly Grant](https://github.com/reillyeon)
 - [Sathish K Kuttan](https://github.com/sathishkuttan)
