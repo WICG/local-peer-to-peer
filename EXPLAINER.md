@@ -125,14 +125,40 @@ A non-goal is to enable web apps to communicate with the native system apps over
 
 ## Proposed API
 
+### Discoverability
+
 ```js
-// Provide example code - not IDL - demonstrating the design of the feature.
+let p2pSession = await navigator.p2pManager.makeDiscoverable({ nickname: “testing peer”, ... });
+let peer = null;
+if (p2pSession) {
+    p2pSession.addEventListener(“connect”, event => {
+         peer = event.peer;
+         peer.accept() / peer.reject();
+         peer.addEventListener(“message”, event => { ... });
+         peer.addEventListener(“disconnect”, event => { ... }); 
+    });
+}
+peer.send(DOMString / Blob / ArrayBuffer);
+peer.disconnect();
+```
 
-// If this API can be used on its own to address a user need,
-// link it back to one of the scenarios in the goals section.
+### Scanning
 
-// If you need to show how to get the feature set up
-// (initialized, or using permissions, etc.), include that too.
+```js
+let p2pSession = await navigator.p2pManager.findPeers({ ... });
+let peer = null;
+if (p2pSession) {
+    p2pSession.addEventListener(“peerdiscovery”, event => {
+         peer = event.peerList[0]; 
+    });
+}
+let result = await peer.connect({ ... });
+if (result) {
+    peer.addEventListener(“message”, event => { ... });
+    peer.addEventListener(“disconnect”, event => { ... });
+}
+peer.send(DOMString / Blob / ArrayBuffer);
+peer.disconnect();
 ```
 
 ## Implementation Considerations
