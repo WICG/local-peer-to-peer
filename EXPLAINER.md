@@ -4,10 +4,11 @@
 
 The Local Peer-to-Peer API enables mobile and desktop devices to transfer messages or files through close-range wireless communication in a privacy-preserving manner.
 
-This proposed high-level Web API aspires to provide a web-friendly abstraction that hides the complexity of various underlying peer-to-peer technologies from both users and web developers. Examples of such low-level technologies and protocols abstracted out by this proposal include:
+This proposed high-level Web API aspires to provide a web-friendly abstraction that hides the complexity of various underlying peer-to-peer technologies from both users and web developers. 
+
+Examples of such low-level technologies and protocols abstracted out by this proposal include:
 
 - [Wi-Fi Direct](https://www.wi-fi.org/discover-wi-fi/wi-fi-direct) (aka. Wi-Fi P2P)
-- [Wi-Fi Certified TDLS](https://www.wi-fi.org/news-events/newsroom/wi-fi-alliance-now-certifying-tunneled-direct-link-setup)
 - [Apple Wireless Direct Link (AWDL)](https://owlink.org/wiki/#what-is-apple-wireless-direct-link-awdl)
 
 Existing emergent Web APIs such as Web Bluetooth and Web NFC have enabled short-range local communication between devices. File System Access API and File Handling API have provided access to the user's local files. These two classes of Web APIs have been validated with real-world use cases and adopted by forward-looking web developers. The proposed Local Peer-to-Peer API fills a remaining web feature gap by marrying secure local communication with file access wrapped into a privacy-preserving user experience that maps to a user's mental model. The proposed Local Peer-to-Peer API aims to allow for easy integration into existing web applications by couple of lines of code.
@@ -32,7 +33,7 @@ None of these solutions to this seemingly common task provide a compelling user 
 
 We need an optimized network path to use a local network connected by the devices for web applications.
 
-![problem](./mocks/problem.svg)
+![problem](./images/problem.svg)
 
 Figure 1: Proposed Web Local Peer-to-Peer along with other existing options
 
@@ -46,19 +47,19 @@ Figure 1: Proposed Web Local Peer-to-Peer along with other existing options
 - Run a game in web app on the smart TV, use mobile phone as the game controller via this local peer-to-peer API to send control messages
 - Video editing web app users to pull a clip from their phone by giving explicit permission for single clip (or a directory) on the phone, select content (or browse) stored on the phone from the PC browser
 
-![Web Drop](./mocks/drop.svg)
+![Web Drop](./images/drop.svg)
 
 Figure 2: Web Drop, an In-App Sharing feature based on Local Peer-to-Peer API compare with cloud-client solution
 
-![F](./mocks/n1.svg)
+![F](./images/n1.svg)
 
 Figure 3: (Potential) Import file from nearby devices in web based Figma app
 
-![G](./mocks/n2.svg)
+![G](./images/n2.svg)
 
 Figure 4: (Potential) Open a file from nearby devices in Google Doc
 
-![Game 1](./mocks/n3.svg)
+![Game 1](./images/n3.svg)
 
 Figure 5: (Potential) Play web game cross smart TV and mobile phone
 
@@ -68,7 +69,7 @@ Figure 5: (Potential) Play web game cross smart TV and mobile phone
 - Run 2 players web game on two mobile phones, sync messages for two players instantly
 - Ephemeral groups support: Share files to a group with a single “push” vs. sending to each friend one at a time (by web apps?)
 
-![Game 2](./mocks/n4.svg)
+![Game 2](./images/n4.svg)
 
 Figure 6: (Potential) Play a web game across two nearby devices with 2 players
 
@@ -96,7 +97,7 @@ In summary, the following are the prerequisites:
 
 This section presents examples of user interface concepts. Implementers are expected to come up with their own shapes and forms for the user interface elements that fit the conventions of the underlying platform, form factor and the browser.
 
-![Shapes](./mocks/shape.svg)
+![Shapes](./images/shape.svg)
 
 ## User Interaction Considerations
 
@@ -104,13 +105,13 @@ This section presents examples of user interface concepts. Implementers are expe
 
 This section represents concepts of how a user could discover, connect and share files from one device to the other device nearby.
 
-![User flow](./mocks/userflow.svg)
+![User flow](./images/userflow.svg)
 
 ## Goals
 
 Build a generic local peer-to-peer API and provide an arbitrary bidirectional channel on the web for devices under short-range wireless communication environment.
 
-The API will abstract over peer-to-peer technology (including [Wi-Fi Direct](https://www.wi-fi.org/discover-wi-fi/wi-fi-direct), [AWDL](https://owlink.org/wiki/#what-is-apple-wireless-direct-link-awdl)) and provide a high-level interface for two instances of a web app running on peer devices to discover and connect to each other.
+The API will abstract over peer-to-peer technology and provide a high-level interface for two instances of a web app running on peer devices to discover and connect to each other.
 
 The Local Peer-to-Peer API will cover the following main parts:
 
@@ -178,20 +179,6 @@ If the discovery is blocked by the network (e.g. no broadcast-capable medium exi
 ### Transport
 
 Once the discovery process is completed, the content transfer can use a transport layer protocol of choice such as TCP, UDP, QUIC or other, over any link layer protocol available such as Wi-Fi or WiFi Direct.
-
-### Android OS API
-
-Wi-Fi Direct (P2P) allows devices with the appropriate hardware to connect directly to each other via Wi-Fi without an intermediate access point. Android 4.4 introduces a seamless way to stream media and other data faster between devices already on the same Wi-Fi network by supporting Wi-Fi Tunneled Direct Link Setup (TDLS). TDLS enables two wireless endpoints to talk to each other directly without going through the access point that is managing the local network.
-
-### ChromeOS OS API
-
-### Windows OS API
-
-Wi-Fi Direct was added to the native Wifi API starting on Windows 8, it became a stable rather than an experimental API.
-
-### macOS OS API
-
-The peer-to-peer Wi-Fi implemented by iOS (and recent versions of macOS) is not compatible with Wi-Fi Direct.
 
 ## Security and Privacy
 
