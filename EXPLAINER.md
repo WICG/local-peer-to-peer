@@ -11,6 +11,8 @@ Examples of such low-level technologies and protocols abstracted out by this pro
 - [Wi-Fi Direct](https://www.wi-fi.org/discover-wi-fi/wi-fi-direct) (aka. Wi-Fi P2P)
 - [Apple Wireless Direct Link (AWDL)](https://owlink.org/wiki/#what-is-apple-wireless-direct-link-awdl)
 
+That is to say, these example technologies and protocols are considered implementation details and this proposal plans to reuse and build upon applicable W3C specifications such as the [Open Screen Protocol](https://www.w3.org/TR/openscreenprotocol/) to recommend an open standards-based implementation path across platforms and browsers for its intended use cases. Notably, this proposal does not define any hardware features or algorithms.
+
 Existing emergent Web APIs such as Web Bluetooth and Web NFC have enabled short-range local communication between devices. File System Access API and File Handling API have provided access to the user's local files. These two classes of Web APIs have been validated with real-world use cases and adopted by forward-looking web developers. The proposed Local Peer-to-Peer API fills a remaining web feature gap by marrying secure local communication with file access wrapped into a privacy-preserving user experience that maps to a user's mental model. The proposed Local Peer-to-Peer API aims to allow for easy integration into existing web applications by couple of lines of code.
 
 As a blast from the past:
@@ -126,7 +128,7 @@ A non-goal is to enable web apps to communicate with the native system apps over
 
 ## Proposed API
 
-### Discoverability
+### Discovery
 
 ```js
 let p2pSession = await navigator.p2pManager.makeDiscoverable({ nickname: "testing peer" });
