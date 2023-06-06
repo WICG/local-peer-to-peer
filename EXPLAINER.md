@@ -128,36 +128,36 @@ A non-goal is to enable web apps to communicate with the native system apps over
 ### Discoverability
 
 ```js
-let p2pSession = await navigator.p2pManager.makeDiscoverable({ nickname: “testing peer”, ... });
+let p2pSession = await navigator.p2pManager.makeDiscoverable({ nickname: "testing peer" });
 let peer = null;
 if (p2pSession) {
-    p2pSession.addEventListener(“connect”, event => {
+    p2pSession.addEventListener("connect", function (event) {
          peer = event.peer;
-         peer.accept() / peer.reject();
-         peer.addEventListener(“message”, event => { ... });
-         peer.addEventListener(“disconnect”, event => { ... }); 
+         peer.accept(); // or peer.reject();
+         peer.addEventListener("message", function (event) { /* ... */ });
+         peer.addEventListener("disconnect", function (event) { /* ... */ });
     });
 }
-peer.send(DOMString / Blob / ArrayBuffer);
+peer.send(/* DOMString or Blob or ArrayBuffer */);
 peer.disconnect();
 ```
 
 ### Scanning
 
 ```js
-let p2pSession = await navigator.p2pManager.findPeers({ ... });
+let p2pSession = await navigator.p2pManager.findPeers({ /* ... */ });
 let peer = null;
 if (p2pSession) {
-    p2pSession.addEventListener(“peerdiscovery”, event => {
-         peer = event.peerList[0]; 
+    p2pSession.addEventListener("peerdiscovery", function (event) {
+         peer = event.peerList[0];
     });
 }
-let result = await peer.connect({ ... });
+let result = await peer.connect({ /* ... */ });
 if (result) {
-    peer.addEventListener(“message”, event => { ... });
-    peer.addEventListener(“disconnect”, event => { ... });
+    peer.addEventListener("message", function (event) { /* ... */ });
+    peer.addEventListener("disconnect", function (event) { /* ... */ });
 }
-peer.send(DOMString / Blob / ArrayBuffer);
+peer.send(/* DOMString or Blob or ArrayBuffer */);
 peer.disconnect();
 ```
 
