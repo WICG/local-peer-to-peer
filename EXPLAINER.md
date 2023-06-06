@@ -53,25 +53,25 @@ Figure 2: Web Drop, an In-App Sharing feature based on Local Peer-to-Peer API co
 
 ![F](./images/n1.svg)
 
-Figure 3: (Potential) Import file from nearby devices in web based Figma app
+Figure 3: Import file from nearby devices in web based Figma app
 
 ![G](./images/n2.svg)
 
-Figure 4: (Potential) Open a file from nearby devices in Google Doc
+Figure 4: Open a file from nearby devices in Google Doc
 
 ![Game 1](./images/n3.svg)
 
-Figure 5: (Potential) Play web game cross smart TV and mobile phone
+Figure 5: Play web game cross smart TV and mobile phone
 
 ### UC2: Multiple Users and Devices
 
 - In-App Sharing, quickly share group photos or videos with friends without relying on cloud services
 - Run 2 players web game on two mobile phones, sync messages for two players instantly
-- Ephemeral groups support: Share files to a group with a single “push” vs. sending to each friend one at a time (by web apps?)
+- Ephemeral groups support: Share files to a group with a single “push” vs. sending to each friend one at a time
 
 ![Game 2](./images/n4.svg)
 
-Figure 6: (Potential) Play a web game across two nearby devices with 2 players
+Figure 6: Play a web game across two nearby devices with 2 players
 
 ### Requirements
 
