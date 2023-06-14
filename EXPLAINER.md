@@ -11,9 +11,11 @@ Examples of such low-level technologies and protocols abstracted out by this pro
 - [Wi-Fi Direct](https://www.wi-fi.org/discover-wi-fi/wi-fi-direct) (aka. Wi-Fi P2P)
 - [Apple Wireless Direct Link (AWDL)](https://owlink.org/wiki/#what-is-apple-wireless-direct-link-awdl)
 
-That is to say, these example technologies and protocols are considered implementation details and this proposal plans to reuse and build upon applicable W3C specifications such as the [Open Screen Protocol](https://www.w3.org/TR/openscreenprotocol/) to recommend an open standards-based implementation path across platforms and browsers for its intended use cases. Notably, this proposal does not define any hardware features or algorithms.
+These example technologies and protocols are considered implementation details and this proposal plans to reuse and build upon applicable W3C specifications such as the [Open Screen Protocol](https://www.w3.org/TR/openscreenprotocol/) to recommend an open standards-based implementation path across platforms and browsers for its intended use cases. Notably, this proposal does not define any hardware features or algorithms.
 
-Existing emergent Web APIs such as Web Bluetooth and Web NFC have enabled short-range local communication between devices. File System Access API and File Handling API have provided access to the user's local files. These two classes of Web APIs have been validated with real-world use cases and adopted by forward-looking web developers. The proposed Local Peer-to-Peer API fills a remaining web feature gap by marrying secure local communication with file access wrapped into a privacy-preserving user experience that maps to a user's mental model. The proposed Local Peer-to-Peer API aims to allow for easy integration into existing web applications by couple of lines of code.
+Existing emergent Web APIs such as Web Bluetooth and Web NFC have enabled short-range local communication between devices. File System Access API and File Handling API have provided access to the user's local files. These two classes of Web APIs have been validated with real-world use cases and adopted by forward-looking web developers.
+
+The proposed Local Peer-to-Peer API fills a remaining web feature gap by marrying secure local communication with file access wrapped into a privacy-preserving user experience that maps to a user's mental model. The proposed Local Peer-to-Peer API aims to allow for easy integration into existing web applications by couple of lines of code.
 
 As a blast from the past:
 
@@ -23,15 +25,15 @@ This proposal sets to make a part of this Tim's vision a reality while adhering 
 
 ## Problem Description
 
-When a user wants to transfer a file from within her browser to another device nearby—be it another device she owns or her friend's device—she has multiple ways to accomplish this task:
+When a user wants to transfer a file from a web site to another device nearby—be it another device the user owns or that of a friend—the user has multiple ways to accomplish this task:
 
 1. A centralized cloud service. The file is transferred to a third-party cloud service. This requires a round trip through the internet that consumes network bandwidth and can be slow, costly, or both. The file must be stored on a third-party server, which may not be what the user wants for files that can contain privacy-sensitive information.
 
 2. A custom WebRTC-based solution. The file is sent between browsers with WebRTC data channels. This solution requires an internet connection for communication with a WebRTC signalling server that is required to establish and manage the connections between the devices.
 
-3. Email. A file can be sent as an email attachment using a webmail service. Arbitrary email attachment size limitations cause frustration and the common Base64 encoding for attachments adds about 37% to the original file size. Arguably an email-as-a-file-sharing-service has a suboptimal user experience.
+3. Email. A file can be sent as an email attachment using a cloud-based service. Arbitrary email attachment size limitations cause frustration and the common Base64 encoding for attachments adds about 37% to the original file size. Arguably an email-as-a-file-sharing-service has a suboptimal user experience.
 
-None of these solutions to this seemingly common task provide a compelling user experience. When the devices are physically nearby the user's expectation is the file transfer would be as quick and seamless process as handing out physical objects to another person close by. With close-range wireless communication technologies widely supported on today's devices we believe this user experience can be vastly improved.
+None of these solutions to this seemingly common task provide a compelling user experience. When the devices are physically nearby the user's expectation is the file transfer would be as quick and seamless as handing out physical objects to another person close by. With close-range wireless communication technologies widely supported on today's devices we believe this user experience can be vastly improved
 
 We need an optimized network path to use a local network connected by the devices for web applications.
 
@@ -43,11 +45,11 @@ Figure 1: Proposed Web Local Peer-to-Peer along with other existing options
 
 ### UC1: Single User Multiple Devices
 
-- Send and receive files instantly, including photos or videos, between mobile phone, tablet, and PC without using mobile data or internet connection
+- Send and receive files instantly, including photos or videos, between mobile phone, tablet, and personal computer without using mobile data or internet connection
 - Add the "Import file nearby" and “Export to nearby” buttons in web version of Figma on desktop to access images from mobile devices"
 - Open files in "Nearby" tab in "Open a file" dialog of Google doc
 - Run a game in web app on the smart TV, use mobile phone as the game controller via this local peer-to-peer API to send control messages
-- Video editing web app users to pull a clip from their phone by giving explicit permission for single clip (or a directory) on the phone, select content (or browse) stored on the phone from the PC browser
+- Video editing web app users to pull a clip from their phone by giving explicit permission for single clip (or a directory) on the phone, select content (or browse) stored on the phone from the desktop browser
 
 ![Web Drop](./images/drop.svg)
 
@@ -68,7 +70,7 @@ Figure 5: Play web game cross smart TV and mobile phone
 ### UC2: Multiple Users and Devices
 
 - In-App Sharing, quickly share group photos or videos with friends without relying on cloud services
-- Run 2 players web game on two mobile phones, sync messages for two players instantly
+- Run a 2 players web game on two mobile phones, synching messages between two players instantly
 - Ephemeral groups support: Share files to a group with a single “push” vs. sending to each friend one at a time
 
 ![Game 2](./images/n4.svg)
@@ -86,7 +88,7 @@ The following are the high-level requirements derived from the use cases:
 
 ### Prerequisites
 
-What is a prerequisite for all these use cases is that the participating devices are physically nearby to each other, in the same LAN (and often also in the same subnet) and as such able to establish a direct connection using either a wireless connectivity technology such as Wi-Fi Direct, Wi-Fi via access point, or a wired computer networking technology such as Ethernet. This connection technology and its details are abstracted out by both the Web API  exposed to web developers as well as the UI/UX visible to the user.
+What is a prerequisite for all these use cases is that the participating devices are physically nearby to each other, in the same LAN (and often also in the same subnet) and as such able to establish a direct connection using either a wireless connectivity technology such as Wi-Fi Direct, Wi-Fi via access point, or a wired computer networking technology such as Ethernet. This connection technology and its details are abstracted out by both the Web API exposed to web developers as well as the UI/UX visible to the user.
 
 In summary, the following are the prerequisites:
 
@@ -120,7 +122,7 @@ The Local Peer-to-Peer API will cover the following main parts:
 - Methods to discover, request, and connect to peers
 - Listeners to notify if these method calls succeed or fail
 - Listeners to notify if the connection status is updated or a new peer is discovered
-- Means to send and receive data (e.g. over a TCP or UDP socket) after connection to a peer device has been established
+- Means to send and receive data (e.g., over a TCP or UDP socket) after connection to a peer device has been established
 
 ## Non-goals
 
@@ -172,15 +174,15 @@ peer.disconnect();
 
 There has been past attempts to standardize a discovery mechanism in the context of the web. [Network Service Discovery](https://www.w3.org/TR/discovery-api/) was an early attempt superseded by purpose-built Presentation API and the Remote Playback API that in turn build upon the [Open Screen Protocol](https://www.w3.org/TR/openscreenprotocol/) (OSP) that uses DNS Service Discovery (DNS-SD) and Multicast DNS (mDNS) for discovery.
 
-Discovery in this context is agnostic to whether it happens over IP or another radio technology that does not use IP for addressing. For example, Bluetooth LE identifies devices by their Bluetooth Device Address and listens to advertising packets from other devices. ([Bluetooth LE Primer](https://www.bluetooth.com/wp-content/uploads/2022/05/The-Bluetooth-LE-Primer-V1.1.0.pdf) explains how the Bluetooth LE stack differs from the OSI reference model in this regard.)
+Discovery in this context is agnostic to whether it happens over IP or another radio technology that does not use IP for addressing. For example, Bluetooth LE identifies devices by their Bluetooth Device Address and listens to advertising packets from other devices. (The [Bluetooth LE Primer](https://www.bluetooth.com/wp-content/uploads/2022/05/The-Bluetooth-LE-Primer-V1.1.0.pdf) explains how the Bluetooth LE stack differs from the OSI reference model in this regard.)
 
 DNS-SD protocol is commonly used to discover a named list of service instances in the local network using standard DNS queries while mDNS protocol uses DNS-like operations on the local network to resolve a domain name for a local address. DNS-SD is often used in conjunction with mDNS and may provide one possible implementation for discovery of peers e.g. through a [protocol extension](https://www.w3.org/TR/openscreenprotocol/#protocol-extensions) to the Open Screen Protocol.
 
-If the discovery is blocked by the network (e.g. no broadcast-capable medium exists when on an in-flight Wi-Fi service) the underlying implementation may choose to use other technology such as Bluetooth or NFC for discovery and use an appropriate peer to peer technology to transfer the content once the peer has been discovered.
+If the discovery is blocked by the network (e.g., no broadcast-capable medium exists when on an in-flight Wi-Fi service) the underlying implementation may choose to use other technology such as Bluetooth or NFC for discovery and use an appropriate peer to peer technology to transfer the content once the peer has been discovered.
 
 ### Transport
 
-Once the discovery process is completed, the content transfer can use a transport layer protocol of choice such as TCP, UDP, QUIC or other, over any link layer protocol available such as Wi-Fi or WiFi Direct.
+Once the discovery process is completed, the content transfer can use a transport layer protocol of choice such as TCP, UDP, QUIC or other, over any link layer protocol available such as Wi-Fi or Wi-Fi Direct.
 
 ## Security and Privacy
 
@@ -194,7 +196,7 @@ Initial restrictions must be implemented to balance the risk trade-offs in accor
 - Pairing individual device requires at least a user action
 - User informed when the device is connected
 - Disconnect automatically when no activity for 10 minutes
-- Per-session basis authorization: Colleagues, friends, family member or the user themselves can authorize the “content pull request” on the device that can allow pulls for one session (10 minutes).
+- Per-session basis authorization: Colleagues, friends, family members or the user themselves can authorize the “content pull request” on the device that can allow pulls for one session (10 minutes).
 
 ## Considered Alternatives
 
