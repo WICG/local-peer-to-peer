@@ -33,7 +33,7 @@ When a user wants to transfer a file from a web site to another device nearby—
 
 3. Email. A file can be sent as an email attachment using a cloud-based service. Arbitrary email attachment size limitations cause frustration and the common Base64 encoding for attachments adds about 37% to the original file size. Arguably an email-as-a-file-sharing-service has a suboptimal user experience.
 
-None of these solutions to this seemingly common task provide a compelling user experience. When the devices are physically nearby the user's expectation is the file transfer would be as quick and seamless as handing out physical objects to another person close by. With close-range wireless communication technologies widely supported on today's devices we believe this user experience can be vastly improved
+None of these solutions to this seemingly common task provide a compelling user experience. When the devices are physically nearby the user's expectation is the file transfer would be as quick and seamless as handing out physical objects to another person close by. With close-range wireless communication technologies widely supported on today's devices we believe this user experience can be vastly improved.
 
 We need an optimized network path to use a local network connected by the devices for web applications.
 
