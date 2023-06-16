@@ -130,40 +130,68 @@ A non-goal is to enable web apps to communicate with the native system apps over
 
 ## Proposed API
 
-### Discovery
+>ℹ️ **Note:** In this example we walk through a use case where two peers A and B send one message to each other. The example covers making a peer discoverable, finding other peers, establishing a connection between the two peers, setting up listeners for messages and disconnection, and sending of messages. The payload in this example is a string, but it could also be a Blob or an ArrayBuffer. The example code is provided for illustrative purposes only and is expected to have rough edges. The API shape, both naming and design, is expected to change based on feedback and early implementation insights. Peer A and peer B operate on parallel timelines even if the example code is presented here sequentially.
+
+🅰️ **Peer A** makes itself discoverable with a nickname `device A`. The promise resolves only if a user's consent is received to make this device discoverable by other peers (see [User Interface Considerations](#user-interface-considerations) and [User Interaction Considerations](#user-interaction-considerations)).
 
 ```js
-let p2pSession = await navigator.p2pManager.makeDiscoverable({ nickname: "testing peer" });
-let peer = null;
-if (p2pSession) {
-    p2pSession.addEventListener("connect", function (event) {
-         peer = event.peer;
-         peer.accept(); // or peer.reject();
-         peer.addEventListener("message", function (event) { /* ... */ });
-         peer.addEventListener("disconnect", function (event) { /* ... */ });
-    });
-}
-peer.send(/* DOMString or Blob or ArrayBuffer */);
-peer.disconnect();
+let p2pSession = await navigator.p2p.makeDiscoverable({ nickname: "device A" });
+let peerB = null;
 ```
 
-### Scanning
+🅰️ **Peer A** starts to listen to `connect` events that signal when a connection is established with  another peer. Upon connection establishment, peer A chooses to accept the first connection it receives from another peer (we assume to be peer B to keep the example simple), and starts to listen to `message` and `disconnect` events from peer B.
 
 ```js
-let p2pSession = await navigator.p2pManager.findPeers({ /* ... */ });
-let peer = null;
-if (p2pSession) {
-    p2pSession.addEventListener("peerdiscovery", function (event) {
-         peer = event.peerList[0];
-    });
+p2pSession.addEventListener("connect", function (event) {
+    peerB = event.peer;
+    peerB.accept(); // or peerB.reject();
+    peerB.addEventListener("message", function (event) { /* ... */ });
+    peerB.addEventListener("disconnect", function (event) { /* ... */ });
+});
+```
+
+ 🅰️ **Peer A** sends a message "`Hello from peer A!`" to peer B. If this fails, an error is logged to console and the connection to peer B is disconnected.
+
+```js
+try {
+    await peerB.send("Hello from peer A!"); // or Blob or ArrayBuffer
+} catch (error) {
+    console.log("Failed to send the message to peer B!", error);
+    peerB.disconnect();
 }
-let result = await peer.connect({ /* ... */ });
-if (result) {
-    peer.addEventListener("message", function (event) { /* ... */ });
-    peer.addEventListener("disconnect", function (event) { /* ... */ });
+```
+
+🅱️ **Peer B** starts to find peers. This requires user's consent similarly to making a peer discoverable (see [User Interface Considerations](#user-interface-considerations) and [User Interaction Considerations](#user-interaction-considerations)).
+
+```js
+let p2pSession = await navigator.p2p.findPeers({ /* ... */ });
+let peerA = null;
+```
+
+🅱️ **Peer B** receives a `peerdiscovery` event when a peer is found and the first peer is assumed to be peer A (for simplicity).
+
+```js
+p2pSession.addEventListener("peerdiscovery", function (event) {
+    peerA = event.peerList[0];
+});
+```
+
+🅱️ **Peer B** establishes a connection to peer A. The promise resolves only if the user's consent (see [User Interface Considerations](#user-interface-considerations) and [User Interaction Considerations](#user-interaction-considerations)) has been acquired for connecting with peer A. Peer B starts to listen to `message` and `disconnect` events from peer A.
+
+```js
+try {
+    await peerA.connect({ /* ... */ });
+    peerA.addEventListener("message", function (event) { /* ... */ });
+    peerA.addEventListener("disconnect", function (event) { /* ... */ });
+} catch (error) {
+    console.log("Failed to establish a connection!", error);
 }
-peer.send(/* DOMString or Blob or ArrayBuffer */);
-peer.disconnect();
+```
+
+🅱️ **Peer B** sends a message "`Hello from peer B!`" to peer A (this time without error checking).
+
+```js
+await peerA.send("Hello from peer B!"); // or Blob or ArrayBuffer
 ```
 
 ## Implementation Considerations
