@@ -45,11 +45,14 @@ Figure 1: Proposed Web Local Peer-to-Peer along with other existing options
 
 ### UC1: Single User Multiple Devices
 
+- Transfer JSON and other data formats from one device to another
+- An app that allows users to copy text on one device and paste that same text on another device
 - Send and receive files instantly, including photos or videos, between mobile phone, tablet, and personal computer without using mobile data or internet connection
 - Add the "Import file nearby" and “Export to nearby” buttons in web version of Figma on desktop to access images from mobile devices"
 - Open files in "Nearby" tab in "Open a file" dialog of Google doc
 - Run a game in web app on the smart TV, use mobile phone as the game controller via this local peer-to-peer API to send control messages
 - Video editing web app users to pull a clip from their phone by giving explicit permission for single clip (or a directory) on the phone, select content (or browse) stored on the phone from the desktop browser
+- Seamlessly sync private keys and other identity credentials across personal devices, securely transfer one-time pads to encrypt and decrypt messages
 
 ![Web Drop](./images/drop.svg)
 
@@ -72,6 +75,7 @@ Figure 5: Play web game cross smart TV and mobile phone
 - In-App Sharing, quickly share group photos or videos with friends without relying on cloud services
 - Run a 2 players web game on two mobile phones, synching messages between two players instantly
 - Ephemeral groups support: Share files to a group with a single “push” vs. sending to each friend one at a time
+- An app that allows humanitarian field workers in remote areas with no connectivity to gather, synchronize, review, and edit data offline for several days, the data can then be synchronized with the central server when internet connection becomes available
 
 ![Game 2](./images/n4.svg)
 
@@ -223,8 +227,8 @@ Initial restrictions must be implemented to balance the risk trade-offs in accor
 - Least privilege principle, permission granted one device to one site
 - Pairing individual device requires at least a user action
 - User informed when the device is connected
-- Disconnect automatically when no activity for 10 minutes
-- Per-session basis authorization: Colleagues, friends, family members or the user themselves can authorize the “content pull request” on the device that can allow pulls for one session (10 minutes).
+- Disconnect automatically when no activity for 10 minutes, users may need connections to persist longer than 10 minutes for certain use cases
+- Per-session basis authorization: Colleagues, friends, family members or the user themselves can authorize the “content pull request” on the device that can allow pulls for one session (10 minutes)
 
 ## Considered Alternatives
 
@@ -239,3 +243,7 @@ Many thanks for valuable feedback and advice from:
 - [Reilly Grant](https://github.com/reillyeon)
 - [Sathish K Kuttan](https://github.com/sathishkuttan)
 - Chia-hung S Kuo
+- [Kyle Simpson](https://github.com/getify)
+- [Drake42](https://github.com/Drake42)
+- [Espen Klem](https://github.com/eklem)
+- [Alex Bertram](https://github.com/akbertram)
