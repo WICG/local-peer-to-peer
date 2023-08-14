@@ -227,14 +227,16 @@ Initial restrictions must be implemented to balance the risk trade-offs in accor
 - Least privilege principle, permission granted one device to one site
 - Pairing individual device requires at least a user action
 - User informed when the device is connected
-- Disconnect automatically when no activity for 10 minutes, users may need connections to persist longer than 10 minutes for certain use cases
-- Per-session basis authorization: Colleagues, friends, family members or the user themselves can authorize the “content pull request” on the device that can allow pulls for one session (10 minutes)
+- Disconnect automatically after a period of inactivity (implementation-defined e.g. 10 minutes) with an extension opportunity with a user's consent
+- Authorization on a per-session basis: Colleagues, friends, family members or the user themselves can authorize the “content pull request” on the device that can allow pulls for one session (e.g. 10 minutes)
 
 ## Considered Alternatives
 
 The Web Share and Web Share Target provide a minimal API to share text and files to a user-selected share target, including to another website, utilizing the sharing mechanism of the underlying operating system.
 
 While the Web Share API partially satisfies the requirement R2 set forth above, the Web Share API by its design defines a minimal API surface that is likely not amenable to extensions required to support additional use cases and requirements outlined in this explainer. Notably, the Web Share API is a "push-based" API where content is pushed from one device to another device while the Local Peer-to-Peer API is catering to both the "push-based" as well as "pull-based" use cases as illustrated by "drop files here and share" (Figure 2) and "import file nearby" (Figure 3) concepts respectively. From the UX perspective, The Local Peer-to-Peer API allows for a more seamless in-web app experience in use cases where a system-provided share facility would disrupt the user flow.
+
+Certain use cases can benefit from an internet-based P2P fallback if local communications is not available. To minimize conceptual weight for web developers, this API attempts to align with the established conventions and API semantics of other communication APIs such as WebTransport API, WebRTC, Fetch, and Presentation API, where applicable.
 
 ## References & Acknowledgements
 
