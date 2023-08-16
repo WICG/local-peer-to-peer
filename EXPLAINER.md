@@ -229,6 +229,7 @@ Initial restrictions must be implemented to balance the risk trade-offs in accor
 - User informed when the device is connected
 - Disconnect automatically after a period of inactivity (implementation-defined e.g. 10 minutes) with an extension opportunity with a user's consent
 - Authorization on a per-session basis: Colleagues, friends, family members or the user themselves can authorize the “content pull request” on the device that can allow pulls for one session (e.g. 10 minutes)
+- We are investigating whether this API should be restricted to PWA only
 
 ## Considered Alternatives
 
