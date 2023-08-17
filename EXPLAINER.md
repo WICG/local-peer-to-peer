@@ -214,7 +214,9 @@ If the discovery is blocked by the network (e.g., no broadcast-capable medium ex
 
 ### Transport
 
-Once the discovery process is completed, the content transfer can use a transport layer protocol of choice such as TCP, UDP, QUIC or other, over any link layer protocol available such as Wi-Fi or Wi-Fi Direct.
+Once the discovery process is completed, the content transfer can use a transport layer protocol of choice such as TCP, UDP, QUIC or other, over any link layer protocol available such as Wi-Fi or Wi-Fi Direct. 
+
+Similar to the discover phase, supporting data exchange over Bluetooth or NFC could be an optional or fallback implementation as alternative transports.
 
 ## Security and Privacy
 
