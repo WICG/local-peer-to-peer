@@ -92,12 +92,12 @@ The following are the high-level requirements derived from the use cases:
 
 ### Prerequisites
 
-What is a prerequisite for all these use cases is that the participating devices are physically nearby to each other, in the same LAN (and often also in the same subnet) and as such able to establish a direct connection using either a wireless connectivity technology such as Wi-Fi Direct, Wi-Fi via access point, or a wired computer networking technology such as Ethernet. This connection technology and its details are abstracted out by both the Web API exposed to web developers as well as the UI/UX visible to the user.
+What is a prerequisite for all these use cases is that the participating devices are physically nearby to each other and as such able to establish a direct connection using either a wireless connectivity technology such as Wi-Fi Direct, Wi-Fi via access point, or a wired computer networking technology such as Ethernet. This connection technology and its details are abstracted out by both the Web API exposed to web developers as well as the UI/UX visible to the user.
 
 In summary, the following are the prerequisites:
 
 - The participating devices are physically nearby (the definition of "nearby" is an implementation detail)
-- The participating devices are in the same LAN and in the same subnet (similarly to "nearby", it is an implementation detail on how to explain to the user this prerequisite)
+- The participating devices are able to establish a direct connection using some connection technology (the supported technologies may vary depending on hardware and OS capabilities and remain an implementation detail)
 
 ## User Interface Considerations
 
