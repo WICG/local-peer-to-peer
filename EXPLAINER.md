@@ -253,3 +253,4 @@ Many thanks for valuable feedback and advice from:
 - [Drake42](https://github.com/Drake42)
 - [Espen Klem](https://github.com/eklem)
 - [Alex Bertram](https://github.com/akbertram)
+- [Michiel De Backker](https://github.com/backkem)
