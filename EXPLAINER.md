@@ -76,6 +76,7 @@ Figure 5: Play web game cross smart TV and mobile phone
 - Run a 2 players web game on two mobile phones, synching messages between two players instantly
 - Ephemeral groups support: Share files to a group with a single “push” vs. sending to each friend one at a time
 - An app that allows humanitarian field workers in remote areas with no connectivity to gather, synchronize, review, and edit data offline for several days, the data can then be synchronized with the central server when internet connection becomes available
+- A non-profit educational organization is concerned about the large file download size required for on-device speech recognition in the browser. This is problematic in low bandwidth, high latency environments such as classrooms, particularly in emerging countries. Their goal is for one student to download the file first and then easily share/distribute it with classmates without low speed internet connections any more to save time and cost
 
 ![Game 2](./images/n4.svg)
 
