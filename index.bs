@@ -1,0 +1,17 @@
+<pre class='metadata'>
+Title: Local Peer-to-Peer API
+Shortname: local-peer-to-peer
+Level: 1
+Status: CG-DRAFT
+Group: WICG
+Repository: WICG/local-peer-to-peer
+URL: http://example.com/url-this-spec-will-live-at
+Editor: Belem Zhang, Intel https://intel.com, belem.zhang@intel.com
+!Tests: <a href=https://github.com/w3c/web-platform-tests/tree/master/local-peer-to-peer>web-platform-tests local-peer-to-peer/</a> (<a href=https://github.com/w3c/web-platform-tests/labels/local-peer-to-peer>ongoing work</a>)
+Abstract: A short description of your spec, one or two sentences.
+</pre>
+
+Introduction {#intro}
+=====================
+
+See https://github.com/tabatkins/bikeshed to get started.
