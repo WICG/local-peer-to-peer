@@ -3,8 +3,9 @@
 [Local Peer-to-Peer](https://WICG.github.io/local-peer-to-peer/) is a Web platform API proposal for local communication between browsers without the aid of a server.
 
 ```js
-let session = await navigator.lp2p.findPeers();
-
+let peers = await navigator.lp2p.findPeers();
+let peer = peers[0];
+await peer.connect();
 await peer.send("Hello there!");
 ```
 
@@ -21,4 +22,4 @@ This specification is a work in progress.
 
 ## Feedback
 
-We welcome feedback [issue tracker](https://github.com/WICG/local-peer-to-peer/issues) of this GitHub repo. [Contributions](CONTRIBUTING.md) are welcome via pull requests too.
+We welcome feedback via the [issue tracker](https://github.com/WICG/local-peer-to-peer/issues) of this GitHub repo. [Contributions](CONTRIBUTING.md) are welcome via pull requests too.

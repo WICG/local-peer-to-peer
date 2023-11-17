@@ -5,16 +5,16 @@ Level: 1
 Status: CG-DRAFT
 Group: WICG
 Repository: WICG/local-peer-to-peer
-URL: http://example.com/url-this-spec-will-live-at
+URL: https://WICG.github.io/local-peer-to-peer/
 Editor: Anssi Kostiainen, Intel https://intel.com, anssi.kostiainen@intel.com
 Editor: Belem Zhang, Intel https://intel.com, belem.zhang@intel.com
 Editor: Michiel De Backker, Twintag https://twintag.com, mail@backkem.me
 Editor: Wei Wang, Intel https://intel.com, wei4.wang@intel.com
 !Tests: <a href=https://github.com/w3c/web-platform-tests/tree/master/local-peer-to-peer>web-platform-tests local-peer-to-peer/</a> (<a href=https://github.com/w3c/web-platform-tests/labels/local-peer-to-peer>ongoing work</a>)
-Abstract: A short description of your spec, one or two sentences.
+Abstract: Local Peer-to-Peer is a Web platform API proposal for local communication between browsers without the aid of a server.
 </pre>
 
 Introduction {#intro}
 =====================
 
-See https://github.com/tabatkins/bikeshed to get started.
+*This section is non-normative.*
