@@ -1,8 +1,3 @@
-# Authors
-- Anssi Kostiainen (Intel)
-- Belem Zhang (Intel)
-- Wei Wang (Intel)
-
 # Local Peer-to-Peer API
 
 For the latest proposals, see the [Local Peer-to-Peer API Explainer](EXPLAINER.md).
