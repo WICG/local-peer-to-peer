@@ -12,9 +12,23 @@ Editor: Michiel De Backker, Twintag https://twintag.com, mail@backkem.me
 Editor: Wei Wang, Intel https://intel.com, wei4.wang@intel.com
 !Tests: <a href=https://github.com/w3c/web-platform-tests/tree/master/local-peer-to-peer>web-platform-tests local-peer-to-peer/</a> (<a href=https://github.com/w3c/web-platform-tests/labels/local-peer-to-peer>ongoing work</a>)
 Abstract: Local Peer-to-Peer is a Web platform API proposal for local communication between browsers without the aid of a server.
+Markup Shorthands: markdown yes, dfn yes, idl yes, markup yes
 </pre>
+
+Note: This specification is under active development and therefore incomplete. If you're looking for an overview of the proposal, please refer to the [Explainer](https://github.com/WICG/local-peer-to-peer/blob/main/EXPLAINER.md).
 
 Introduction {#intro}
 =====================
 
 *This section is non-normative.*
+
+The Local Peer-to-Peer API aims to give browsers the means to communicate directly, without the aid of a server in the middle. It is designed to enable this communication within the confines of a local medium, for example: the Local Area Network or a Wi-Fi Direct connection.
+
+Many modern Web security measures rely on the presence of naming, signaling and certificate authorities. Local use-cases where these authorities are not readily available have started lagging behind in user experience or are not supported altogether. The Local Peer-to-Peer API aims to bring back first-class support for local communication use-cases while working within the same strict user-friendliness, security and privacy requirements.
+
+Examples of potential uses of this API include: Collaboration tools that work during an internet outage or emergency situation, connecting to your NAS, your home security system, your robotic assistant doing the dishes or your GPU farm in the basement that's running your personalized virtual assistant.
+
+This specification aims to strike a balance between creating a powerful new building block for developers and providing a seamless, secure and privacy preserving experience for browser users. As an example: while the API doesn't provide raw socket access, it does aim to give developers the flexibility to innovate on top by providing a persistent, two-way communication channel with little overhead.
+
+The API is aimed to be implemented on top of a streams-based protocol such as [[!RFC9000|QUIC]]. This specification details an implementation on top of the 
+[Open Screen Protocol](https://w3c.github.io/openscreenprotocol/) as a reference.
