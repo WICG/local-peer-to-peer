@@ -187,6 +187,421 @@ The capabilities of the Local WebTransport session are defined in [[!webtranspor
 
 Note: The WebTransport-over-QUIC protocol is yet to be defined. Potentially considering earlier work such as [draft-vvv-webtransport-quic](https://datatracker.ietf.org/doc/html/draft-vvv-webtransport-quic-02).
 
+LP2PReceiver Interface {#lp2p-receiver}
+================================================
+
+<section algorithm="LP2PReceiver">
+
+The <dfn interface>LP2PReceiver</dfn> interface allows advertising on the local network, enabling other peers to connect.
+
+<pre class="idl">
+[Exposed=(Window,Worker), SecureContext]
+interface LP2PReceiver : EventTarget {
+  constructor(optional LP2PReceiverInit options = {});
+  attribute EventHandler onconnection;
+  Promise&lt;undefined&gt; start();
+};
+</pre>
+
+LP2PReceiverInit {#lp2p-receiver-init}
+---------------------------------
+
+<pre class="idl">
+[Exposed=(Window,Worker), SecureContext]
+dictionary LP2PReceiverInit {
+    DOMString nickname;
+};
+</pre>
+
+LP2PConnectionEvent {#lp2p-receiver-connection-event}
+----------------------------------------------------
+
+<pre class="idl">
+[Exposed=(Window,Worker), SecureContext]
+interface LP2PConnectionEvent {
+    readonly attribute LP2PConnection connection;
+};
+</pre>
+
+Examples {#lp2p-receiver-examples}
+---------------------------------
+
+Example: Setting up a receiver to listen for connections:
+
+
+<pre class='example' highlight='js'>
+const receiver = new LP2PReceiver({
+    nickname: "example-receiver",
+});
+receiver.onconnection = e => {
+    console.log("Connection established!");
+    const conn = e.connection;
+};
+
+// Blocks until permission is received.
+await receiver.start();
+</pre>
+
+Events {#lp2p-receiver-events}
+------------------------------
+
+The following event is dispatched on {{LP2PReceiver}} object:
+
+<table class="data">
+  <thead>
+    <tr>
+      <th>Event name</th>
+      <th>Interface</th>
+      <th>Dispatched when&mldr;</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><dfn event for="LP2PReceiver"><code>connection</code></dfn></td>
+      <td>{{LP2PConnectionEvent}}</td>
+      <td>When an incoming connection is received.</td>
+    </tr>
+  </tbody>
+</table>
+
+Event handlers {#lp2p-receiver-event-handlers}
+----------------------------------------------
+
+The following is the <a>event handler</a> (and its corresponding <a>event handler event type</a>) that *must* be supported by all objects implementing [[#lp2p-receiver|LP2PReceiver]] interface:
+
+<table class="data">
+  <thead>
+    <tr>
+      <th><a>event handler</a></th>
+      <th><a>event handler event type</a></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><dfn attribute for="LP2PReceiver"><code>onconnection</code></dfn></td>
+      <td>{{LP2PReceiver/connection}}</td>
+    </tr>
+  </tbody>
+</table>
+
+</section>
+
+<section algorithm="LP2PRequest">
+
+The LP2PRequest Interface {#lp2p-request}
+================================================
+
+The <dfn interface>LP2PRequest</dfn> interface represents a request for a connection to another local peer.
+
+<pre class="idl">
+[Exposed=(Window,Worker), SecureContext]
+interface LP2PRequest {
+    constructor(optional LP2PRequestInit options = {});
+    Promise&lt;LP2PConnection&gt; start();
+};
+</pre>
+
+LP2PRequestInit {#lp2p-request-init}
+---------------------------------
+
+<pre class="idl">
+[Exposed=(Window,Worker), SecureContext]
+dictionary LP2PRequestInit {
+    DOMString nickname;
+};
+</pre>
+
+Examples {#lp2p-request-examples}
+---------------------------------
+
+Example: Setting up a request for a connections:
+
+
+<pre class='example' highlight='js'>
+const request = new LP2PRequest({
+    nickname: "example-request",
+});
+
+// Blocks until connection is received.
+const conn = await request.start();
+console.log("Connection established!");
+</pre>
+
+</section>
+
+<section algorithm="LP2PConnection">
+
+The LP2PConnection Interface {#lp2p-connection}
+===============================================
+
+The <dfn interface>LP2PConnection</dfn> interface represents a connection with another local peer.
+
+<pre class="idl">
+[Exposed=(Window,Worker), SecureContext]
+interface LP2PConnection : EventTarget {
+};
+</pre>
+
+</section>
+
+<section algorithm="LP2PDataChannel">
+
+The LP2PDataChannel Interface {#lp2p-data-channel}
+==========================================
+
+The LP2PDataChannel interface represents a bi-directional data channel between two peers. An LP2PDataChannel is created via a [factory method](#lp2p-data-channel-extensions) on an LP2PConnection object.
+
+Note: The LP2PDataChannel interface is purposefully kept as close as possible to the [RTCDataChannel](https://www.w3.org/TR/webrtc/#rtcdatachannel) interface defined in [[!webrtc]]. The aim is to allow seamless transition of developers that are familiar with WebRTC as well as allowing libraries to easily work with both the [[!webrtc]] and LP2P API.
+
+<pre class="idl">
+[Exposed=(Window,Worker), SecureContext]
+interface LP2PDataChannel : EventTarget {
+  readonly attribute USVString label;
+  readonly attribute USVString protocol;
+  readonly attribute unsigned short? id;
+  attribute EventHandler onopen;
+  attribute EventHandler onerror;
+  attribute EventHandler onclosing;
+  attribute EventHandler onclose;
+  undefined close();
+  attribute EventHandler onmessage;
+  attribute BinaryType binaryType;
+  undefined send((USVString or Blob or ArrayBuffer or ArrayBufferView) data);
+};
+</pre>
+
+LP2PDataChannelInit {#lp2p-data-channel-init}
+----------------------------------------------
+
+<pre class="idl">
+[Exposed=(Window,Worker), SecureContext]
+dictionary LP2PDataChannelInit {
+  USVString protocol = "";
+  [EnforceRange] unsigned short id;
+};
+</pre>
+
+
+Events {#lp2p-data-channel-events}
+---------------------------------
+
+The following event is dispatched on {{LP2PDataChannel}} object:
+
+<table class="data">
+  <thead>
+    <tr>
+      <th>Event name</th>
+      <th>Interface</th>
+      <th>Dispatched when&mldr;</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><dfn event for="LP2PDataChannel"><code>open</code></dfn></td>
+      <td>{{Event}}</td>
+      <td>When the data channel is opened.</td>
+    </tr>
+    <tr>
+      <td><dfn event for="LP2PDataChannel"><code>message</code></dfn></td>
+      <td>{{MessageEvent}}[[html]]</td>
+      <td>When an incoming message is received.</td>
+    </tr>
+    <tr>
+      <td><dfn event for="LP2PDataChannel"><code>closing</code></dfn></td>
+      <td>{{Event}}</td>
+      <td>When the data channel is closing.</td>
+    </tr>
+    <tr>
+      <td><dfn event for="LP2PDataChannel"><code>close</code></dfn></td>
+      <td>{{Event}}</td>
+      <td>When the data channel is closed.</td>
+    </tr>
+  </tbody>
+</table>
+
+Data Channel Event handlers {#lp2p-data-channel-event-handlers}
+---------------------------------------------------------------
+
+The following is the <a>event handler</a> (and its corresponding <a>event handler event type</a>) that *must* be supported by all objects implementing [[#lp2p-connection|LP2PConnection]] interface:
+
+<table class="data">
+  <thead>
+    <tr>
+      <th><a>event handler</a></th>
+      <th><a>event handler event type</a></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><dfn attribute for="LP2PDataChannel"><code>onopen</code></dfn></td>
+      <td>{{LP2PDataChannel/open}}</td>
+    </tr>
+    <tr>
+      <td><dfn attribute for="LP2PDataChannel"><code>onmessage</code></dfn></td>
+      <td>{{LP2PDataChannel/message}}</td>
+    </tr>
+    <tr>
+      <td><dfn attribute for="LP2PDataChannel"><code>onclosing</code></dfn></td>
+      <td>{{LP2PDataChannel/closing}}</td>
+    </tr>
+    <tr>
+      <td><dfn attribute for="LP2PDataChannel"><code>onclose</code></dfn></td>
+      <td>{{LP2PDataChannel/close}}</td>
+    </tr>
+</table>
+
+LP2PConnection Interface Extensions {#lp2p-data-channel-extensions}
+-------------------------------------------------------------------
+
+<pre class="idl">
+[Exposed=(Window,Worker), SecureContext]
+partial interface LP2PConnection {
+  LP2PDataChannel createDataChannel(USVString label,
+                                   optional LP2PDataChannelInit dataChannelDict = {});
+  attribute EventHandler ondatachannel;
+};
+</pre>
+
+LP2PDataChannelEvent {#lp2p-data-channel-event}
+------------------------------------------------
+
+<pre class="idl">
+[Exposed=(Window,Worker), SecureContext]
+interface LP2PDataChannelEvent {
+  readonly attribute LP2PDataChannel channel;
+};
+</pre>
+
+Extensions Events {#lp2p-data-channel-extensions-events}
+------------------------------
+
+The following event is dispatched on {{LP2PConnection}} object:
+
+<table class="data">
+  <thead>
+    <tr>
+      <th>Event name</th>
+      <th>Interface</th>
+      <th>Dispatched when&mldr;</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><dfn event for="LP2PConnection"><code>datachannel</code></dfn></td>
+      <td>{{LP2PDataChannelEvent}}</td>
+      <td>When an incoming connection is received.</td>
+    </tr>
+  </tbody>
+</table>
+
+Extensions Event handlers {#lp2p-data-channel-extensions-event-handlers}
+------------------------------------------------------------------------
+
+The following is the <a>event handler</a> (and its corresponding <a>event handler event type</a>) that *must* be supported by all objects implementing {{LP2PConnection}} interface:
+
+<table class="data">
+  <thead>
+    <tr>
+      <th><a>event handler</a></th>
+      <th><a>event handler event type</a></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><dfn attribute for="LP2PConnection"><code>ondatachannel</code></dfn></td>
+      <td>{{LP2PConnection/datachannel}}</td>
+    </tr>
+  </tbody>
+</table>
+
+</section>
+
+<section algorithm="LP2PQuicTransport">
+
+The LP2PQuicTransport Interface {#lp2p-quic-transport}
+======================================================
+
+<pre class="idl">
+[Exposed=(Window,Worker), SecureContext]
+interface LP2PQuicTransport : WebTransport {
+  constructor(LP2PConnection transport);
+  Promise&lt;undefined&gt; start();
+};
+</pre>
+
+Examples {#lp2p-quic-transport-examples}
+----------------------------------------
+
+Example: Setting up a request for a connections:
+
+
+<pre class='example' highlight='js'>
+const request = new LP2PRequest({
+    nickname: "example-request",
+});
+
+const conn = await request.start();
+
+const transport = new LP2PQuicTransport(conn);
+
+// Blocks until transport is opened.
+await transport.start();
+</pre>
+
+Refer to the [WebTransport examples](https://www.w3.org/TR/webtransport/#examples) for usage of a [[!webtransport]] object.
+
+</section>
+
+Examples {#examples}
+====================
+
+Data Channel Communication {#examples-data-channel}
+---------------------------------------------------
+
+<pre class='example' highlight='js'>
+// Peer A
+const receiver = new LP2PReceiver({
+    nickname: "Peer A",
+});
+
+receiver.onconnection = e => {
+    const conn = e.connection;
+    console.log("Receiver: Got a connection!");
+
+    conn.ondatachannel = e => {
+        const channel = e.channel;
+
+        channel.onmessage = e => {
+            const message = e.message;
+            console.log(\`Receiver: Received message: ${message}\`);
+        };
+
+        channel.send("Good day to you, requester!");
+    };
+};
+
+receiver.start();
+
+// Peer B
+const request = new LP2PRequest({
+    nickname: "Peer B",
+});
+
+const conn = await request.start();
+console.log("Requester: Got a connection!");
+
+const channel = conn.createDataChannel("My Channel");
+
+channel.onopen = e => {
+    channel.onmessage = e => {
+        const message = e.data;
+        console.log(\`Requester: Received message: ${message}\`);
+    };
+
+    channel.send("Good day to you, receiver!");
+};
+</pre>
+
 Appendix A: OSP Extension Messages {#appendix-a}
 ================================================
 
