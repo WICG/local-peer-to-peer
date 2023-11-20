@@ -31,3 +31,165 @@ Examples of potential uses of this API include: Collaboration tools that work du
 This specification aims to strike a balance between creating a powerful new building block for developers and providing a seamless, secure and privacy preserving experience for browser users. As an example: while the API doesn't provide raw socket access, it does aim to give developers the flexibility to innovate on top by providing a persistent, two-way communication channel with little overhead.
 
 The API is designed to be backed by an authenticated, streams-based transport. As a commitment to an open standards-based implementation path, this specification describes how the API can be implemented on top of the [Open Screen Protocol](https://w3c.github.io/openscreenprotocol/). While not described here, the API is expected to be implementable on top of other transports when technically feasible.
+
+Peer Management {#peer-management}
+==================================
+The user agent is in charge of managing peers. It takes care of both discovering and establishing connections with peers as well as granting access to peers on a per-origin basis. This is done to avoid exposing information about a users local network topology.
+
+Known peers {#known-peers}
+--------------------------
+The user agent should maintain a list of peers that it has knowledge of. For each peer, the user ugent must keep track of its [authentication](#peer-authentication) state and [peer grants](#peer-grant) per origin.
+
+The user-agent may persist known peers, their authentication state and/or peer grants. If it chooses to do so, it must do so in accordance with the [[!openscreenprotocol|OpenScreen Protocol]] Persistent State rules.
+
+Peer advertisement {#peer-advertisement}
+----------------------------------------
+The user agent can make itself discoverable by advertising using the [=session/advertise agent=] capability. The user agent must prompt explicit consent of the user in order to start advertising.
+
+When advertising, the user agent must listen for incoming peer connections. In case a connection is received, the peer is added to the known peer list. The user agent must not directly provide access to the incoming peer connection to any origin. Instead, the user agent must prompt to [grant peer](#peer-grant) access to the origin that initiated peer advertisement.
+
+Peer discovery {#peer-discovery}
+--------------------------------
+If it is not already doing so, the user agent can discover local peers using the [=session/discover agents=] capability.
+
+If a peer is discovered, the user agent should add it to the known peer list. The user agent must never expose the full result of peer discovery with an origin. Instead, the user agent must prompt to [grant peer](#peer-grant) access to the origin that initiated the peer request.
+
+Peer authentication {#peer-authentication}
+------------------------------------------
+The user agent can initiate authentication with a peer using the [=session/authenticate an agent=] capability. If successfully completed, its [authentication](#peer-authentication) state is set to authenticated.
+
+Peer grant {#peer-grant}
+------------------------------------
+In case an origin requests access to a peer, the user agent displays the set of [known peers](#known-peers) to the user through its native UI. When the user makes a selection, the user agent must ensure the peer is [authenticated](#peer-authentication). Only then can the user agent grant access to the peer to the origin that requested it. The user agent must prompt explicit consent of the user in order to grant an origin access to a peer.
+
+Protocol concepts {#protocol-concepts}
+======================================
+
+A <dfn for="protocol">Local Peer-to-Peer session</dfn> represents an authenticated [[!RFC9000|QUIC]] connection as defined in [[!openscreenprotocol|OpenScreen Protocol]] or OSP.
+
+A [=Local Peer-to-Peer session=] has the following capabilities:
+
+<table class="data" dfn-for="session">
+ <thead>
+  <tr>
+   <th>capability
+   <th>definition
+  </tr>
+ </thead>
+ <tbody>
+  <tr>
+   <td><dfn>advertise agent</dfn>
+   <td>[[!openscreenprotocol]]
+   [discovery](https://www.w3.org/TR/openscreenprotocol/#discovery)
+  </tr>
+  <tr>
+   <td><dfn>discover agents</dfn>
+   <td>[[!openscreenprotocol]]
+   [discovery](https://www.w3.org/TR/openscreenprotocol/#discovery)
+  </tr>
+  <tr>
+   <td><dfn>discover metadata</dfn>
+   <td>[[!openscreenprotocol]]
+   [transport](https://www.w3.org/TR/openscreenprotocol/#transport)
+  </tr>
+  <tr>
+   <td><dfn>authenticate an agent</dfn>
+   <td>[[!openscreenprotocol]]
+   [authentication](https://www.w3.org/TR/openscreenprotocol/#authentication)
+  </tr>
+  <tr>
+   <td>[=open a data channel=]
+   <td>[[#data-channel-extension]]
+  </tr>
+  <tr>
+   <td>[=send data on a channel=]
+   <td>[[#data-channel-extension]]
+  </tr>
+  <tr>
+   <td>[=open a WebTransport session=]
+   <td>[[#webtransport-extension]]
+  </tr>
+ </tbody>
+</table>
+
+Part of these capabilities are defined below as [protocol extensions](https://www.w3.org/TR/openscreenprotocol/#protocol-extensions) to the [[!openscreenprotocol|OpenScreen Protocol]].
+
+Data channel extension {#data-channel-extension}
+------------------------------------------------
+
+To <dfn>open a data channel</dfn> an agent may send a [=data-channel-open-request=] message on a new [[!RFC9000|QUIC]] stream. The [=Local Peer-to-Peer session=] must be authenticated. The message must contain the following values:
+
+: channel-id
+:: An ID number (between 0 and 65,534) which uniquely identifies the data channel.  Must not be empty.
+
+: label
+:: a string that contains a name describing the data channel. These labels are not required to be unique.
+
+: protocol
+:: a string containing the name of the subprotocol in use. If no protocol was specified when the data channel was created, then this property's value is the empty string ("").
+
+When the receiver receives the [=data-channel-open-request=], it should send back a [=data-channel-open-response=] message. The response must include the following:
+
+: result
+:: a code indicating success or failure, and the reason for the failure.
+
+If the [=data-channel-open-response=] message indicates success, the data channel is considered open. Agents can now <dfn>send data on a channel</dfn> by sending [=data-frame=] messages on the same [[!RFC9000|QUIC]] stream the data channel was opened. The message must include the following:
+
+: encoding-id
+:: Determines the encoding of the data being sent. The values are specified as [=data-channel-encoding-id=]:
+   0: Blob;
+   1: String;
+   2: ArrayBuffer.
+
+: payload
+:: The binary representation of the data being sent.
+
+WebTransport extension {#webtransport-extension}
+------------------------------------------------
+
+The protocol extension to [=send data=] provides an ergonomic way to send simple messages. An agent can [=open a WebTransport session=] for communication that requires low overhead and more granular steams control.
+
+An agent can <dfn>open a WebTransport session</dfn> by dialing a new [[!RFC9000|QUIC]] connection using the agent certificates established during [=authenticate an agent=]. During connection establishment, the ALPN token "q2q" must be used in the TLS handshake.
+
+The capabilities of the <dfn for="protocol">Local WebTransport session</dfn> are defined in [[!webtransport]].
+
+Note: The WebTransport-over-QUIC protocol is yet to be defined. Potentially considering earlier work such as [draft-vvv-webtransport-quic](https://datatracker.ietf.org/doc/html/draft-vvv-webtransport-quic-02).
+
+Appendix A: OSP Extension Messages {#appendix-a}
+================================================
+
+The following messages are defined according to and as an extension to the [[!openscreenprotocol|OpenScreen Protocol]] [Messages](https://www.w3.org/TR/openscreenprotocol/#appendix-a).
+
+Note: The type keys and capability IDs for these extensions are not officially registered yet. They will be registered as this specification matures. 
+
+<pre class="data" highlight='cddl'>
+<dfn>agent-capability</dfn> = &(
+  <dfn>data-channels</dfn>: 11OO
+)
+
+<dfn>data-channel-encoding-id</dfn> = &(
+  <dfn>encoding-id-blob</dfn>: 0
+  <dfn>encoding-id-string</dfn>: 1
+  <dfn>encoding-id-array-buffer</dfn>: 2
+)
+
+; type key 24
+<dfn>data-frame</dfn> = {
+  0: data-channel-encoding-id ; encoding-id
+  4: bytes ; payload
+}
+
+; type key 1101
+<dfn>data-channel-open-request</dfn> = {
+  request
+	1: uint ; channel-id
+	2: text ; label
+	3: text ; protocol
+}
+
+; type key 1102
+<dfn>data-channel-open-response</dfn> = {
+  response
+  1: &result ; result
+}
+</pre>
