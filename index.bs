@@ -117,6 +117,8 @@ Part of these capabilities are defined below as [protocol extensions](https://ww
 Data channel extension {#data-channel-extension}
 ------------------------------------------------
 
+In order to signal support for this protocol extension, the agent should include the [=data-channels=] [=agent-capability=] as part of the [agent-info-response](https://www.w3.org/TR/openscreenprotocol/#agent-info-response) message exchanged during [=discover metadata=].
+
 To <dfn>open a data channel</dfn> an agent may send a [=data-channel-open-request=] message on a new [[!RFC9000|QUIC]] stream. The [=Local Peer-to-Peer session=] must be authenticated. The message must contain the following values:
 
 : channel-id
@@ -137,9 +139,9 @@ If the [=data-channel-open-response=] message indicates success, the data channe
 
 : encoding-id
 :: Determines the encoding of the data being sent. The values are specified as [=data-channel-encoding-id=]:
-    0: Blob;
-    1: String;
-    2: ArrayBuffer.
+    0: [=encoding-id-blob|Blob=];
+    1: [=encoding-id-string|String=];
+    2: [=encoding-id-array-buffer|ArrayBuffer=].
 
 : payload
 :: The binary representation of the data being sent.
@@ -147,11 +149,13 @@ If the [=data-channel-open-response=] message indicates success, the data channe
 WebTransport extension {#webtransport-extension}
 ------------------------------------------------
 
-The protocol extension to [=send data=] provides an ergonomic way to send simple messages. An agent can [=open a WebTransport session=] for communication that requires low overhead and more granular steams control.
+The protocol extension to [=send data on a channel=] provides an ergonomic way to send simple messages. An agent can [=open a WebTransport session=] for communication that requires low overhead and more granular steams control.
+
+In order to signal support for this protocol extension, the agent should include the [=quick-transport=] [=agent-capability=] as part of the [agent-info-response](https://www.w3.org/TR/openscreenprotocol/#agent-info-response) message exchanged during [=discover metadata=].
 
 An agent can <dfn>open a WebTransport session</dfn> by dialing a new [[!RFC9000|QUIC]] connection using the agent certificates established during [=authenticate an agent=]. During connection establishment, the ALPN token "q2q" must be used in the TLS handshake.
 
-The capabilities of the <dfn for="protocol">Local WebTransport session</dfn> are defined in [[!webtransport]].
+The capabilities of the Local WebTransport session are defined in [[!webtransport]].
 
 Note: The WebTransport-over-QUIC protocol is yet to be defined. Potentially considering earlier work such as [draft-vvv-webtransport-quic](https://datatracker.ietf.org/doc/html/draft-vvv-webtransport-quic-02).
 
@@ -165,6 +169,7 @@ Note: The type keys and capability IDs for these extensions are not officially r
 <pre class="data" highlight='cddl'>
 <dfn>agent-capability</dfn> = &(
   <dfn>data-channels</dfn>: 11OO
+  <dfn>quick-transport</dfn>: 12OO
 )
 
 <dfn>data-channel-encoding-id</dfn> = &(
@@ -182,9 +187,9 @@ Note: The type keys and capability IDs for these extensions are not officially r
 ; type key 1101
 <dfn>data-channel-open-request</dfn> = {
   request
-	1: uint ; channel-id
-	2: text ; label
-	3: text ; protocol
+  1: uint ; channel-id
+  2: text ; label
+  3: text ; protocol
 }
 
 ; type key 1102
