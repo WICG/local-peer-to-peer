@@ -137,9 +137,9 @@ If the [=data-channel-open-response=] message indicates success, the data channe
 
 : encoding-id
 :: Determines the encoding of the data being sent. The values are specified as [=data-channel-encoding-id=]:
-   0: Blob;
-   1: String;
-   2: ArrayBuffer.
+    0: Blob;
+    1: String;
+    2: ArrayBuffer.
 
 : payload
 :: The binary representation of the data being sent.
