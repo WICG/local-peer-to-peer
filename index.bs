@@ -197,18 +197,18 @@ The <dfn interface>LP2PReceiver</dfn> interface allows advertising on the local 
 <pre class="idl">
 [Exposed=(Window,Worker), SecureContext]
 interface LP2PReceiver : EventTarget {
-  constructor(optional LP2PReceiverInit options = {});
+  constructor(optional LP2PReceiverOptions options = {});
   attribute EventHandler onconnection;
   Promise&lt;undefined&gt; start();
 };
 </pre>
 
-LP2PReceiverInit {#lp2p-receiver-init}
+LP2PReceiverOptions {#lp2p-receiver-options}
 ---------------------------------
 
 <pre class="idl">
 [Exposed=(Window,Worker), SecureContext]
-dictionary LP2PReceiverInit {
+dictionary LP2PReceiverOptions {
     DOMString nickname;
 };
 </pre>
@@ -216,10 +216,17 @@ dictionary LP2PReceiverInit {
 LP2PConnectionEvent {#lp2p-receiver-connection-event}
 ----------------------------------------------------
 
+Issue: In general, when defining a new interface that inherits from Event please always ask feedback from the WHATWG or the W3C WebApps WG community. See [defining event interfaces](https://dom.spec.whatwg.org/#defining-event-interfaces).
+
 <pre class="idl">
 [Exposed=(Window,Worker), SecureContext]
-interface LP2PConnectionEvent {
+interface LP2PConnectionEvent : Event {
+    constructor(DOMString type, LP2PConnectionEventInit connectionEventInitDict);
     readonly attribute LP2PConnection connection;
+};
+
+dictionary LP2PConnectionEventInit : EventInit {
+    required LP2PConnection connection;
 };
 </pre>
 
@@ -245,21 +252,21 @@ await receiver.start();
 Events {#lp2p-receiver-events}
 ------------------------------
 
-The following event is dispatched on {{LP2PReceiver}} object:
+The following event is [=fire an event|fired=] at the {{LP2PReceiver}} object:
 
 <table class="data">
   <thead>
     <tr>
       <th>Event name</th>
       <th>Interface</th>
-      <th>Dispatched when&mldr;</th>
+      <th>Fired when&mldr;</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td><dfn event for="LP2PReceiver"><code>connection</code></dfn></td>
       <td>{{LP2PConnectionEvent}}</td>
-      <td>When an incoming connection is received.</td>
+      <td>An incoming connection is received.</td>
     </tr>
   </tbody>
 </table>
@@ -267,7 +274,7 @@ The following event is dispatched on {{LP2PReceiver}} object:
 Event handlers {#lp2p-receiver-event-handlers}
 ----------------------------------------------
 
-The following is the <a>event handler</a> (and its corresponding <a>event handler event type</a>) that *must* be supported by all objects implementing [[#lp2p-receiver|LP2PReceiver]] interface:
+The following are the <a>event handlers</a> (and their corresponding <a>event handler event types</a>) that must be supported, as <a>event handler IDL attributes</a>, by all objects implementing the [[#lp2p-receiver|LP2PReceiver]] interface:
 
 <table class="data">
   <thead>
@@ -296,17 +303,17 @@ The <dfn interface>LP2PRequest</dfn> interface represents a request for a connec
 <pre class="idl">
 [Exposed=(Window,Worker), SecureContext]
 interface LP2PRequest {
-    constructor(optional LP2PRequestInit options = {});
+    constructor(optional LP2PRequestOptions options = {});
     Promise&lt;LP2PConnection&gt; start();
 };
 </pre>
 
-LP2PRequestInit {#lp2p-request-init}
+LP2PRequestOptions {#lp2p-request-options}
 ---------------------------------
 
 <pre class="idl">
 [Exposed=(Window,Worker), SecureContext]
-dictionary LP2PRequestInit {
+dictionary LP2PRequestOptions {
     DOMString nickname;
 };
 </pre>
@@ -385,36 +392,41 @@ dictionary LP2PDataChannelInit {
 Events {#lp2p-data-channel-events}
 ---------------------------------
 
-The following event is dispatched on {{LP2PDataChannel}} object:
+The following event is [=fire an event|fired=] at the {{LP2PDataChannel}} object:
 
 <table class="data">
   <thead>
     <tr>
       <th>Event name</th>
       <th>Interface</th>
-      <th>Dispatched when&mldr;</th>
+      <th>Fired when&mldr;</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td><dfn event for="LP2PDataChannel"><code>open</code></dfn></td>
       <td>{{Event}}</td>
-      <td>When the data channel is opened.</td>
+      <td>The data channel is opened.</td>
     </tr>
     <tr>
       <td><dfn event for="LP2PDataChannel"><code>message</code></dfn></td>
       <td>{{MessageEvent}}[[html]]</td>
-      <td>When an incoming message is received.</td>
+      <td>An incoming message is received.</td>
+    </tr>
+    <tr>
+      <td><dfn event for="LP2PDataChannel"><code>error</code></dfn></td>
+      <td>{{Event}}</td>
+      <td>An error occurred.</td>
     </tr>
     <tr>
       <td><dfn event for="LP2PDataChannel"><code>closing</code></dfn></td>
       <td>{{Event}}</td>
-      <td>When the data channel is closing.</td>
+      <td>The data channel is closing.</td>
     </tr>
     <tr>
       <td><dfn event for="LP2PDataChannel"><code>close</code></dfn></td>
       <td>{{Event}}</td>
-      <td>When the data channel is closed.</td>
+      <td>The data channel is closed.</td>
     </tr>
   </tbody>
 </table>
@@ -422,7 +434,7 @@ The following event is dispatched on {{LP2PDataChannel}} object:
 Data Channel Event handlers {#lp2p-data-channel-event-handlers}
 ---------------------------------------------------------------
 
-The following is the <a>event handler</a> (and its corresponding <a>event handler event type</a>) that *must* be supported by all objects implementing [[#lp2p-connection|LP2PConnection]] interface:
+The following are the <a>event handlers</a> (and their corresponding <a>event handler event types</a>) that must be supported, as <a>event handler IDL attributes</a>, by all objects implementing the [[#lp2p-connection|LP2PConnection]] interface:
 
 <table class="data">
   <thead>
@@ -439,6 +451,10 @@ The following is the <a>event handler</a> (and its corresponding <a>event handle
     <tr>
       <td><dfn attribute for="LP2PDataChannel"><code>onmessage</code></dfn></td>
       <td>{{LP2PDataChannel/message}}</td>
+    </tr>
+    <tr>
+      <td><dfn attribute for="LP2PDataChannel"><code>onerror</code></dfn></td>
+      <td>{{LP2PDataChannel/error}}</td>
     </tr>
     <tr>
       <td><dfn attribute for="LP2PDataChannel"><code>onclosing</code></dfn></td>
@@ -475,21 +491,21 @@ interface LP2PDataChannelEvent {
 Extensions Events {#lp2p-data-channel-extensions-events}
 ------------------------------
 
-The following event is dispatched on {{LP2PConnection}} object:
+The following event is [=fire an event|fired=] at the {{LP2PConnection}} object:
 
 <table class="data">
   <thead>
     <tr>
       <th>Event name</th>
       <th>Interface</th>
-      <th>Dispatched when&mldr;</th>
+      <th>Fired when&mldr;</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td><dfn event for="LP2PConnection"><code>datachannel</code></dfn></td>
       <td>{{LP2PDataChannelEvent}}</td>
-      <td>When an incoming connection is received.</td>
+      <td>An incoming connection is received.</td>
     </tr>
   </tbody>
 </table>
@@ -497,7 +513,7 @@ The following event is dispatched on {{LP2PConnection}} object:
 Extensions Event handlers {#lp2p-data-channel-extensions-event-handlers}
 ------------------------------------------------------------------------
 
-The following is the <a>event handler</a> (and its corresponding <a>event handler event type</a>) that *must* be supported by all objects implementing {{LP2PConnection}} interface:
+The following are the <a>event handlers</a> (and their corresponding <a>event handler event types</a>) that must be supported, as <a>event handler IDL attributes</a>, by all objects implementing the {{LP2PConnection}} interface:
 
 <table class="data">
   <thead>
