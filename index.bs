@@ -34,38 +34,66 @@ The API is designed to be backed by an authenticated, streams-based transport. A
 
 Peer Management {#peer-management}
 ==================================
-The user agent is in charge of managing peers. It takes care of both discovering and establishing connections with peers as well as granting access to peers on a per-origin basis. This is done to avoid exposing information about a users local network topology.
+
+Note: This section and its subsections use RFC 2119 terminology in a relaxed manner. These sections will be converted into well-defined algorithmic normative prose informed by further implementation experience. For now, this relaxed description better allows for rapid prototyping.
+
+The user agent is in charge of managing peers.
+
+A <dfn>peer</dfn> is an equal participants in the network that forms a peer-to-peer network of nodes. These nodes can communicate without the need for a central coordination by a server.
+
+A user agent has an associated <dfn>local peer-to-peer manager</dfn> in charge of managing [=peers=]. Its responsibility is to [=start local peer discovery=], [=establish local peer connections=] and [=acquire a local peer grant=] on a per-origin basis. This is done to avoid exposing information about a user's local network topology.
 
 Known peers {#known-peers}
 --------------------------
-The user agent should maintain a list of peers that it has knowledge of. For each peer, the user ugent must keep track of its [authentication](#peer-authentication) state and [peer grants](#peer-grant) per origin.
 
-The user-agent may persist known peers, their authentication state and/or peer grants. If it chooses to do so, it must do so in accordance with the [[!openscreenprotocol|OpenScreen Protocol]] Persistent State rules.
+The user agent should maintain a list of peers that it has knowledge of.
+
+The [=local peer-to-peer manager=] has an associated <dfn>known peers map</dfn>, an [=/ordered map=] of [=known peers=]. Each <dfn>known peer</dfn> is a [=peer=] that has an associated <dfn>authentication state</dfn> and <dfn>peer grant state</dfn>. The user agent keeps track of these states per origin. Unless [=persisted=], both the states are initially false.
+
+The user agent may persist known peers, their authentication state and/or peer grant states. If the user agent chooses to do so, it must do so in accordance with the [[!openscreenprotocol|OpenScreen Protocol]] Persistent State rules. Such a peer or its state is said to be <dfn>persisted</dfn>.
 
 Peer advertisement {#peer-advertisement}
 ----------------------------------------
-The user agent can make itself discoverable by advertising using the [=session/advertise agent=] capability. The user agent must prompt explicit consent of the user in order to start advertising.
+
+The user agent can make itself discoverable by advertising using the [=session/advertise agent=] capability.
+
+Note: The user agent must get the user's explicit consent in order to start advertising.
 
 When advertising, the user agent must listen for incoming peer connections. In case a connection is received, the peer is added to the known peer list. The user agent must not directly provide access to the incoming peer connection to any origin. Instead, the user agent must prompt to [grant peer](#peer-grant) access to the origin that initiated peer advertisement.
 
 Peer discovery {#peer-discovery}
 --------------------------------
-If it is not already doing so, the user agent can discover local peers using the [=session/discover agents=] capability.
 
-If a peer is discovered, the user agent should add it to the known peer list. The user agent must never expose the full result of peer discovery with an origin. Instead, the user agent must prompt to [grant peer](#peer-grant) access to the origin that initiated the peer request.
+The user agent can discover local peers using the [=session/discover agents=] capability.
+
+When asked to <dfn>start local peer discovery</dfn>, the user agent discovers local peers using the [=session/discover agents=] capability.
+
+If a peer is discovered, the user agent should add it to the [=known peers map=]. The user agent must never expose the full result of peer discovery with an origin. Instead, the user agent must [=acquire a local peer grant=] to grant access to a peer to the origin that initiated the peer request.
 
 Peer authentication {#peer-authentication}
 ------------------------------------------
-The user agent can initiate authentication with a peer using the [=session/authenticate an agent=] capability. If successfully completed, its [authentication](#peer-authentication) state is set to authenticated.
+
+The user agent can initiate authentication with a peer using the [=session/authenticate an agent=] capability.
+
+When asked to <dfn>authenticate a local peer</dfn>, the user agent must initiate authentication with a local peer using the [=session/authenticate an agent=] capability. The peer's [=authentication state=] must be set to true if authentication succeeds, otherwise false.
+
+A peer is said to be <dfn>authenticated</dfn> when its [=authentication state=] is true.
 
 Peer grant {#peer-grant}
 ------------------------------------
-In case an origin requests access to a peer, the user agent displays the set of [known peers](#known-peers) to the user through its native UI. When the user makes a selection, the user agent must ensure the peer is [authenticated](#peer-authentication). Only then can the user agent grant access to the peer to the origin that requested it. The user agent must prompt explicit consent of the user in order to grant an origin access to a peer.
+
+The user agent, with the user's consent, must [=acquire a local peer grant=] for an origin to get access to a peer.
+
+Note: The user agent must get the user's explicit consent in order to grant an origin access to a peer. For enhanced privacy protection, the user agent must provide means to dismiss any related user interface and this action must not be detectable by script or have script-observable side-effects. The user interface may provide means to revoke the grant or to make the grant [=persisted=].
+
+When asked to <dfn>acquire a local peer grant</dfn>, the user agent displays the [=known peers=] to the user through its native user interface. When the user selects a peer from the user interface, the user agent must check the selected peer is [=authenticated=], and run the [=authenticate a local peer=] algorithm otherwise, and set the [=peer grant state=] according to the user's explicit selection.
 
 Protocol concepts {#protocol-concepts}
 ======================================
 
-A <dfn for="protocol">Local Peer-to-Peer session</dfn> represents an authenticated [[!RFC9000|QUIC]] connection as defined in [[!openscreenprotocol|OpenScreen Protocol]] or OSP.
+When asked to <dfn>establish local peer connection</dfn>, the user agent ...
+
+A <dfn for="protocol">Local Peer-to-Peer session</dfn> represents an authenticated [[!RFC9000|QUIC]] connection as defined in [[!openscreenprotocol|Open Screen Protocol]] or OSP.
 
 A [=Local Peer-to-Peer session=] has the following capabilities:
 
@@ -149,7 +177,7 @@ If the [=data-channel-open-response=] message indicates success, the data channe
 WebTransport extension {#webtransport-extension}
 ------------------------------------------------
 
-The protocol extension to [=send data on a channel=] provides an ergonomic way to send simple messages. An agent can [=open a WebTransport session=] for communication that requires low overhead and more granular steams control.
+The protocol extension to [=send data on a channel=] provides an ergonomic way to send simple messages. An agent can [=open a WebTransport session=] for communication that requires low overhead and more granular streams control.
 
 In order to signal support for this protocol extension, the agent should include the [=quick-transport=] [=agent-capability=] as part of the [agent-info-response](https://www.w3.org/TR/openscreenprotocol/#agent-info-response) message exchanged during [=discover metadata=].
 
