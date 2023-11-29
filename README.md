@@ -3,10 +3,12 @@
 [Local Peer-to-Peer](https://WICG.github.io/local-peer-to-peer/) is a Web platform API proposal for local communication between browsers without the aid of a server.
 
 ```js
-let peers = await navigator.lp2p.findPeers();
-let peer = peers[0];
-await peer.connect();
-await peer.send("Hello there!");
+const conn = await new LP2PRequest(options).start();
+const channel = conn.createDataChannel("chat");
+
+channel.onopen = (event) => {
+  channel.send("Hi you!");
+};
 ```
 
 For a more in-dept overview of the proposal, please see the [Explainer](EXPLAINER.md).
