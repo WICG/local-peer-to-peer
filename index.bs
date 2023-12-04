@@ -49,9 +49,10 @@ Known peers {#known-peers}
 The user agent should maintain a list of peers that it has knowledge of.
 
 The [=local peer-to-peer manager=] has an associated <dfn>known peers map</dfn>, an [=/ordered map=] of [=known peers=]. Each <dfn>known peer</dfn> is a [=peer=] that has an associated <dfn>authentication state</dfn> and <dfn>peer grant state</dfn>. The user agent keeps track of the [=authentication state=] per peer and the [=peer grant state=] per peer, per origin. Unless [=persisted=], both the states are initially false.
+
 Note: The [=peer grant state=] is origin-level while the [=authentication state=] is peer-level. The rationale is to not require the user to undergo authentication multiple times between the same peers. This design may change informed by security and privacy considerations.
 
-Issue(wicg/local-peer-to-peer#15): See also related
+Issue(wicg/local-peer-to-peer#24): See also related
 
 The user agent may persist known peers, their authentication state and/or peer grant states. If the user agent chooses to do so, it must do so in accordance with the [[!openscreenprotocol|OpenScreen Protocol]] Persistent State rules. Such a peer or its state is said to be <dfn>persisted</dfn>.
 
