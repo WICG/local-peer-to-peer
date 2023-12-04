@@ -6,7 +6,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version 82ce88815, updated Thu Sep 7 16:33:55 2023 -0700" name="generator">
   <link href="https://WICG.github.io/local-peer-to-peer/" rel="canonical">
-  <meta content="b110af2bc1842093c40e9c68ecdbc1d738a3c2c8" name="document-revision">
+  <meta content="05868742405139ed7e683dcd52a0ad0c3a8d4d9b" name="document-revision">
 <style>/* Boilerplate: style-autolinks */
 .css.css, .property.property, .descriptor.descriptor {
     color: var(--a-normal-text);
@@ -328,6 +328,112 @@ figcaption:not(.no-marker)::before {
     content: "Figure " counter(figure) " ";
 }
 </style>
+<style>/* Boilerplate: style-dfn-panel */
+:root {
+    --dfnpanel-bg: #ddd;
+    --dfnpanel-text: var(--text);
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --dfnpanel-bg: #222;
+        --dfnpanel-text: var(--text);
+    }
+}
+.dfn-panel {
+    position: absolute;
+    z-index: 35;
+    width: 20em;
+    width: 300px;
+    height: auto;
+    max-height: 500px;
+    overflow: auto;
+    padding: 0.5em 0.75em;
+    font: small Helvetica Neue, sans-serif, Droid Sans Fallback;
+    background: var(--dfnpanel-bg);
+    color: var(--dfnpanel-text);
+    border: outset 0.2em;
+    white-space: normal; /* in case it's moved into a pre */
+}
+.dfn-panel:not(.on) { display: none; }
+.dfn-panel * { margin: 0; padding: 0; text-indent: 0; }
+.dfn-panel > b { display: block; }
+.dfn-panel a { color: var(--dfnpanel-text); }
+.dfn-panel a:not(:hover) { text-decoration: none !important; border-bottom: none !important; }
+.dfn-panel > b + b { margin-top: 0.25em; }
+.dfn-panel ul { padding: 0 0 0 1em; list-style: none; }
+.dfn-panel li a {
+    white-space: pre;
+    display: inline-block;
+    max-width: calc(300px - 1.5em - 1em);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dfn-panel.activated {
+    display: inline-block;
+    position: fixed;
+    left: .5em;
+    bottom: 2em;
+    margin: 0 auto;
+    max-width: calc(100vw - 1.5em - .4em - .5em);
+    max-height: 30vh;
+}
+
+.dfn-paneled[role="button"] { cursor: pointer; }
+</style>
+<style>/* Boilerplate: style-dfn-panel */
+:root {
+    --dfnpanel-bg: #ddd;
+    --dfnpanel-text: var(--text);
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --dfnpanel-bg: #222;
+        --dfnpanel-text: var(--text);
+    }
+}
+.dfn-panel {
+    position: absolute;
+    z-index: 35;
+    width: 20em;
+    width: 300px;
+    height: auto;
+    max-height: 500px;
+    overflow: auto;
+    padding: 0.5em 0.75em;
+    font: small Helvetica Neue, sans-serif, Droid Sans Fallback;
+    background: var(--dfnpanel-bg);
+    color: var(--dfnpanel-text);
+    border: outset 0.2em;
+    white-space: normal; /* in case it's moved into a pre */
+}
+.dfn-panel:not(.on) { display: none; }
+.dfn-panel * { margin: 0; padding: 0; text-indent: 0; }
+.dfn-panel > b { display: block; }
+.dfn-panel a { color: var(--dfnpanel-text); }
+.dfn-panel a:not(:hover) { text-decoration: none !important; border-bottom: none !important; }
+.dfn-panel > b + b { margin-top: 0.25em; }
+.dfn-panel ul { padding: 0 0 0 1em; list-style: none; }
+.dfn-panel li a {
+    white-space: pre;
+    display: inline-block;
+    max-width: calc(300px - 1.5em - 1em);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dfn-panel.activated {
+    display: inline-block;
+    position: fixed;
+    left: .5em;
+    bottom: 2em;
+    margin: 0 auto;
+    max-width: calc(100vw - 1.5em - .4em - .5em);
+    max-height: 30vh;
+}
+
+.dfn-paneled[role="button"] { cursor: pointer; }
+</style>
 <style>/* Boilerplate: style-issues */
 a[href].issue-return {
     float: right;
@@ -407,17 +513,148 @@ a.self-link::before            { content: "¶"; }
 .heading > a.self-link::before { content: "§"; }
 dfn > a.self-link::before      { content: "#"; }
 </style>
+<style>/* Boilerplate: style-syntax-highlighting */
+
+            pre.idl.highlight {
+                background: var(--borderedblock-bg, var(--def-bg));
+            }
+            
+</style>
+<style>/* Boilerplate: style-syntax-highlighting */
+
+code.highlight { padding: .1em; border-radius: .3em; }
+pre.highlight, pre > code.highlight { display: block; padding: 1em; margin: .5em 0; overflow: auto; border-radius: 0; }
+
+.highlight:not(.idl) { background: rgba(0, 0, 0, .03); }
+c-[a] { color: #990055 } /* Keyword.Declaration */
+c-[b] { color: #990055 } /* Keyword.Type */
+c-[c] { color: #708090 } /* Comment */
+c-[d] { color: #708090 } /* Comment.Multiline */
+c-[e] { color: #0077aa } /* Name.Attribute */
+c-[f] { color: #669900 } /* Name.Tag */
+c-[g] { color: #222222 } /* Name.Variable */
+c-[k] { color: #990055 } /* Keyword */
+c-[l] { color: #000000 } /* Literal */
+c-[m] { color: #000000 } /* Literal.Number */
+c-[n] { color: #0077aa } /* Name */
+c-[o] { color: #999999 } /* Operator */
+c-[p] { color: #999999 } /* Punctuation */
+c-[s] { color: #a67f59 } /* Literal.String */
+c-[t] { color: #a67f59 } /* Literal.String.Single */
+c-[u] { color: #a67f59 } /* Literal.String.Double */
+c-[cp] { color: #708090 } /* Comment.Preproc */
+c-[c1] { color: #708090 } /* Comment.Single */
+c-[cs] { color: #708090 } /* Comment.Special */
+c-[kc] { color: #990055 } /* Keyword.Constant */
+c-[kn] { color: #990055 } /* Keyword.Namespace */
+c-[kp] { color: #990055 } /* Keyword.Pseudo */
+c-[kr] { color: #990055 } /* Keyword.Reserved */
+c-[ld] { color: #000000 } /* Literal.Date */
+c-[nc] { color: #0077aa } /* Name.Class */
+c-[no] { color: #0077aa } /* Name.Constant */
+c-[nd] { color: #0077aa } /* Name.Decorator */
+c-[ni] { color: #0077aa } /* Name.Entity */
+c-[ne] { color: #0077aa } /* Name.Exception */
+c-[nf] { color: #0077aa } /* Name.Function */
+c-[nl] { color: #0077aa } /* Name.Label */
+c-[nn] { color: #0077aa } /* Name.Namespace */
+c-[py] { color: #0077aa } /* Name.Property */
+c-[ow] { color: #999999 } /* Operator.Word */
+c-[mb] { color: #000000 } /* Literal.Number.Bin */
+c-[mf] { color: #000000 } /* Literal.Number.Float */
+c-[mh] { color: #000000 } /* Literal.Number.Hex */
+c-[mi] { color: #000000 } /* Literal.Number.Integer */
+c-[mo] { color: #000000 } /* Literal.Number.Oct */
+c-[sb] { color: #a67f59 } /* Literal.String.Backtick */
+c-[sc] { color: #a67f59 } /* Literal.String.Char */
+c-[sd] { color: #a67f59 } /* Literal.String.Doc */
+c-[se] { color: #a67f59 } /* Literal.String.Escape */
+c-[sh] { color: #a67f59 } /* Literal.String.Heredoc */
+c-[si] { color: #a67f59 } /* Literal.String.Interpol */
+c-[sx] { color: #a67f59 } /* Literal.String.Other */
+c-[sr] { color: #a67f59 } /* Literal.String.Regex */
+c-[ss] { color: #a67f59 } /* Literal.String.Symbol */
+c-[vc] { color: #0077aa } /* Name.Variable.Class */
+c-[vg] { color: #0077aa } /* Name.Variable.Global */
+c-[vi] { color: #0077aa } /* Name.Variable.Instance */
+c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
+
+
+@media (prefers-color-scheme: dark) {
+    .highlight:not(.idl) { background: rgba(255, 255, 255, .05); }
+
+    c-[a] { color: #d33682 } /* Keyword.Declaration */
+    c-[b] { color: #d33682 } /* Keyword.Type */
+    c-[c] { color: #2aa198 } /* Comment */
+    c-[d] { color: #2aa198 } /* Comment.Multiline */
+    c-[e] { color: #268bd2 } /* Name.Attribute */
+    c-[f] { color: #b58900 } /* Name.Tag */
+    c-[g] { color: #cb4b16 } /* Name.Variable */
+    c-[k] { color: #d33682 } /* Keyword */
+    c-[l] { color: #657b83 } /* Literal */
+    c-[m] { color: #657b83 } /* Literal.Number */
+    c-[n] { color: #268bd2 } /* Name */
+    c-[o] { color: #657b83 } /* Operator */
+    c-[p] { color: #657b83 } /* Punctuation */
+    c-[s] { color: #6c71c4 } /* Literal.String */
+    c-[t] { color: #6c71c4 } /* Literal.String.Single */
+    c-[u] { color: #6c71c4 } /* Literal.String.Double */
+    c-[ch] { color: #2aa198 } /* Comment.Hashbang */
+    c-[cp] { color: #2aa198 } /* Comment.Preproc */
+    c-[cpf] { color: #2aa198 } /* Comment.PreprocFile */
+    c-[c1] { color: #2aa198 } /* Comment.Single */
+    c-[cs] { color: #2aa198 } /* Comment.Special */
+    c-[kc] { color: #d33682 } /* Keyword.Constant */
+    c-[kn] { color: #d33682 } /* Keyword.Namespace */
+    c-[kp] { color: #d33682 } /* Keyword.Pseudo */
+    c-[kr] { color: #d33682 } /* Keyword.Reserved */
+    c-[ld] { color: #657b83 } /* Literal.Date */
+    c-[nc] { color: #268bd2 } /* Name.Class */
+    c-[no] { color: #268bd2 } /* Name.Constant */
+    c-[nd] { color: #268bd2 } /* Name.Decorator */
+    c-[ni] { color: #268bd2 } /* Name.Entity */
+    c-[ne] { color: #268bd2 } /* Name.Exception */
+    c-[nf] { color: #268bd2 } /* Name.Function */
+    c-[nl] { color: #268bd2 } /* Name.Label */
+    c-[nn] { color: #268bd2 } /* Name.Namespace */
+    c-[py] { color: #268bd2 } /* Name.Property */
+    c-[ow] { color: #657b83 } /* Operator.Word */
+    c-[mb] { color: #657b83 } /* Literal.Number.Bin */
+    c-[mf] { color: #657b83 } /* Literal.Number.Float */
+    c-[mh] { color: #657b83 } /* Literal.Number.Hex */
+    c-[mi] { color: #657b83 } /* Literal.Number.Integer */
+    c-[mo] { color: #657b83 } /* Literal.Number.Oct */
+    c-[sa] { color: #6c71c4 } /* Literal.String.Affix */
+    c-[sb] { color: #6c71c4 } /* Literal.String.Backtick */
+    c-[sc] { color: #6c71c4 } /* Literal.String.Char */
+    c-[dl] { color: #6c71c4 } /* Literal.String.Delimiter */
+    c-[sd] { color: #6c71c4 } /* Literal.String.Doc */
+    c-[se] { color: #6c71c4 } /* Literal.String.Escape */
+    c-[sh] { color: #6c71c4 } /* Literal.String.Heredoc */
+    c-[si] { color: #6c71c4 } /* Literal.String.Interpol */
+    c-[sx] { color: #6c71c4 } /* Literal.String.Other */
+    c-[sr] { color: #6c71c4 } /* Literal.String.Regex */
+    c-[ss] { color: #6c71c4 } /* Literal.String.Symbol */
+    c-[fm] { color: #268bd2 } /* Name.Function.Magic */
+    c-[vc] { color: #cb4b16 } /* Name.Variable.Class */
+    c-[vg] { color: #cb4b16 } /* Name.Variable.Global */
+    c-[vi] { color: #cb4b16 } /* Name.Variable.Instance */
+    c-[vm] { color: #cb4b16 } /* Name.Variable.Magic */
+    c-[il] { color: #657b83 } /* Literal.Number.Integer.Long */
+}
+</style>
  <body class="h-entry">
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2021/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Local Peer-to-Peer API</h1>
-   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2023-11-21">21 November 2023</time></p>
+   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2023-12-04">4 December 2023</time></p>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
      <dd><a class="u-url" href="https://WICG.github.io/local-peer-to-peer/">https://WICG.github.io/local-peer-to-peer/</a>
      <dt>Issue Tracking:
      <dd><a href="https://github.com/WICG/local-peer-to-peer/issues/">GitHub</a>
+     <dd><a href="#issues-index">Inline In Spec</a>
      <dt class="editor">Editors:
      <dd class="editor p-author h-card vcard"><a class="p-name fn u-email email" href="mailto:anssi.kostiainen@intel.com">Anssi Kostiainen</a> (<a class="p-org org" href="https://intel.com">Intel</a>)
      <dd class="editor p-author h-card vcard"><a class="p-name fn u-email email" href="mailto:belem.zhang@intel.com">Belem Zhang</a> (<a class="p-org org" href="https://intel.com">Intel</a>)
@@ -453,15 +690,76 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
    <ol class="toc" role="directory">
     <li><a href="#intro"><span class="secno">1</span> <span class="content">Introduction</span></a>
     <li>
+     <a href="#peer-management"><span class="secno">2</span> <span class="content">Peer Management</span></a>
+     <ol class="toc">
+      <li><a href="#known-peers"><span class="secno">2.1</span> <span class="content">Known peers</span></a>
+      <li><a href="#peer-advertisement"><span class="secno">2.2</span> <span class="content">Peer advertisement</span></a>
+      <li><a href="#peer-discovery"><span class="secno">2.3</span> <span class="content">Peer discovery</span></a>
+      <li><a href="#peer-authentication"><span class="secno">2.4</span> <span class="content">Peer authentication</span></a>
+      <li><a href="#peer-grant"><span class="secno">2.5</span> <span class="content">Peer grant</span></a>
+     </ol>
+    <li>
+     <a href="#protocol-concepts"><span class="secno">3</span> <span class="content">Protocol concepts</span></a>
+     <ol class="toc">
+      <li><a href="#data-channel-extension"><span class="secno">3.1</span> <span class="content">Data channel extension</span></a>
+      <li><a href="#webtransport-extension"><span class="secno">3.2</span> <span class="content">WebTransport extension</span></a>
+     </ol>
+    <li>
+     <a href="#lp2p-receiver"><span class="secno">4</span> <span class="content">LP2PReceiver Interface</span></a>
+     <ol class="toc">
+      <li><a href="#lp2p-receiver-options"><span class="secno">4.1</span> <span class="content">LP2PReceiverOptions</span></a>
+      <li><a href="#lp2p-receiver-connection-event"><span class="secno">4.2</span> <span class="content">LP2PConnectionEvent</span></a>
+      <li><a href="#lp2p-receiver-examples"><span class="secno">4.3</span> <span class="content">Examples</span></a>
+      <li><a href="#lp2p-receiver-events"><span class="secno">4.4</span> <span class="content">Events</span></a>
+      <li><a href="#lp2p-receiver-event-handlers"><span class="secno">4.5</span> <span class="content">Event handlers</span></a>
+     </ol>
+    <li>
+     <a href="#lp2p-request"><span class="secno">5</span> <span class="content">The LP2PRequest Interface</span></a>
+     <ol class="toc">
+      <li><a href="#lp2p-request-options"><span class="secno">5.1</span> <span class="content">LP2PRequestOptions</span></a>
+      <li><a href="#lp2p-request-examples"><span class="secno">5.2</span> <span class="content">Examples</span></a>
+     </ol>
+    <li><a href="#lp2p-connection"><span class="secno">6</span> <span class="content">The LP2PConnection Interface</span></a>
+    <li>
+     <a href="#lp2p-data-channel"><span class="secno">7</span> <span class="content">The LP2PDataChannel Interface</span></a>
+     <ol class="toc">
+      <li><a href="#lp2p-data-channel-init"><span class="secno">7.1</span> <span class="content">LP2PDataChannelInit</span></a>
+      <li><a href="#lp2p-data-channel-events"><span class="secno">7.2</span> <span class="content">Events</span></a>
+      <li><a href="#lp2p-data-channel-event-handlers"><span class="secno">7.3</span> <span class="content">Data Channel Event handlers</span></a>
+      <li><a href="#lp2p-data-channel-extensions"><span class="secno">7.4</span> <span class="content">LP2PConnection Interface Extensions</span></a>
+      <li><a href="#lp2p-data-channel-event"><span class="secno">7.5</span> <span class="content">LP2PDataChannelEvent</span></a>
+      <li><a href="#lp2p-data-channel-extensions-events"><span class="secno">7.6</span> <span class="content">Extensions Events</span></a>
+      <li><a href="#lp2p-data-channel-extensions-event-handlers"><span class="secno">7.7</span> <span class="content">Extensions Event handlers</span></a>
+     </ol>
+    <li>
+     <a href="#lp2p-quic-transport"><span class="secno">8</span> <span class="content">The LP2PQuicTransport Interface</span></a>
+     <ol class="toc">
+      <li><a href="#lp2p-quic-transport-examples"><span class="secno">8.1</span> <span class="content">Examples</span></a>
+     </ol>
+    <li>
+     <a href="#examples"><span class="secno">9</span> <span class="content">Examples</span></a>
+     <ol class="toc">
+      <li><a href="#examples-data-channel"><span class="secno">9.1</span> <span class="content">Data Channel Communication</span></a>
+     </ol>
+    <li><a href="#appendix-a"><span class="secno"></span> <span class="content">Appendix A: OSP Extension Messages</span></a>
+    <li>
      <a href="#w3c-conformance"><span class="secno"></span> <span class="content">Conformance</span></a>
      <ol class="toc">
       <li><a href="#w3c-conventions"><span class="secno"></span> <span class="content">Document conventions</span></a>
+     </ol>
+    <li>
+     <a href="#index"><span class="secno"></span> <span class="content">Index</span></a>
+     <ol class="toc">
+      <li><a href="#index-defined-here"><span class="secno"></span> <span class="content">Terms defined by this specification</span></a>
+      <li><a href="#index-defined-elsewhere"><span class="secno"></span> <span class="content">Terms defined by reference</span></a>
      </ol>
     <li>
      <a href="#references"><span class="secno"></span> <span class="content">References</span></a>
      <ol class="toc">
       <li><a href="#normative"><span class="secno"></span> <span class="content">Normative References</span></a>
      </ol>
+    <li><a href="#idl-index"><span class="secno"></span> <span class="content">IDL Index</span></a>
+    <li><a href="#issues-index"><span class="secno"></span> <span class="content">Issues Index</span></a>
    </ol>
   </nav>
   <main>
@@ -473,6 +771,428 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
    <p>Examples of potential uses of this API include: Collaboration tools that work during an internet outage or emergency situations, connecting to your NAS, your home security system, your robotic assistant doing the dishes or your GPU farm in the basement that’s running your personalized virtual assistant.</p>
    <p>This specification aims to strike a balance between creating a powerful new building block for developers and providing a seamless, secure and privacy preserving experience for browser users. As an example: while the API doesn’t provide raw socket access, it does aim to give developers the flexibility to innovate on top by providing a persistent, two-way communication channel with little overhead.</p>
    <p>The API is designed to be backed by an authenticated, streams-based transport. As a commitment to an open standards-based implementation path, this specification describes how the API can be implemented on top of the <a href="https://w3c.github.io/openscreenprotocol/">Open Screen Protocol</a>. While not described here, the API is expected to be implementable on top of other transports when technically feasible.</p>
+   <h2 class="heading settled" data-level="2" id="peer-management"><span class="secno">2. </span><span class="content">Peer Management</span><a class="self-link" href="#peer-management"></a></h2>
+   <p class="note" role="note"><span class="marker">Note:</span> This section and its subsections use RFC 2119 terminology in a relaxed manner. These sections will be converted into well-defined algorithmic normative prose informed by further implementation experience. For now, this relaxed description better allows for rapid prototyping.</p>
+   <p>The user agent is in charge of managing peers.</p>
+   <p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="peer">peer</dfn> is an equal participants in the network that forms a peer-to-peer network of nodes. These nodes can communicate without the need for a central coordination by a server.</p>
+   <p>A user agent has an associated <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="local-peer-to-peer-manager">local peer-to-peer manager</dfn> in charge of managing <a data-link-type="dfn" href="#peer" id="ref-for-peer">peers</a>. Its responsibility is to <a data-link-type="dfn" href="#start-local-peer-discovery" id="ref-for-start-local-peer-discovery">start local peer discovery</a>, <a data-link-type="dfn" href="#establish-local-peer-connection" id="ref-for-establish-local-peer-connection">establish local peer connections</a> and <a data-link-type="dfn" href="#acquire-a-local-peer-grant" id="ref-for-acquire-a-local-peer-grant">acquire a local peer grant</a> on a per-origin basis. This is done to avoid exposing information about a user’s local network topology.</p>
+   <h3 class="heading settled" data-level="2.1" id="known-peers"><span class="secno">2.1. </span><span class="content">Known peers</span><a class="self-link" href="#known-peers"></a></h3>
+   <p>The user agent should maintain a list of peers that it has knowledge of.</p>
+   <p>The <a data-link-type="dfn" href="#local-peer-to-peer-manager" id="ref-for-local-peer-to-peer-manager">local peer-to-peer manager</a> has an associated <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="known-peers-map">known peers map</dfn>, an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map">ordered map</a> of <a data-link-type="dfn" href="#known-peer" id="ref-for-known-peer">known peers</a>. Each <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="known-peer">known peer</dfn> is a <a data-link-type="dfn" href="#peer" id="ref-for-peer①">peer</a> that has an associated <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="authentication-state">authentication state</dfn> and <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="peer-grant-state">peer grant state</dfn>. The user agent keeps track of the <a data-link-type="dfn" href="#authentication-state" id="ref-for-authentication-state">authentication state</a> per peer and the <a data-link-type="dfn" href="#peer-grant-state" id="ref-for-peer-grant-state">peer grant state</a> per peer, per origin. Unless <a data-link-type="dfn" href="#persisted" id="ref-for-persisted">persisted</a>, both the states are initially false.</p>
+   <p class="note" role="note"><span class="marker">Note:</span> The <a data-link-type="dfn" href="#peer-grant-state" id="ref-for-peer-grant-state①">peer grant state</a> is origin-level while the <a data-link-type="dfn" href="#authentication-state" id="ref-for-authentication-state①">authentication state</a> is peer-level. The rationale is to not require the user to undergo authentication multiple times between the same peers. This design may change informed by security and privacy considerations.</p>
+   <p class="issue" id="issue-45136692"><a class="self-link" href="#issue-45136692"></a> See also related <a href="https://github.com/wicg/local-peer-to-peer/issues/24">[Issue #wicg/local-peer-to-peer#24]</a></p>
+   <p>The user agent may persist known peers, their authentication state and/or peer grant states. If the user agent chooses to do so, it must do so in accordance with the <a data-link-type="biblio" href="#biblio-openscreenprotocol" title="Open Screen Protocol">OpenScreen Protocol</a> Persistent State rules. Such a peer or its state is said to be <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="persisted">persisted</dfn>.</p>
+   <h3 class="heading settled" data-level="2.2" id="peer-advertisement"><span class="secno">2.2. </span><span class="content">Peer advertisement</span><a class="self-link" href="#peer-advertisement"></a></h3>
+   <p>The user agent can make itself discoverable by advertising using the <a data-link-type="dfn" href="#session-advertise-agent" id="ref-for-session-advertise-agent">advertise agent</a> capability.</p>
+   <p class="note" role="note"><span class="marker">Note:</span> The user agent must get the user’s explicit consent in order to start advertising.</p>
+   <p>When advertising, the user agent must listen for incoming peer connections. In case a connection is received, the peer is added to the known peer list. The user agent must not directly provide access to the incoming peer connection to any origin. Instead, the user agent must prompt to <a href="#peer-grant">grant peer</a> access to the origin that initiated peer advertisement.</p>
+   <h3 class="heading settled" data-level="2.3" id="peer-discovery"><span class="secno">2.3. </span><span class="content">Peer discovery</span><a class="self-link" href="#peer-discovery"></a></h3>
+   <p>The user agent can discover local peers using the <a data-link-type="dfn" href="#session-discover-agents" id="ref-for-session-discover-agents">discover agents</a> capability.</p>
+   <p>When asked to <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="start-local-peer-discovery">start local peer discovery</dfn>, the user agent discovers local peers using the <a data-link-type="dfn" href="#session-discover-agents" id="ref-for-session-discover-agents①">discover agents</a> capability.</p>
+   <p>If a peer is discovered, the user agent should add it to the <a data-link-type="dfn" href="#known-peers-map" id="ref-for-known-peers-map">known peers map</a>. The user agent must never expose the full result of peer discovery with an origin. Instead, the user agent must <a data-link-type="dfn" href="#acquire-a-local-peer-grant" id="ref-for-acquire-a-local-peer-grant①">acquire a local peer grant</a> to grant access to a peer to the origin that initiated the peer request.</p>
+   <h3 class="heading settled" data-level="2.4" id="peer-authentication"><span class="secno">2.4. </span><span class="content">Peer authentication</span><a class="self-link" href="#peer-authentication"></a></h3>
+   <p>The user agent can initiate authentication with a peer using the <a data-link-type="dfn" href="#session-authenticate-an-agent" id="ref-for-session-authenticate-an-agent">authenticate an agent</a> capability.</p>
+   <p>When asked to <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="authenticate-a-local-peer">authenticate a local peer</dfn>, the user agent must initiate authentication with a local peer using the <a data-link-type="dfn" href="#session-authenticate-an-agent" id="ref-for-session-authenticate-an-agent①">authenticate an agent</a> capability. The peer’s <a data-link-type="dfn" href="#authentication-state" id="ref-for-authentication-state②">authentication state</a> must be set to true if authentication succeeds, otherwise false.</p>
+   <p>A peer is said to be <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="authenticated">authenticated</dfn> when its <a data-link-type="dfn" href="#authentication-state" id="ref-for-authentication-state③">authentication state</a> is true.</p>
+   <h3 class="heading settled" data-level="2.5" id="peer-grant"><span class="secno">2.5. </span><span class="content">Peer grant</span><a class="self-link" href="#peer-grant"></a></h3>
+   <p>The user agent, with the user’s consent, must <a data-link-type="dfn" href="#acquire-a-local-peer-grant" id="ref-for-acquire-a-local-peer-grant②">acquire a local peer grant</a> for an origin to get access to a peer.</p>
+   <p class="note" role="note"><span class="marker">Note:</span> The user agent must get the user’s explicit consent in order to grant an origin access to a peer. For enhanced privacy protection, the user agent must provide means to dismiss any related user interface and this action must not be detectable by script or have script-observable side-effects. The user interface may provide means to revoke the grant or to make the grant <a data-link-type="dfn" href="#persisted" id="ref-for-persisted①">persisted</a>.</p>
+   <p>When asked to <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="acquire-a-local-peer-grant">acquire a local peer grant</dfn>, the user agent displays the <a data-link-type="dfn" href="#known-peer" id="ref-for-known-peer①">known peers</a> to the user through its native user interface. When the user selects a peer from the user interface, the user agent must check the selected peer is <a data-link-type="dfn" href="#authenticated" id="ref-for-authenticated">authenticated</a>, and run the <a data-link-type="dfn" href="#authenticate-a-local-peer" id="ref-for-authenticate-a-local-peer">authenticate a local peer</a> algorithm otherwise, and set the <a data-link-type="dfn" href="#peer-grant-state" id="ref-for-peer-grant-state②">peer grant state</a> according to the user’s explicit selection.</p>
+   <h2 class="heading settled" data-level="3" id="protocol-concepts"><span class="secno">3. </span><span class="content">Protocol concepts</span><a class="self-link" href="#protocol-concepts"></a></h2>
+   <p>When asked to <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="establish-local-peer-connection">establish local peer connection</dfn>, the user agent ...</p>
+   <p>A <dfn class="dfn-paneled" data-dfn-for="protocol" data-dfn-type="dfn" data-noexport id="protocol-local-peer-to-peer-session">Local Peer-to-Peer session</dfn> represents an authenticated <a data-link-type="biblio" href="#biblio-rfc9000" title="QUIC: A UDP-Based Multiplexed and Secure Transport">QUIC</a> connection as defined in <a data-link-type="biblio" href="#biblio-openscreenprotocol" title="Open Screen Protocol">Open Screen Protocol</a> or OSP.</p>
+   <p>A <a data-link-type="dfn" href="#protocol-local-peer-to-peer-session" id="ref-for-protocol-local-peer-to-peer-session">Local Peer-to-Peer session</a> has the following capabilities:</p>
+   <table class="data">
+    <thead>
+     <tr>
+      <th>capability 
+      <th>definition 
+    <tbody>
+     <tr>
+      <td><dfn class="dfn-paneled" data-dfn-for="session" data-dfn-type="dfn" data-noexport id="session-advertise-agent">advertise agent</dfn> 
+      <td><a data-link-type="biblio" href="#biblio-openscreenprotocol" title="Open Screen Protocol">[openscreenprotocol]</a> <a href="https://www.w3.org/TR/openscreenprotocol/#discovery">discovery</a> 
+     <tr>
+      <td><dfn class="dfn-paneled" data-dfn-for="session" data-dfn-type="dfn" data-noexport id="session-discover-agents">discover agents</dfn> 
+      <td><a data-link-type="biblio" href="#biblio-openscreenprotocol" title="Open Screen Protocol">[openscreenprotocol]</a> <a href="https://www.w3.org/TR/openscreenprotocol/#discovery">discovery</a> 
+     <tr>
+      <td><dfn class="dfn-paneled" data-dfn-for="session" data-dfn-type="dfn" data-noexport id="session-discover-metadata">discover metadata</dfn> 
+      <td><a data-link-type="biblio" href="#biblio-openscreenprotocol" title="Open Screen Protocol">[openscreenprotocol]</a> <a href="https://www.w3.org/TR/openscreenprotocol/#transport">transport</a> 
+     <tr>
+      <td><dfn class="dfn-paneled" data-dfn-for="session" data-dfn-type="dfn" data-noexport id="session-authenticate-an-agent">authenticate an agent</dfn> 
+      <td><a data-link-type="biblio" href="#biblio-openscreenprotocol" title="Open Screen Protocol">[openscreenprotocol]</a> <a href="https://www.w3.org/TR/openscreenprotocol/#authentication">authentication</a> 
+     <tr>
+      <td><a data-link-type="dfn" href="#open-a-data-channel" id="ref-for-open-a-data-channel">open a data channel</a> 
+      <td><a href="#data-channel-extension">§ 3.1 Data channel extension</a> 
+     <tr>
+      <td><a data-link-type="dfn" href="#send-data-on-a-channel" id="ref-for-send-data-on-a-channel">send data on a channel</a> 
+      <td><a href="#data-channel-extension">§ 3.1 Data channel extension</a> 
+     <tr>
+      <td><a data-link-type="dfn" href="#open-a-webtransport-session" id="ref-for-open-a-webtransport-session">open a WebTransport session</a> 
+      <td><a href="#webtransport-extension">§ 3.2 WebTransport extension</a> 
+   </table>
+   <p>Part of these capabilities are defined below as <a href="https://www.w3.org/TR/openscreenprotocol/#protocol-extensions">protocol extensions</a> to the <a data-link-type="biblio" href="#biblio-openscreenprotocol" title="Open Screen Protocol">OpenScreen Protocol</a>.</p>
+   <h3 class="heading settled" data-level="3.1" id="data-channel-extension"><span class="secno">3.1. </span><span class="content">Data channel extension</span><a class="self-link" href="#data-channel-extension"></a></h3>
+   <p>In order to signal support for this protocol extension, the agent should include the <a data-link-type="dfn" href="#data-channels" id="ref-for-data-channels">data-channels</a> <a data-link-type="dfn" href="#agent-capability" id="ref-for-agent-capability">agent-capability</a> as part of the <a href="https://www.w3.org/TR/openscreenprotocol/#agent-info-response">agent-info-response</a> message exchanged during <a data-link-type="dfn" href="#session-discover-metadata" id="ref-for-session-discover-metadata">discover metadata</a>.</p>
+   <p>To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="open-a-data-channel">open a data channel</dfn> an agent may send a <a data-link-type="dfn" href="#data-channel-open-request" id="ref-for-data-channel-open-request">data-channel-open-request</a> message on a new <a data-link-type="biblio" href="#biblio-rfc9000" title="QUIC: A UDP-Based Multiplexed and Secure Transport">QUIC</a> stream. The <a data-link-type="dfn" href="#protocol-local-peer-to-peer-session" id="ref-for-protocol-local-peer-to-peer-session①">Local Peer-to-Peer session</a> must be authenticated. The message must contain the following values:</p>
+   <dl>
+    <dt data-md>channel-id
+    <dd data-md>
+     <p>An ID number (between 0 and 65,534) which uniquely identifies the data channel.  Must not be empty.</p>
+    <dt data-md>label
+    <dd data-md>
+     <p>a string that contains a name describing the data channel. These labels are not required to be unique.</p>
+    <dt data-md>protocol
+    <dd data-md>
+     <p>a string containing the name of the subprotocol in use. If no protocol was specified when the data channel was created, then this property’s value is the empty string ("").</p>
+   </dl>
+   <p>When the receiver receives the <a data-link-type="dfn" href="#data-channel-open-request" id="ref-for-data-channel-open-request①">data-channel-open-request</a>, it should send back a <a data-link-type="dfn" href="#data-channel-open-response" id="ref-for-data-channel-open-response">data-channel-open-response</a> message. The response must include the following:</p>
+   <dl>
+    <dt data-md>result
+    <dd data-md>
+     <p>a code indicating success or failure, and the reason for the failure.</p>
+   </dl>
+   <p>If the <a data-link-type="dfn" href="#data-channel-open-response" id="ref-for-data-channel-open-response①">data-channel-open-response</a> message indicates success, the data channel is considered open. Agents can now <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="send-data-on-a-channel">send data on a channel</dfn> by sending <a data-link-type="dfn" href="#data-frame" id="ref-for-data-frame">data-frame</a> messages on the same <a data-link-type="biblio" href="#biblio-rfc9000" title="QUIC: A UDP-Based Multiplexed and Secure Transport">QUIC</a> stream the data channel was opened. The message must include the following:</p>
+   <dl>
+    <dt data-md>encoding-id
+    <dd data-md>
+     <p>Determines the encoding of the data being sent. The values are specified as <a data-link-type="dfn" href="#data-channel-encoding-id" id="ref-for-data-channel-encoding-id">data-channel-encoding-id</a>:
+0: <a data-link-type="dfn" href="#encoding-id-blob" id="ref-for-encoding-id-blob">Blob</a>;
+1: <a data-link-type="dfn" href="#encoding-id-string" id="ref-for-encoding-id-string">String</a>;
+2: <a data-link-type="dfn" href="#encoding-id-array-buffer" id="ref-for-encoding-id-array-buffer">ArrayBuffer</a>.</p>
+    <dt data-md>payload
+    <dd data-md>
+     <p>The binary representation of the data being sent.</p>
+   </dl>
+   <h3 class="heading settled" data-level="3.2" id="webtransport-extension"><span class="secno">3.2. </span><span class="content">WebTransport extension</span><a class="self-link" href="#webtransport-extension"></a></h3>
+   <p>The protocol extension to <a data-link-type="dfn" href="#send-data-on-a-channel" id="ref-for-send-data-on-a-channel①">send data on a channel</a> provides an ergonomic way to send simple messages. An agent can <a data-link-type="dfn" href="#open-a-webtransport-session" id="ref-for-open-a-webtransport-session①">open a WebTransport session</a> for communication that requires low overhead and more granular streams control.</p>
+   <p>In order to signal support for this protocol extension, the agent should include the <a data-link-type="dfn" href="#quick-transport" id="ref-for-quick-transport">quick-transport</a> <a data-link-type="dfn" href="#agent-capability" id="ref-for-agent-capability①">agent-capability</a> as part of the <a href="https://www.w3.org/TR/openscreenprotocol/#agent-info-response">agent-info-response</a> message exchanged during <a data-link-type="dfn" href="#session-discover-metadata" id="ref-for-session-discover-metadata①">discover metadata</a>.</p>
+   <p>An agent can <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="open-a-webtransport-session">open a WebTransport session</dfn> by dialing a new <a data-link-type="biblio" href="#biblio-rfc9000" title="QUIC: A UDP-Based Multiplexed and Secure Transport">QUIC</a> connection using the agent certificates established during <a data-link-type="dfn" href="#session-authenticate-an-agent" id="ref-for-session-authenticate-an-agent②">authenticate an agent</a>. During connection establishment, the ALPN token "q2q" must be used in the TLS handshake.</p>
+   <p>The capabilities of the Local WebTransport session are defined in <a data-link-type="biblio" href="#biblio-webtransport" title="WebTransport">[webtransport]</a>.</p>
+   <p class="note" role="note"><span class="marker">Note:</span> The WebTransport-over-QUIC protocol is yet to be defined. Potentially considering earlier work such as <a href="https://datatracker.ietf.org/doc/html/draft-vvv-webtransport-quic-02">draft-vvv-webtransport-quic</a>.</p>
+   <h2 class="heading settled" data-level="4" id="lp2p-receiver"><span class="secno">4. </span><span class="content">LP2PReceiver Interface</span><a class="self-link" href="#lp2p-receiver"></a></h2>
+   <section class="algorithm" data-algorithm="LP2PReceiver">
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="lp2preceiver"><code>LP2PReceiver</code></dfn> interface allows advertising on the local network, enabling other peers to connect.</p>
+<pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed" id="ref-for-Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->), <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext" id="ref-for-SecureContext"><c- g>SecureContext</c-></a>]
+<c- b>interface</c-> <a class="idl-code" data-link-type="interface" href="#lp2preceiver" id="ref-for-lp2preceiver"><c- g>LP2PReceiver</c-></a> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#eventtarget" id="ref-for-eventtarget"><c- n>EventTarget</c-></a> {
+  <dfn class="idl-code" data-dfn-for="LP2PReceiver" data-dfn-type="constructor" data-export data-lt="LP2PReceiver(options)|constructor(options)|LP2PReceiver()|constructor()" id="dom-lp2preceiver-lp2preceiver"><code><c- g>constructor</c-></code><a class="self-link" href="#dom-lp2preceiver-lp2preceiver"></a></dfn>(<c- b>optional</c-> <a data-link-type="idl-name" href="#dictdef-lp2preceiveroptions" id="ref-for-dictdef-lp2preceiveroptions"><c- n>LP2PReceiverOptions</c-></a> <dfn class="idl-code" data-dfn-for="LP2PReceiver/LP2PReceiver(options), LP2PReceiver/constructor(options), LP2PReceiver/LP2PReceiver(), LP2PReceiver/constructor()" data-dfn-type="argument" data-export id="dom-lp2preceiver-lp2preceiver-options-options"><code><c- g>options</c-></code><a class="self-link" href="#dom-lp2preceiver-lp2preceiver-options-options"></a></dfn> = {});
+  <c- b>attribute</c-> <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler" id="ref-for-eventhandler"><c- n>EventHandler</c-></a> <a class="idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-lp2preceiver-onconnection" id="ref-for-dom-lp2preceiver-onconnection"><c- g>onconnection</c-></a>;
+  <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-promise" id="ref-for-idl-promise"><c- b>Promise</c-></a>&lt;<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-undefined" id="ref-for-idl-undefined"><c- b>undefined</c-></a>> <dfn class="idl-code" data-dfn-for="LP2PReceiver" data-dfn-type="method" data-export data-lt="start()" id="dom-lp2preceiver-start"><code><c- g>start</c-></code><a class="self-link" href="#dom-lp2preceiver-start"></a></dfn>();
+};
+</pre>
+    <h3 class="heading settled" data-level="4.1" id="lp2p-receiver-options"><span class="secno">4.1. </span><span class="content">LP2PReceiverOptions</span><a class="self-link" href="#lp2p-receiver-options"></a></h3>
+<pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed" id="ref-for-Exposed①"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->), <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext" id="ref-for-SecureContext①"><c- g>SecureContext</c-></a>]
+<c- b>dictionary</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-export id="dictdef-lp2preceiveroptions"><code><c- g>LP2PReceiverOptions</c-></code></dfn> {
+    <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-DOMString" id="ref-for-idl-DOMString"><c- b>DOMString</c-></a> <dfn class="idl-code" data-dfn-for="LP2PReceiverOptions" data-dfn-type="dict-member" data-export data-type="DOMString " id="dom-lp2preceiveroptions-nickname"><code><c- g>nickname</c-></code><a class="self-link" href="#dom-lp2preceiveroptions-nickname"></a></dfn>;
+};
+</pre>
+    <h3 class="heading settled" data-level="4.2" id="lp2p-receiver-connection-event"><span class="secno">4.2. </span><span class="content">LP2PConnectionEvent</span><a class="self-link" href="#lp2p-receiver-connection-event"></a></h3>
+    <p class="issue" id="issue-2e09a0e3"><a class="self-link" href="#issue-2e09a0e3"></a> In general, when defining a new interface that inherits from Event please always ask feedback from the WHATWG or the W3C WebApps WG community. See <a href="https://dom.spec.whatwg.org/#defining-event-interfaces">defining event interfaces</a>.</p>
+<pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed" id="ref-for-Exposed②"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->), <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext" id="ref-for-SecureContext②"><c- g>SecureContext</c-></a>]
+<c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="lp2pconnectionevent"><code><c- g>LP2PConnectionEvent</c-></code></dfn> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#event" id="ref-for-event"><c- n>Event</c-></a> {
+    <dfn class="idl-code" data-dfn-for="LP2PConnectionEvent" data-dfn-type="constructor" data-export data-lt="LP2PConnectionEvent(type, connectionEventInitDict)|constructor(type, connectionEventInitDict)" id="dom-lp2pconnectionevent-lp2pconnectionevent"><code><c- g>constructor</c-></code><a class="self-link" href="#dom-lp2pconnectionevent-lp2pconnectionevent"></a></dfn>(<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-DOMString" id="ref-for-idl-DOMString①"><c- b>DOMString</c-></a> <dfn class="idl-code" data-dfn-for="LP2PConnectionEvent/LP2PConnectionEvent(type, connectionEventInitDict), LP2PConnectionEvent/constructor(type, connectionEventInitDict)" data-dfn-type="argument" data-export id="dom-lp2pconnectionevent-lp2pconnectionevent-type-connectioneventinitdict-type"><code><c- g>type</c-></code><a class="self-link" href="#dom-lp2pconnectionevent-lp2pconnectionevent-type-connectioneventinitdict-type"></a></dfn>, <a data-link-type="idl-name" href="#dictdef-lp2pconnectioneventinit" id="ref-for-dictdef-lp2pconnectioneventinit"><c- n>LP2PConnectionEventInit</c-></a> <dfn class="idl-code" data-dfn-for="LP2PConnectionEvent/LP2PConnectionEvent(type, connectionEventInitDict), LP2PConnectionEvent/constructor(type, connectionEventInitDict)" data-dfn-type="argument" data-export id="dom-lp2pconnectionevent-lp2pconnectionevent-type-connectioneventinitdict-connectioneventinitdict"><code><c- g>connectionEventInitDict</c-></code><a class="self-link" href="#dom-lp2pconnectionevent-lp2pconnectionevent-type-connectioneventinitdict-connectioneventinitdict"></a></dfn>);
+    <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#lp2pconnection" id="ref-for-lp2pconnection"><c- n>LP2PConnection</c-></a> <dfn class="idl-code" data-dfn-for="LP2PConnectionEvent" data-dfn-type="attribute" data-export data-readonly data-type="LP2PConnection" id="dom-lp2pconnectionevent-connection"><code><c- g>connection</c-></code><a class="self-link" href="#dom-lp2pconnectionevent-connection"></a></dfn>;
+};
+
+<c- b>dictionary</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-export id="dictdef-lp2pconnectioneventinit"><code><c- g>LP2PConnectionEventInit</c-></code></dfn> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#dictdef-eventinit" id="ref-for-dictdef-eventinit"><c- n>EventInit</c-></a> {
+    <c- b>required</c-> <a data-link-type="idl-name" href="#lp2pconnection" id="ref-for-lp2pconnection①"><c- n>LP2PConnection</c-></a> <dfn class="idl-code" data-dfn-for="LP2PConnectionEventInit" data-dfn-type="dict-member" data-export data-type="LP2PConnection " id="dom-lp2pconnectioneventinit-connection"><code><c- g>connection</c-></code><a class="self-link" href="#dom-lp2pconnectioneventinit-connection"></a></dfn>;
+};
+</pre>
+    <h3 class="heading settled" data-level="4.3" id="lp2p-receiver-examples"><span class="secno">4.3. </span><span class="content">Examples</span><a class="self-link" href="#lp2p-receiver-examples"></a></h3>
+    <p>Example: Setting up a receiver to listen for connections:</p>
+<pre class="example highlight" id="example-b0ad794d"><a class="self-link" href="#example-b0ad794d"></a><c- a>const</c-> receiver <c- o>=</c-> <c- ow>new</c-> LP2PReceiver<c- p>({</c->
+    nickname<c- o>:</c-> <c- u>"example-receiver"</c-><c- p>,</c->
+<c- p>});</c->
+receiver<c- p>.</c->onconnection <c- o>=</c-> e <c- p>=></c-> <c- p>{</c->
+    console<c- p>.</c->log<c- p>(</c-><c- u>"Connection established!"</c-><c- p>);</c->
+    <c- a>const</c-> conn <c- o>=</c-> e<c- p>.</c->connection<c- p>;</c->
+<c- p>};</c->
+
+<c- c1>// Blocks until permission is received.</c->
+<c- k>await</c-> receiver<c- p>.</c->start<c- p>();</c->
+</pre>
+    <h3 class="heading settled" data-level="4.4" id="lp2p-receiver-events"><span class="secno">4.4. </span><span class="content">Events</span><a class="self-link" href="#lp2p-receiver-events"></a></h3>
+    <p>The following event is <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire" id="ref-for-concept-event-fire">fired</a> at the <code class="idl"><a data-link-type="idl" href="#lp2preceiver" id="ref-for-lp2preceiver①">LP2PReceiver</a></code> object:</p>
+    <table class="data">
+     <thead>
+      <tr>
+       <th>Event name
+       <th>Interface
+       <th>Fired when…
+     <tbody>
+      <tr>
+       <td><dfn class="dfn-paneled idl-code" data-dfn-for="LP2PReceiver" data-dfn-type="event" data-export id="eventdef-lp2preceiver-connection"><code>connection</code></dfn>
+       <td><code class="idl"><a data-link-type="idl" href="#lp2pconnectionevent" id="ref-for-lp2pconnectionevent">LP2PConnectionEvent</a></code>
+       <td>An incoming connection is received.
+    </table>
+    <h3 class="heading settled" data-level="4.5" id="lp2p-receiver-event-handlers"><span class="secno">4.5. </span><span class="content">Event handlers</span><a class="self-link" href="#lp2p-receiver-event-handlers"></a></h3>
+    <p>The following are the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers" id="ref-for-event-handlers">event handlers</a> (and their corresponding <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type" id="ref-for-event-handler-event-type">event handler event types</a>) that must be supported, as <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes" id="ref-for-event-handler-idl-attributes">event handler IDL attributes</a>, by all objects implementing the <a href="#lp2p-receiver">LP2PReceiver</a> interface:</p>
+    <table class="data">
+     <thead>
+      <tr>
+       <th><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers" id="ref-for-event-handlers①">event handler</a>
+       <th><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type" id="ref-for-event-handler-event-type①">event handler event type</a>
+     <tbody>
+      <tr>
+       <td><dfn class="dfn-paneled idl-code" data-dfn-for="LP2PReceiver" data-dfn-type="attribute" data-export id="dom-lp2preceiver-onconnection"><code>onconnection</code></dfn>
+       <td><code class="idl"><a data-link-type="idl" href="#eventdef-lp2preceiver-connection" id="ref-for-eventdef-lp2preceiver-connection">connection</a></code>
+    </table>
+   </section>
+   <section class="algorithm" data-algorithm="LP2PRequest">
+    <h2 class="heading settled" data-level="5" id="lp2p-request"><span class="secno">5. </span><span class="content">The LP2PRequest Interface</span><a class="self-link" href="#lp2p-request"></a></h2>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="lp2prequest"><code>LP2PRequest</code></dfn> interface represents a request for a connection to another local peer.</p>
+<pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed" id="ref-for-Exposed③"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->), <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext" id="ref-for-SecureContext③"><c- g>SecureContext</c-></a>]
+<c- b>interface</c-> <a class="idl-code" data-link-type="interface" href="#lp2prequest" id="ref-for-lp2prequest"><c- g>LP2PRequest</c-></a> {
+    <dfn class="idl-code" data-dfn-for="LP2PRequest" data-dfn-type="constructor" data-export data-lt="LP2PRequest(options)|constructor(options)|LP2PRequest()|constructor()" id="dom-lp2prequest-lp2prequest"><code><c- g>constructor</c-></code><a class="self-link" href="#dom-lp2prequest-lp2prequest"></a></dfn>(<c- b>optional</c-> <a data-link-type="idl-name" href="#dictdef-lp2prequestoptions" id="ref-for-dictdef-lp2prequestoptions"><c- n>LP2PRequestOptions</c-></a> <dfn class="idl-code" data-dfn-for="LP2PRequest/LP2PRequest(options), LP2PRequest/constructor(options), LP2PRequest/LP2PRequest(), LP2PRequest/constructor()" data-dfn-type="argument" data-export id="dom-lp2prequest-lp2prequest-options-options"><code><c- g>options</c-></code><a class="self-link" href="#dom-lp2prequest-lp2prequest-options-options"></a></dfn> = {});
+    <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-promise" id="ref-for-idl-promise①"><c- b>Promise</c-></a>&lt;<a data-link-type="idl-name" href="#lp2pconnection" id="ref-for-lp2pconnection②"><c- n>LP2PConnection</c-></a>> <dfn class="idl-code" data-dfn-for="LP2PRequest" data-dfn-type="method" data-export data-lt="start()" id="dom-lp2prequest-start"><code><c- g>start</c-></code><a class="self-link" href="#dom-lp2prequest-start"></a></dfn>();
+};
+</pre>
+    <h3 class="heading settled" data-level="5.1" id="lp2p-request-options"><span class="secno">5.1. </span><span class="content">LP2PRequestOptions</span><a class="self-link" href="#lp2p-request-options"></a></h3>
+<pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed" id="ref-for-Exposed④"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->), <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext" id="ref-for-SecureContext④"><c- g>SecureContext</c-></a>]
+<c- b>dictionary</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-export id="dictdef-lp2prequestoptions"><code><c- g>LP2PRequestOptions</c-></code></dfn> {
+    <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-DOMString" id="ref-for-idl-DOMString②"><c- b>DOMString</c-></a> <dfn class="idl-code" data-dfn-for="LP2PRequestOptions" data-dfn-type="dict-member" data-export data-type="DOMString " id="dom-lp2prequestoptions-nickname"><code><c- g>nickname</c-></code><a class="self-link" href="#dom-lp2prequestoptions-nickname"></a></dfn>;
+};
+</pre>
+    <h3 class="heading settled" data-level="5.2" id="lp2p-request-examples"><span class="secno">5.2. </span><span class="content">Examples</span><a class="self-link" href="#lp2p-request-examples"></a></h3>
+    <p>Example: Setting up a request for a connections:</p>
+<pre class="example highlight" id="example-435ab8e1"><a class="self-link" href="#example-435ab8e1"></a><c- a>const</c-> request <c- o>=</c-> <c- ow>new</c-> LP2PRequest<c- p>({</c->
+    nickname<c- o>:</c-> <c- u>"example-request"</c-><c- p>,</c->
+<c- p>});</c->
+
+<c- c1>// Blocks until connection is received.</c->
+<c- a>const</c-> conn <c- o>=</c-> <c- k>await</c-> request<c- p>.</c->start<c- p>();</c->
+console<c- p>.</c->log<c- p>(</c-><c- u>"Connection established!"</c-><c- p>);</c->
+</pre>
+   </section>
+   <section class="algorithm" data-algorithm="LP2PConnection">
+    <h2 class="heading settled" data-level="6" id="lp2p-connection"><span class="secno">6. </span><span class="content">The LP2PConnection Interface</span><a class="self-link" href="#lp2p-connection"></a></h2>
+    <p>The <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="lp2pconnection"><code>LP2PConnection</code></dfn> interface represents a connection with another local peer.</p>
+<pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed" id="ref-for-Exposed⑤"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->), <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext" id="ref-for-SecureContext⑤"><c- g>SecureContext</c-></a>]
+<c- b>interface</c-> <a class="idl-code" data-link-type="interface" href="#lp2pconnection" id="ref-for-lp2pconnection③"><c- g>LP2PConnection</c-></a> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#eventtarget" id="ref-for-eventtarget①"><c- n>EventTarget</c-></a> {
+};
+</pre>
+   </section>
+   <section class="algorithm" data-algorithm="LP2PDataChannel">
+    <h2 class="heading settled" data-level="7" id="lp2p-data-channel"><span class="secno">7. </span><span class="content">The LP2PDataChannel Interface</span><a class="self-link" href="#lp2p-data-channel"></a></h2>
+    <p>The LP2PDataChannel interface represents a bi-directional data channel between two peers. An LP2PDataChannel is created via a <a href="#lp2p-data-channel-extensions">factory method</a> on an LP2PConnection object.</p>
+    <p class="note" role="note"><span class="marker">Note:</span> The LP2PDataChannel interface is purposefully kept as close as possible to the <a href="https://www.w3.org/TR/webrtc/#rtcdatachannel">RTCDataChannel</a> interface defined in <a data-link-type="biblio" href="#biblio-webrtc" title="WebRTC: Real-Time Communication in Browsers">[webrtc]</a>. The aim is to allow seamless transition of developers that are familiar with WebRTC as well as allowing libraries to easily work with both the <a data-link-type="biblio" href="#biblio-webrtc" title="WebRTC: Real-Time Communication in Browsers">[webrtc]</a> and LP2P API.</p>
+<pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed" id="ref-for-Exposed⑥"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->), <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext" id="ref-for-SecureContext⑥"><c- g>SecureContext</c-></a>]
+<c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="lp2pdatachannel"><code><c- g>LP2PDataChannel</c-></code></dfn> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#eventtarget" id="ref-for-eventtarget②"><c- n>EventTarget</c-></a> {
+  <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-USVString" id="ref-for-idl-USVString"><c- b>USVString</c-></a> <dfn class="idl-code" data-dfn-for="LP2PDataChannel" data-dfn-type="attribute" data-export data-readonly data-type="USVString" id="dom-lp2pdatachannel-label"><code><c- g>label</c-></code><a class="self-link" href="#dom-lp2pdatachannel-label"></a></dfn>;
+  <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-USVString" id="ref-for-idl-USVString①"><c- b>USVString</c-></a> <dfn class="idl-code" data-dfn-for="LP2PDataChannel" data-dfn-type="attribute" data-export data-readonly data-type="USVString" id="dom-lp2pdatachannel-protocol"><code><c- g>protocol</c-></code><a class="self-link" href="#dom-lp2pdatachannel-protocol"></a></dfn>;
+  <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-unsigned-short" id="ref-for-idl-unsigned-short"><c- b>unsigned</c-> <c- b>short</c-></a>? <dfn class="idl-code" data-dfn-for="LP2PDataChannel" data-dfn-type="attribute" data-export data-readonly data-type="unsigned short?" id="dom-lp2pdatachannel-id"><code><c- g>id</c-></code><a class="self-link" href="#dom-lp2pdatachannel-id"></a></dfn>;
+  <c- b>attribute</c-> <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler" id="ref-for-eventhandler①"><c- n>EventHandler</c-></a> <a class="idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-lp2pdatachannel-onopen" id="ref-for-dom-lp2pdatachannel-onopen"><c- g>onopen</c-></a>;
+  <c- b>attribute</c-> <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler" id="ref-for-eventhandler②"><c- n>EventHandler</c-></a> <a class="idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-lp2pdatachannel-onerror" id="ref-for-dom-lp2pdatachannel-onerror"><c- g>onerror</c-></a>;
+  <c- b>attribute</c-> <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler" id="ref-for-eventhandler③"><c- n>EventHandler</c-></a> <a class="idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-lp2pdatachannel-onclosing" id="ref-for-dom-lp2pdatachannel-onclosing"><c- g>onclosing</c-></a>;
+  <c- b>attribute</c-> <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler" id="ref-for-eventhandler④"><c- n>EventHandler</c-></a> <a class="idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-lp2pdatachannel-onclose" id="ref-for-dom-lp2pdatachannel-onclose"><c- g>onclose</c-></a>;
+  <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-undefined" id="ref-for-idl-undefined①"><c- b>undefined</c-></a> <dfn class="idl-code" data-dfn-for="LP2PDataChannel" data-dfn-type="method" data-export data-lt="close()" id="dom-lp2pdatachannel-close"><code><c- g>close</c-></code><a class="self-link" href="#dom-lp2pdatachannel-close"></a></dfn>();
+  <c- b>attribute</c-> <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler" id="ref-for-eventhandler⑤"><c- n>EventHandler</c-></a> <a class="idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-lp2pdatachannel-onmessage" id="ref-for-dom-lp2pdatachannel-onmessage"><c- g>onmessage</c-></a>;
+  <c- b>attribute</c-> <a data-link-type="idl-name" href="https://websockets.spec.whatwg.org/#enumdef-binarytype" id="ref-for-enumdef-binarytype"><c- n>BinaryType</c-></a> <dfn class="idl-code" data-dfn-for="LP2PDataChannel" data-dfn-type="attribute" data-export data-type="BinaryType" id="dom-lp2pdatachannel-binarytype"><code><c- g>binaryType</c-></code><a class="self-link" href="#dom-lp2pdatachannel-binarytype"></a></dfn>;
+  <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-undefined" id="ref-for-idl-undefined②"><c- b>undefined</c-></a> <dfn class="idl-code" data-dfn-for="LP2PDataChannel" data-dfn-type="method" data-export data-lt="send(data)" id="dom-lp2pdatachannel-send"><code><c- g>send</c-></code><a class="self-link" href="#dom-lp2pdatachannel-send"></a></dfn>((<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-USVString" id="ref-for-idl-USVString②"><c- b>USVString</c-></a> <c- b>or</c-> <a data-link-type="idl-name" href="https://w3c.github.io/FileAPI/#dfn-Blob" id="ref-for-dfn-Blob"><c- n>Blob</c-></a> <c- b>or</c-> <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-ArrayBuffer" id="ref-for-idl-ArrayBuffer"><c- b>ArrayBuffer</c-></a> <c- b>or</c-> <a data-link-type="idl-name" href="https://webidl.spec.whatwg.org/#ArrayBufferView" id="ref-for-ArrayBufferView"><c- n>ArrayBufferView</c-></a>) <dfn class="idl-code" data-dfn-for="LP2PDataChannel/send(data)" data-dfn-type="argument" data-export id="dom-lp2pdatachannel-send-data-data"><code><c- g>data</c-></code><a class="self-link" href="#dom-lp2pdatachannel-send-data-data"></a></dfn>);
+};
+</pre>
+    <h3 class="heading settled" data-level="7.1" id="lp2p-data-channel-init"><span class="secno">7.1. </span><span class="content">LP2PDataChannelInit</span><a class="self-link" href="#lp2p-data-channel-init"></a></h3>
+<pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed" id="ref-for-Exposed⑦"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->), <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext" id="ref-for-SecureContext⑦"><c- g>SecureContext</c-></a>]
+<c- b>dictionary</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-export id="dictdef-lp2pdatachannelinit"><code><c- g>LP2PDataChannelInit</c-></code></dfn> {
+  <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-USVString" id="ref-for-idl-USVString③"><c- b>USVString</c-></a> <dfn class="idl-code" data-default="&quot;&quot;" data-dfn-for="LP2PDataChannelInit" data-dfn-type="dict-member" data-export data-type="USVString " id="dom-lp2pdatachannelinit-protocol"><code><c- g>protocol</c-></code><a class="self-link" href="#dom-lp2pdatachannelinit-protocol"></a></dfn> = "";
+  [<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#EnforceRange" id="ref-for-EnforceRange"><c- g>EnforceRange</c-></a>] <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-unsigned-short" id="ref-for-idl-unsigned-short①"><c- b>unsigned</c-> <c- b>short</c-></a> <dfn class="idl-code" data-dfn-for="LP2PDataChannelInit" data-dfn-type="dict-member" data-export data-type="unsigned short " id="dom-lp2pdatachannelinit-id"><code><c- g>id</c-></code><a class="self-link" href="#dom-lp2pdatachannelinit-id"></a></dfn>;
+};
+</pre>
+    <h3 class="heading settled" data-level="7.2" id="lp2p-data-channel-events"><span class="secno">7.2. </span><span class="content">Events</span><a class="self-link" href="#lp2p-data-channel-events"></a></h3>
+    <p>The following event is <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire" id="ref-for-concept-event-fire①">fired</a> at the <code class="idl"><a data-link-type="idl" href="#lp2pdatachannel" id="ref-for-lp2pdatachannel">LP2PDataChannel</a></code> object:</p>
+    <table class="data">
+     <thead>
+      <tr>
+       <th>Event name
+       <th>Interface
+       <th>Fired when…
+     <tbody>
+      <tr>
+       <td><dfn class="dfn-paneled idl-code" data-dfn-for="LP2PDataChannel" data-dfn-type="event" data-export id="eventdef-lp2pdatachannel-open"><code>open</code></dfn>
+       <td><code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#event" id="ref-for-event①">Event</a></code>
+       <td>The data channel is opened.
+      <tr>
+       <td><dfn class="dfn-paneled idl-code" data-dfn-for="LP2PDataChannel" data-dfn-type="event" data-export id="eventdef-lp2pdatachannel-message"><code>message</code></dfn>
+       <td><code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/comms.html#messageevent" id="ref-for-messageevent">MessageEvent</a></code><a data-link-type="biblio" href="#biblio-html" title="HTML Standard">[html]</a>
+       <td>An incoming message is received.
+      <tr>
+       <td><dfn class="dfn-paneled idl-code" data-dfn-for="LP2PDataChannel" data-dfn-type="event" data-export id="eventdef-lp2pdatachannel-error"><code>error</code></dfn>
+       <td><code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#event" id="ref-for-event②">Event</a></code>
+       <td>An error occurred.
+      <tr>
+       <td><dfn class="dfn-paneled idl-code" data-dfn-for="LP2PDataChannel" data-dfn-type="event" data-export id="eventdef-lp2pdatachannel-closing"><code>closing</code></dfn>
+       <td><code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#event" id="ref-for-event③">Event</a></code>
+       <td>The data channel is closing.
+      <tr>
+       <td><dfn class="dfn-paneled idl-code" data-dfn-for="LP2PDataChannel" data-dfn-type="event" data-export id="eventdef-lp2pdatachannel-close"><code>close</code></dfn>
+       <td><code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#event" id="ref-for-event④">Event</a></code>
+       <td>The data channel is closed.
+    </table>
+    <h3 class="heading settled" data-level="7.3" id="lp2p-data-channel-event-handlers"><span class="secno">7.3. </span><span class="content">Data Channel Event handlers</span><a class="self-link" href="#lp2p-data-channel-event-handlers"></a></h3>
+    <p>The following are the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers" id="ref-for-event-handlers②">event handlers</a> (and their corresponding <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type" id="ref-for-event-handler-event-type②">event handler event types</a>) that must be supported, as <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes" id="ref-for-event-handler-idl-attributes①">event handler IDL attributes</a>, by all objects implementing the <a href="#lp2p-connection">LP2PConnection</a> interface:</p>
+    <table class="data">
+     <thead>
+      <tr>
+       <th><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers" id="ref-for-event-handlers③">event handler</a>
+       <th><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type" id="ref-for-event-handler-event-type③">event handler event type</a>
+     <tbody>
+      <tr>
+       <td><dfn class="dfn-paneled idl-code" data-dfn-for="LP2PDataChannel" data-dfn-type="attribute" data-export id="dom-lp2pdatachannel-onopen"><code>onopen</code></dfn>
+       <td><code class="idl"><a data-link-type="idl" href="#eventdef-lp2pdatachannel-open" id="ref-for-eventdef-lp2pdatachannel-open">open</a></code>
+      <tr>
+       <td><dfn class="dfn-paneled idl-code" data-dfn-for="LP2PDataChannel" data-dfn-type="attribute" data-export id="dom-lp2pdatachannel-onmessage"><code>onmessage</code></dfn>
+       <td><code class="idl"><a data-link-type="idl" href="#eventdef-lp2pdatachannel-message" id="ref-for-eventdef-lp2pdatachannel-message">message</a></code>
+      <tr>
+       <td><dfn class="dfn-paneled idl-code" data-dfn-for="LP2PDataChannel" data-dfn-type="attribute" data-export id="dom-lp2pdatachannel-onerror"><code>onerror</code></dfn>
+       <td><code class="idl"><a data-link-type="idl" href="#eventdef-lp2pdatachannel-error" id="ref-for-eventdef-lp2pdatachannel-error">error</a></code>
+      <tr>
+       <td><dfn class="dfn-paneled idl-code" data-dfn-for="LP2PDataChannel" data-dfn-type="attribute" data-export id="dom-lp2pdatachannel-onclosing"><code>onclosing</code></dfn>
+       <td><code class="idl"><a data-link-type="idl" href="#eventdef-lp2pdatachannel-closing" id="ref-for-eventdef-lp2pdatachannel-closing">closing</a></code>
+      <tr>
+       <td><dfn class="dfn-paneled idl-code" data-dfn-for="LP2PDataChannel" data-dfn-type="attribute" data-export id="dom-lp2pdatachannel-onclose"><code>onclose</code></dfn>
+       <td><code class="idl"><a data-link-type="idl" href="#eventdef-lp2pdatachannel-close" id="ref-for-eventdef-lp2pdatachannel-close">close</a></code>
+    </table>
+    <h3 class="heading settled" data-level="7.4" id="lp2p-data-channel-extensions"><span class="secno">7.4. </span><span class="content">LP2PConnection Interface Extensions</span><a class="self-link" href="#lp2p-data-channel-extensions"></a></h3>
+<pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed" id="ref-for-Exposed⑧"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->), <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext" id="ref-for-SecureContext⑧"><c- g>SecureContext</c-></a>]
+<c- b>partial</c-> <c- b>interface</c-> <a class="idl-code" data-link-type="interface" href="#lp2pconnection" id="ref-for-lp2pconnection④"><c- g>LP2PConnection</c-></a> {
+  <a data-link-type="idl-name" href="#lp2pdatachannel" id="ref-for-lp2pdatachannel①"><c- n>LP2PDataChannel</c-></a> <dfn class="idl-code" data-dfn-for="LP2PConnection" data-dfn-type="method" data-export data-lt="createDataChannel(label, dataChannelDict)|createDataChannel(label)" id="dom-lp2pconnection-createdatachannel"><code><c- g>createDataChannel</c-></code><a class="self-link" href="#dom-lp2pconnection-createdatachannel"></a></dfn>(<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-USVString" id="ref-for-idl-USVString④"><c- b>USVString</c-></a> <dfn class="idl-code" data-dfn-for="LP2PConnection/createDataChannel(label, dataChannelDict), LP2PConnection/createDataChannel(label)" data-dfn-type="argument" data-export id="dom-lp2pconnection-createdatachannel-label-datachanneldict-label"><code><c- g>label</c-></code><a class="self-link" href="#dom-lp2pconnection-createdatachannel-label-datachanneldict-label"></a></dfn>,
+                                   <c- b>optional</c-> <a data-link-type="idl-name" href="#dictdef-lp2pdatachannelinit" id="ref-for-dictdef-lp2pdatachannelinit"><c- n>LP2PDataChannelInit</c-></a> <dfn class="idl-code" data-dfn-for="LP2PConnection/createDataChannel(label, dataChannelDict), LP2PConnection/createDataChannel(label)" data-dfn-type="argument" data-export id="dom-lp2pconnection-createdatachannel-label-datachanneldict-datachanneldict"><code><c- g>dataChannelDict</c-></code><a class="self-link" href="#dom-lp2pconnection-createdatachannel-label-datachanneldict-datachanneldict"></a></dfn> = {});
+  <c- b>attribute</c-> <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler" id="ref-for-eventhandler⑥"><c- n>EventHandler</c-></a> <a class="idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-lp2pconnection-ondatachannel" id="ref-for-dom-lp2pconnection-ondatachannel"><c- g>ondatachannel</c-></a>;
+};
+</pre>
+    <h3 class="heading settled" data-level="7.5" id="lp2p-data-channel-event"><span class="secno">7.5. </span><span class="content">LP2PDataChannelEvent</span><a class="self-link" href="#lp2p-data-channel-event"></a></h3>
+<pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed" id="ref-for-Exposed⑨"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->), <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext" id="ref-for-SecureContext⑨"><c- g>SecureContext</c-></a>]
+<c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="lp2pdatachannelevent"><code><c- g>LP2PDataChannelEvent</c-></code></dfn> {
+  <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#lp2pdatachannel" id="ref-for-lp2pdatachannel②"><c- n>LP2PDataChannel</c-></a> <dfn class="idl-code" data-dfn-for="LP2PDataChannelEvent" data-dfn-type="attribute" data-export data-readonly data-type="LP2PDataChannel" id="dom-lp2pdatachannelevent-channel"><code><c- g>channel</c-></code><a class="self-link" href="#dom-lp2pdatachannelevent-channel"></a></dfn>;
+};
+</pre>
+    <h3 class="heading settled" data-level="7.6" id="lp2p-data-channel-extensions-events"><span class="secno">7.6. </span><span class="content">Extensions Events</span><a class="self-link" href="#lp2p-data-channel-extensions-events"></a></h3>
+    <p>The following event is <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire" id="ref-for-concept-event-fire②">fired</a> at the <code class="idl"><a data-link-type="idl" href="#lp2pconnection" id="ref-for-lp2pconnection⑤">LP2PConnection</a></code> object:</p>
+    <table class="data">
+     <thead>
+      <tr>
+       <th>Event name
+       <th>Interface
+       <th>Fired when…
+     <tbody>
+      <tr>
+       <td><dfn class="dfn-paneled idl-code" data-dfn-for="LP2PConnection" data-dfn-type="event" data-export id="eventdef-lp2pconnection-datachannel"><code>datachannel</code></dfn>
+       <td><code class="idl"><a data-link-type="idl" href="#lp2pdatachannelevent" id="ref-for-lp2pdatachannelevent">LP2PDataChannelEvent</a></code>
+       <td>An incoming connection is received.
+    </table>
+    <h3 class="heading settled" data-level="7.7" id="lp2p-data-channel-extensions-event-handlers"><span class="secno">7.7. </span><span class="content">Extensions Event handlers</span><a class="self-link" href="#lp2p-data-channel-extensions-event-handlers"></a></h3>
+    <p>The following are the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers" id="ref-for-event-handlers④">event handlers</a> (and their corresponding <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type" id="ref-for-event-handler-event-type④">event handler event types</a>) that must be supported, as <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes" id="ref-for-event-handler-idl-attributes②">event handler IDL attributes</a>, by all objects implementing the <code class="idl"><a data-link-type="idl" href="#lp2pconnection" id="ref-for-lp2pconnection⑥">LP2PConnection</a></code> interface:</p>
+    <table class="data">
+     <thead>
+      <tr>
+       <th><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers" id="ref-for-event-handlers⑤">event handler</a>
+       <th><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type" id="ref-for-event-handler-event-type⑤">event handler event type</a>
+     <tbody>
+      <tr>
+       <td><dfn class="dfn-paneled idl-code" data-dfn-for="LP2PConnection" data-dfn-type="attribute" data-export id="dom-lp2pconnection-ondatachannel"><code>ondatachannel</code></dfn>
+       <td><code class="idl"><a data-link-type="idl" href="#eventdef-lp2pconnection-datachannel" id="ref-for-eventdef-lp2pconnection-datachannel">datachannel</a></code>
+    </table>
+   </section>
+   <section class="algorithm" data-algorithm="LP2PQuicTransport">
+    <h2 class="heading settled" data-level="8" id="lp2p-quic-transport"><span class="secno">8. </span><span class="content">The LP2PQuicTransport Interface</span><a class="self-link" href="#lp2p-quic-transport"></a></h2>
+<pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed" id="ref-for-Exposed①⓪"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->), <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext" id="ref-for-SecureContext①⓪"><c- g>SecureContext</c-></a>]
+<c- b>interface</c-> <dfn class="idl-code" data-dfn-type="interface" data-export id="lp2pquictransport"><code><c- g>LP2PQuicTransport</c-></code><a class="self-link" href="#lp2pquictransport"></a></dfn> : <a data-link-type="idl-name" href="https://w3c.github.io/webtransport/#webtransport" id="ref-for-webtransport"><c- n>WebTransport</c-></a> {
+  <dfn class="idl-code" data-dfn-for="LP2PQuicTransport" data-dfn-type="constructor" data-export data-lt="LP2PQuicTransport(transport)|constructor(transport)" id="dom-lp2pquictransport-lp2pquictransport"><code><c- g>constructor</c-></code><a class="self-link" href="#dom-lp2pquictransport-lp2pquictransport"></a></dfn>(<a data-link-type="idl-name" href="#lp2pconnection" id="ref-for-lp2pconnection⑦"><c- n>LP2PConnection</c-></a> <dfn class="idl-code" data-dfn-for="LP2PQuicTransport/LP2PQuicTransport(transport), LP2PQuicTransport/constructor(transport)" data-dfn-type="argument" data-export id="dom-lp2pquictransport-lp2pquictransport-transport-transport"><code><c- g>transport</c-></code><a class="self-link" href="#dom-lp2pquictransport-lp2pquictransport-transport-transport"></a></dfn>);
+  <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-promise" id="ref-for-idl-promise②"><c- b>Promise</c-></a>&lt;<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-undefined" id="ref-for-idl-undefined③"><c- b>undefined</c-></a>> <dfn class="idl-code" data-dfn-for="LP2PQuicTransport" data-dfn-type="method" data-export data-lt="start()" id="dom-lp2pquictransport-start"><code><c- g>start</c-></code><a class="self-link" href="#dom-lp2pquictransport-start"></a></dfn>();
+};
+</pre>
+    <h3 class="heading settled" data-level="8.1" id="lp2p-quic-transport-examples"><span class="secno">8.1. </span><span class="content">Examples</span><a class="self-link" href="#lp2p-quic-transport-examples"></a></h3>
+    <p>Example: Setting up a request for a connections:</p>
+<pre class="example highlight" id="example-c25a9593"><a class="self-link" href="#example-c25a9593"></a><c- a>const</c-> request <c- o>=</c-> <c- ow>new</c-> LP2PRequest<c- p>({</c->
+    nickname<c- o>:</c-> <c- u>"example-request"</c-><c- p>,</c->
+<c- p>});</c->
+
+<c- a>const</c-> conn <c- o>=</c-> <c- k>await</c-> request<c- p>.</c->start<c- p>();</c->
+
+<c- a>const</c-> transport <c- o>=</c-> <c- ow>new</c-> LP2PQuicTransport<c- p>(</c->conn<c- p>);</c->
+
+<c- c1>// Blocks until transport is opened.</c->
+<c- k>await</c-> transport<c- p>.</c->start<c- p>();</c->
+</pre>
+    <p>Refer to the <a href="https://www.w3.org/TR/webtransport/#examples">WebTransport examples</a> for usage of a <a data-link-type="biblio" href="#biblio-webtransport" title="WebTransport">[webtransport]</a> object.</p>
+   </section>
+   <h2 class="heading settled" data-level="9" id="examples"><span class="secno">9. </span><span class="content">Examples</span><a class="self-link" href="#examples"></a></h2>
+   <h3 class="heading settled" data-level="9.1" id="examples-data-channel"><span class="secno">9.1. </span><span class="content">Data Channel Communication</span><a class="self-link" href="#examples-data-channel"></a></h3>
+<pre class="example highlight" id="example-16859197"><a class="self-link" href="#example-16859197"></a><c- c1>// Peer A</c->
+<c- a>const</c-> receiver <c- o>=</c-> <c- ow>new</c-> LP2PReceiver<c- p>({</c->
+    nickname<c- o>:</c-> <c- u>"Peer A"</c-><c- p>,</c->
+<c- p>});</c->
+
+receiver<c- p>.</c->onconnection <c- o>=</c-> e <c- p>=></c-> <c- p>{</c->
+    <c- a>const</c-> conn <c- o>=</c-> e<c- p>.</c->connection<c- p>;</c->
+    console<c- p>.</c->log<c- p>(</c-><c- u>"Receiver: Got a connection!"</c-><c- p>);</c->
+
+    conn<c- p>.</c->ondatachannel <c- o>=</c-> e <c- p>=></c-> <c- p>{</c->
+        <c- a>const</c-> channel <c- o>=</c-> e<c- p>.</c->channel<c- p>;</c->
+
+        channel<c- p>.</c->onmessage <c- o>=</c-> e <c- p>=></c-> <c- p>{</c->
+            <c- a>const</c-> message <c- o>=</c-> e<c- p>.</c->message<c- p>;</c->
+            console<c- p>.</c->log<c- p>(</c-><c- sb>`Receiver: Received message: </c-><c- si>${</c->message<c- si>}</c-><c- sb>`</c-><c- p>);</c->
+        <c- p>};</c->
+
+        channel<c- p>.</c->send<c- p>(</c-><c- u>"Good day to you, requester!"</c-><c- p>);</c->
+    <c- p>};</c->
+<c- p>};</c->
+
+receiver<c- p>.</c->start<c- p>();</c->
+
+<c- c1>// Peer B</c->
+<c- a>const</c-> request <c- o>=</c-> <c- ow>new</c-> LP2PRequest<c- p>({</c->
+    nickname<c- o>:</c-> <c- u>"Peer B"</c-><c- p>,</c->
+<c- p>});</c->
+
+<c- a>const</c-> conn <c- o>=</c-> <c- k>await</c-> request<c- p>.</c->start<c- p>();</c->
+console<c- p>.</c->log<c- p>(</c-><c- u>"Requester: Got a connection!"</c-><c- p>);</c->
+
+<c- a>const</c-> channel <c- o>=</c-> conn<c- p>.</c->createDataChannel<c- p>(</c-><c- u>"My Channel"</c-><c- p>);</c->
+
+channel<c- p>.</c->onopen <c- o>=</c-> e <c- p>=></c-> <c- p>{</c->
+    channel<c- p>.</c->onmessage <c- o>=</c-> e <c- p>=></c-> <c- p>{</c->
+        <c- a>const</c-> message <c- o>=</c-> e<c- p>.</c->data<c- p>;</c->
+        console<c- p>.</c->log<c- p>(</c-><c- sb>`Requester: Received message: </c-><c- si>${</c->message<c- si>}</c-><c- sb>`</c-><c- p>);</c->
+    <c- p>};</c->
+
+    channel<c- p>.</c->send<c- p>(</c-><c- u>"Good day to you, receiver!"</c-><c- p>);</c->
+<c- p>};</c->
+</pre>
+   <h2 class="heading settled" id="appendix-a"><span class="content">Appendix A: OSP Extension Messages</span><a class="self-link" href="#appendix-a"></a></h2>
+   <p>The following messages are defined according to and as an extension to the <a data-link-type="biblio" href="#biblio-openscreenprotocol" title="Open Screen Protocol">OpenScreen Protocol</a> <a href="https://www.w3.org/TR/openscreenprotocol/#appendix-a">Messages</a>.</p>
+   <p class="note" role="note"><span class="marker">Note:</span> The type keys and capability IDs for these extensions are not officially registered yet. They will be registered as this specification matures.</p>
+<pre class="data highlight"><dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="agent-capability"><c- nc>agent-capability</c-></dfn> <c- o>=</c-> <c- o>&amp;</c-><c- p>(</c->
+  <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="data-channels"><c- s>data-channels</c-></dfn><c- p>:</c-> <c- mi>11</c-><c- nc>OO</c->
+  <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="quick-transport"><c- s>quick-transport</c-></dfn><c- p>:</c-> <c- mi>12</c-><c- nc>OO</c->
+<c- p>)</c->
+
+<dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="data-channel-encoding-id"><c- nc>data-channel-encoding-id</c-></dfn> <c- o>=</c-> <c- o>&amp;</c-><c- p>(</c->
+  <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="encoding-id-blob"><c- s>encoding-id-blob</c-></dfn><c- p>:</c-> <c- mi>0</c->
+  <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="encoding-id-string"><c- s>encoding-id-string</c-></dfn><c- p>:</c-> <c- mi>1</c->
+  <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="encoding-id-array-buffer"><c- s>encoding-id-array-buffer</c-></dfn><c- p>:</c-> <c- mi>2</c->
+<c- p>)</c->
+
+<c- c1>; type key 24</c->
+<dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="data-frame"><c- nc>data-frame</c-></dfn> <c- o>=</c-> <c- p>{</c->
+  <c- mi>0</c-><c- p>:</c-> <c- nc>data-channel-encoding-id</c-> <c- c1>; encoding-id</c->
+  <c- mi>4</c-><c- p>:</c-> bytes <c- c1>; payload</c->
+<c- p>}</c->
+
+<c- c1>; type key 1101</c->
+<dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="data-channel-open-request"><c- nc>data-channel-open-request</c-></dfn> <c- o>=</c-> <c- p>{</c->
+  <c- nc>request</c->
+  <c- mi>1</c-><c- p>:</c-> uint <c- c1>; channel-id</c->
+  <c- mi>2</c-><c- p>:</c-> text <c- c1>; label</c->
+  <c- mi>3</c-><c- p>:</c-> text <c- c1>; protocol</c->
+<c- p>}</c->
+
+<c- c1>; type key 1102</c->
+<dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="data-channel-open-response"><c- nc>data-channel-open-response</c-></dfn> <c- o>=</c-> <c- p>{</c->
+  <c- nc>response</c->
+  <c- mi>1</c-><c- p>:</c-> <c- o>&amp;</c-><c- nc>result</c-> <c- c1>; result</c->
+<c- p>}</c->
+</pre>
   </main>
   <div data-fill-with="conformance">
    <h2 class="no-ref no-num heading settled" id="w3c-conformance"><span class="content">Conformance</span><a class="self-link" href="#w3c-conformance"></a></h2>
@@ -502,9 +1222,865 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
    <p class="note" role="note">Note, this is an informative note.</p>
   </div>
 <script src="https://www.w3.org/scripts/TR/2021/fixup.js"></script>
+  <h2 class="no-num no-ref heading settled" id="index"><span class="content">Index</span><a class="self-link" href="#index"></a></h2>
+  <h3 class="no-num no-ref heading settled" id="index-defined-here"><span class="content">Terms defined by this specification</span><a class="self-link" href="#index-defined-here"></a></h3>
+  <ul class="index">
+   <li><a href="#acquire-a-local-peer-grant">acquire a local peer grant</a><span>, in § 2.5</span>
+   <li><a href="#session-advertise-agent">advertise agent</a><span>, in § 3</span>
+   <li><a href="#agent-capability">agent-capability</a><span>, in § Unnumbered section</span>
+   <li><a href="#authenticate-a-local-peer">authenticate a local peer</a><span>, in § 2.4</span>
+   <li><a href="#session-authenticate-an-agent">authenticate an agent</a><span>, in § 3</span>
+   <li><a href="#authenticated">authenticated</a><span>, in § 2.4</span>
+   <li><a href="#authentication-state">authentication state</a><span>, in § 2.1</span>
+   <li><a href="#dom-lp2pdatachannel-binarytype">binaryType</a><span>, in § 7</span>
+   <li><a href="#dom-lp2pdatachannelevent-channel">channel</a><span>, in § 7.5</span>
+   <li><a href="#eventdef-lp2pdatachannel-close">close</a><span>, in § 7.2</span>
+   <li><a href="#dom-lp2pdatachannel-close">close()</a><span>, in § 7</span>
+   <li><a href="#eventdef-lp2pdatachannel-closing">closing</a><span>, in § 7.2</span>
+   <li>
+    connection
+    <ul>
+     <li><a href="#dom-lp2pconnectionevent-connection">attribute for LP2PConnectionEvent</a><span>, in § 4.2</span>
+     <li><a href="#dom-lp2pconnectioneventinit-connection">dict-member for LP2PConnectionEventInit</a><span>, in § 4.2</span>
+     <li><a href="#eventdef-lp2preceiver-connection">event for LP2PReceiver</a><span>, in § 4.4</span>
+    </ul>
+   <li>
+    constructor()
+    <ul>
+     <li><a href="#dom-lp2preceiver-lp2preceiver">constructor for LP2PReceiver</a><span>, in § 4</span>
+     <li><a href="#dom-lp2prequest-lp2prequest">constructor for LP2PRequest</a><span>, in § 5</span>
+    </ul>
+   <li>
+    constructor(options)
+    <ul>
+     <li><a href="#dom-lp2preceiver-lp2preceiver">constructor for LP2PReceiver</a><span>, in § 4</span>
+     <li><a href="#dom-lp2prequest-lp2prequest">constructor for LP2PRequest</a><span>, in § 5</span>
+    </ul>
+   <li><a href="#dom-lp2pquictransport-lp2pquictransport">constructor(transport)</a><span>, in § 8</span>
+   <li><a href="#dom-lp2pconnectionevent-lp2pconnectionevent">constructor(type, connectionEventInitDict)</a><span>, in § 4.2</span>
+   <li><a href="#dom-lp2pconnection-createdatachannel">createDataChannel(label)</a><span>, in § 7.4</span>
+   <li><a href="#dom-lp2pconnection-createdatachannel">createDataChannel(label, dataChannelDict)</a><span>, in § 7.4</span>
+   <li><a href="#eventdef-lp2pconnection-datachannel">datachannel</a><span>, in § 7.6</span>
+   <li><a href="#data-channel-encoding-id">data-channel-encoding-id</a><span>, in § Unnumbered section</span>
+   <li><a href="#data-channel-open-request">data-channel-open-request</a><span>, in § Unnumbered section</span>
+   <li><a href="#data-channel-open-response">data-channel-open-response</a><span>, in § Unnumbered section</span>
+   <li><a href="#data-channels">data-channels</a><span>, in § Unnumbered section</span>
+   <li><a href="#data-frame">data-frame</a><span>, in § Unnumbered section</span>
+   <li><a href="#session-discover-agents">discover agents</a><span>, in § 3</span>
+   <li><a href="#session-discover-metadata">discover metadata</a><span>, in § 3</span>
+   <li><a href="#encoding-id-array-buffer">encoding-id-array-buffer</a><span>, in § Unnumbered section</span>
+   <li><a href="#encoding-id-blob">encoding-id-blob</a><span>, in § Unnumbered section</span>
+   <li><a href="#encoding-id-string">encoding-id-string</a><span>, in § Unnumbered section</span>
+   <li><a href="#eventdef-lp2pdatachannel-error">error</a><span>, in § 7.2</span>
+   <li><a href="#establish-local-peer-connection">establish local peer connection</a><span>, in § 3</span>
+   <li>
+    id
+    <ul>
+     <li><a href="#dom-lp2pdatachannel-id">attribute for LP2PDataChannel</a><span>, in § 7</span>
+     <li><a href="#dom-lp2pdatachannelinit-id">dict-member for LP2PDataChannelInit</a><span>, in § 7.1</span>
+    </ul>
+   <li><a href="#known-peer">known peer</a><span>, in § 2.1</span>
+   <li><a href="#known-peers-map">known peers map</a><span>, in § 2.1</span>
+   <li><a href="#dom-lp2pdatachannel-label">label</a><span>, in § 7</span>
+   <li><a href="#local-peer-to-peer-manager">local peer-to-peer manager</a><span>, in § 2</span>
+   <li><a href="#protocol-local-peer-to-peer-session">Local Peer-to-Peer session</a><span>, in § 3</span>
+   <li><a href="#lp2pconnection">LP2PConnection</a><span>, in § 6</span>
+   <li><a href="#lp2pconnectionevent">LP2PConnectionEvent</a><span>, in § 4.2</span>
+   <li><a href="#dictdef-lp2pconnectioneventinit">LP2PConnectionEventInit</a><span>, in § 4.2</span>
+   <li><a href="#dom-lp2pconnectionevent-lp2pconnectionevent">LP2PConnectionEvent(type, connectionEventInitDict)</a><span>, in § 4.2</span>
+   <li><a href="#lp2pdatachannel">LP2PDataChannel</a><span>, in § 7</span>
+   <li><a href="#lp2pdatachannelevent">LP2PDataChannelEvent</a><span>, in § 7.5</span>
+   <li><a href="#dictdef-lp2pdatachannelinit">LP2PDataChannelInit</a><span>, in § 7.1</span>
+   <li><a href="#lp2pquictransport">LP2PQuicTransport</a><span>, in § 8</span>
+   <li><a href="#dom-lp2pquictransport-lp2pquictransport">LP2PQuicTransport(transport)</a><span>, in § 8</span>
+   <li><a href="#lp2preceiver">LP2PReceiver</a><span>, in § 4</span>
+   <li><a href="#dom-lp2preceiver-lp2preceiver">LP2PReceiver()</a><span>, in § 4</span>
+   <li><a href="#dom-lp2preceiver-lp2preceiver">LP2PReceiver(options)</a><span>, in § 4</span>
+   <li><a href="#dictdef-lp2preceiveroptions">LP2PReceiverOptions</a><span>, in § 4.1</span>
+   <li><a href="#lp2prequest">LP2PRequest</a><span>, in § 5</span>
+   <li><a href="#dom-lp2prequest-lp2prequest">LP2PRequest()</a><span>, in § 5</span>
+   <li><a href="#dom-lp2prequest-lp2prequest">LP2PRequest(options)</a><span>, in § 5</span>
+   <li><a href="#dictdef-lp2prequestoptions">LP2PRequestOptions</a><span>, in § 5.1</span>
+   <li><a href="#eventdef-lp2pdatachannel-message">message</a><span>, in § 7.2</span>
+   <li>
+    nickname
+    <ul>
+     <li><a href="#dom-lp2preceiveroptions-nickname">dict-member for LP2PReceiverOptions</a><span>, in § 4.1</span>
+     <li><a href="#dom-lp2prequestoptions-nickname">dict-member for LP2PRequestOptions</a><span>, in § 5.1</span>
+    </ul>
+   <li><a href="#dom-lp2pdatachannel-onclose">onclose</a><span>, in § 7.3</span>
+   <li><a href="#dom-lp2pdatachannel-onclosing">onclosing</a><span>, in § 7.3</span>
+   <li><a href="#dom-lp2preceiver-onconnection">onconnection</a><span>, in § 4.5</span>
+   <li><a href="#dom-lp2pconnection-ondatachannel">ondatachannel</a><span>, in § 7.7</span>
+   <li><a href="#dom-lp2pdatachannel-onerror">onerror</a><span>, in § 7.3</span>
+   <li><a href="#dom-lp2pdatachannel-onmessage">onmessage</a><span>, in § 7.3</span>
+   <li><a href="#dom-lp2pdatachannel-onopen">onopen</a><span>, in § 7.3</span>
+   <li><a href="#eventdef-lp2pdatachannel-open">open</a><span>, in § 7.2</span>
+   <li><a href="#open-a-data-channel">open a data channel</a><span>, in § 3.1</span>
+   <li><a href="#open-a-webtransport-session">open a WebTransport session</a><span>, in § 3.2</span>
+   <li><a href="#peer">peer</a><span>, in § 2</span>
+   <li><a href="#peer-grant-state">peer grant state</a><span>, in § 2.1</span>
+   <li><a href="#persisted">persisted</a><span>, in § 2.1</span>
+   <li>
+    protocol
+    <ul>
+     <li><a href="#dom-lp2pdatachannel-protocol">attribute for LP2PDataChannel</a><span>, in § 7</span>
+     <li><a href="#dom-lp2pdatachannelinit-protocol">dict-member for LP2PDataChannelInit</a><span>, in § 7.1</span>
+    </ul>
+   <li><a href="#quick-transport">quick-transport</a><span>, in § Unnumbered section</span>
+   <li><a href="#dom-lp2pdatachannel-send">send(data)</a><span>, in § 7</span>
+   <li><a href="#send-data-on-a-channel">send data on a channel</a><span>, in § 3.1</span>
+   <li>
+    start()
+    <ul>
+     <li><a href="#dom-lp2pquictransport-start">method for LP2PQuicTransport</a><span>, in § 8</span>
+     <li><a href="#dom-lp2preceiver-start">method for LP2PReceiver</a><span>, in § 4</span>
+     <li><a href="#dom-lp2prequest-start">method for LP2PRequest</a><span>, in § 5</span>
+    </ul>
+   <li><a href="#start-local-peer-discovery">start local peer discovery</a><span>, in § 2.3</span>
+  </ul>
+  <h3 class="no-num no-ref heading settled" id="index-defined-elsewhere"><span class="content">Terms defined by reference</span><a class="self-link" href="#index-defined-elsewhere"></a></h3>
+  <ul class="index">
+   <li>
+    <a data-link-type="biblio">[DOM]</a> defines the following terms:
+    <ul>
+     <li><span class="dfn-paneled" id="129bdae8">Event</span>
+     <li><span class="dfn-paneled" id="44a7708c">EventInit</span>
+     <li><span class="dfn-paneled" id="2bc0cdf4">EventTarget</span>
+     <li><span class="dfn-paneled" id="5fd23811">fire an event</span>
+    </ul>
+   <li>
+    <a data-link-type="biblio">[FileAPI]</a> defines the following terms:
+    <ul>
+     <li><span class="dfn-paneled" id="b7d73f5b">Blob</span>
+    </ul>
+   <li>
+    <a data-link-type="biblio">[HTML]</a> defines the following terms:
+    <ul>
+     <li><span class="dfn-paneled" id="f0951476">EventHandler</span>
+     <li><span class="dfn-paneled" id="3e8c0e5f">MessageEvent</span>
+     <li><span class="dfn-paneled" id="6a5a59a0">event handler</span>
+     <li><span class="dfn-paneled" id="9d386f55">event handler event type</span>
+     <li><span class="dfn-paneled" id="03675365">event handler idl attribute</span>
+    </ul>
+   <li>
+    <a data-link-type="biblio">[INFRA]</a> defines the following terms:
+    <ul>
+     <li><span class="dfn-paneled" id="84b454ff">ordered map</span>
+    </ul>
+   <li>
+    <a data-link-type="biblio">[WEBIDL]</a> defines the following terms:
+    <ul>
+     <li><span class="dfn-paneled" id="2f8afbfe">ArrayBuffer</span>
+     <li><span class="dfn-paneled" id="6c9ab516">ArrayBufferView</span>
+     <li><span class="dfn-paneled" id="8855a9aa">DOMString</span>
+     <li><span class="dfn-paneled" id="c01cbda0">EnforceRange</span>
+     <li><span class="dfn-paneled" id="889e932f">Exposed</span>
+     <li><span class="dfn-paneled" id="bdbd19d1">Promise</span>
+     <li><span class="dfn-paneled" id="b75bb3bd">SecureContext</span>
+     <li><span class="dfn-paneled" id="b0d7f3c3">USVString</span>
+     <li><span class="dfn-paneled" id="5f90bbfb">undefined</span>
+     <li><span class="dfn-paneled" id="450958f7">unsigned short</span>
+    </ul>
+   <li>
+    <a data-link-type="biblio">[WEBSOCKETS]</a> defines the following terms:
+    <ul>
+     <li><span class="dfn-paneled" id="88d6f55f">BinaryType</span>
+    </ul>
+   <li>
+    <a data-link-type="biblio">[WEBTRANSPORT]</a> defines the following terms:
+    <ul>
+     <li><span class="dfn-paneled" id="85122cbe">WebTransport</span>
+    </ul>
+  </ul>
   <h2 class="no-num no-ref heading settled" id="references"><span class="content">References</span><a class="self-link" href="#references"></a></h2>
   <h3 class="no-num no-ref heading settled" id="normative"><span class="content">Normative References</span><a class="self-link" href="#normative"></a></h3>
   <dl>
+   <dt id="biblio-dom">[DOM]
+   <dd>Anne van Kesteren. <a href="https://dom.spec.whatwg.org/"><cite>DOM Standard</cite></a>. Living Standard. URL: <a href="https://dom.spec.whatwg.org/">https://dom.spec.whatwg.org/</a>
+   <dt id="biblio-fileapi">[FileAPI]
+   <dd>Marijn Kruisselbrink. <a href="https://w3c.github.io/FileAPI/"><cite>File API</cite></a>. URL: <a href="https://w3c.github.io/FileAPI/">https://w3c.github.io/FileAPI/</a>
+   <dt id="biblio-html">[HTML]
+   <dd>Anne van Kesteren; et al. <a href="https://html.spec.whatwg.org/multipage/"><cite>HTML Standard</cite></a>. Living Standard. URL: <a href="https://html.spec.whatwg.org/multipage/">https://html.spec.whatwg.org/multipage/</a>
+   <dt id="biblio-infra">[INFRA]
+   <dd>Anne van Kesteren; Domenic Denicola. <a href="https://infra.spec.whatwg.org/"><cite>Infra Standard</cite></a>. Living Standard. URL: <a href="https://infra.spec.whatwg.org/">https://infra.spec.whatwg.org/</a>
+   <dt id="biblio-openscreenprotocol">[OPENSCREENPROTOCOL]
+   <dd>Mark Foltz. <a href="https://w3c.github.io/openscreenprotocol/"><cite>Open Screen Protocol</cite></a>. URL: <a href="https://w3c.github.io/openscreenprotocol/">https://w3c.github.io/openscreenprotocol/</a>
    <dt id="biblio-rfc2119">[RFC2119]
    <dd>S. Bradner. <a href="https://datatracker.ietf.org/doc/html/rfc2119"><cite>Key words for use in RFCs to Indicate Requirement Levels</cite></a>. March 1997. Best Current Practice. URL: <a href="https://datatracker.ietf.org/doc/html/rfc2119">https://datatracker.ietf.org/doc/html/rfc2119</a>
+   <dt id="biblio-rfc9000">[RFC9000]
+   <dd>J. Iyengar, Ed.; M. Thomson, Ed.. <a href="https://www.rfc-editor.org/rfc/rfc9000"><cite>QUIC: A UDP-Based Multiplexed and Secure Transport</cite></a>. May 2021. Proposed Standard. URL: <a href="https://www.rfc-editor.org/rfc/rfc9000">https://www.rfc-editor.org/rfc/rfc9000</a>
+   <dt id="biblio-webidl">[WEBIDL]
+   <dd>Edgar Chen; Timothy Gu. <a href="https://webidl.spec.whatwg.org/"><cite>Web IDL Standard</cite></a>. Living Standard. URL: <a href="https://webidl.spec.whatwg.org/">https://webidl.spec.whatwg.org/</a>
+   <dt id="biblio-webrtc">[WEBRTC]
+   <dd>Cullen Jennings; et al. <a href="https://w3c.github.io/webrtc-pc/"><cite>WebRTC: Real-Time Communication in Browsers</cite></a>. URL: <a href="https://w3c.github.io/webrtc-pc/">https://w3c.github.io/webrtc-pc/</a>
+   <dt id="biblio-websockets">[WEBSOCKETS]
+   <dd>Adam Rice. <a href="https://websockets.spec.whatwg.org/"><cite>WebSockets Standard</cite></a>. Living Standard. URL: <a href="https://websockets.spec.whatwg.org/">https://websockets.spec.whatwg.org/</a>
+   <dt id="biblio-webtransport">[WEBTRANSPORT]
+   <dd>Bernard Aboba; Nidhi Jaju; Victor Vasiliev. <a href="https://w3c.github.io/webtransport/"><cite>WebTransport</cite></a>. URL: <a href="https://w3c.github.io/webtransport/">https://w3c.github.io/webtransport/</a>
   </dl>
+  <h2 class="no-num no-ref heading settled" id="idl-index"><span class="content">IDL Index</span><a class="self-link" href="#idl-index"></a></h2>
+<pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->), <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext"><c- g>SecureContext</c-></a>]
+<c- b>interface</c-> <a class="idl-code" data-link-type="interface" href="#lp2preceiver"><c- g>LP2PReceiver</c-></a> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#eventtarget"><c- n>EventTarget</c-></a> {
+  <a href="#dom-lp2preceiver-lp2preceiver"><code><c- g>constructor</c-></code></a>(<c- b>optional</c-> <a data-link-type="idl-name" href="#dictdef-lp2preceiveroptions"><c- n>LP2PReceiverOptions</c-></a> <a href="#dom-lp2preceiver-lp2preceiver-options-options"><code><c- g>options</c-></code></a> = {});
+  <c- b>attribute</c-> <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler"><c- n>EventHandler</c-></a> <a class="idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-lp2preceiver-onconnection"><c- g>onconnection</c-></a>;
+  <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-promise"><c- b>Promise</c-></a>&lt;<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-undefined"><c- b>undefined</c-></a>> <a href="#dom-lp2preceiver-start"><code><c- g>start</c-></code></a>();
+};
+
+[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->), <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext"><c- g>SecureContext</c-></a>]
+<c- b>dictionary</c-> <a href="#dictdef-lp2preceiveroptions"><code><c- g>LP2PReceiverOptions</c-></code></a> {
+    <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-DOMString"><c- b>DOMString</c-></a> <a data-type="DOMString " href="#dom-lp2preceiveroptions-nickname"><code><c- g>nickname</c-></code></a>;
+};
+
+[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->), <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext"><c- g>SecureContext</c-></a>]
+<c- b>interface</c-> <a href="#lp2pconnectionevent"><code><c- g>LP2PConnectionEvent</c-></code></a> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#event"><c- n>Event</c-></a> {
+    <a href="#dom-lp2pconnectionevent-lp2pconnectionevent"><code><c- g>constructor</c-></code></a>(<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-DOMString"><c- b>DOMString</c-></a> <a href="#dom-lp2pconnectionevent-lp2pconnectionevent-type-connectioneventinitdict-type"><code><c- g>type</c-></code></a>, <a data-link-type="idl-name" href="#dictdef-lp2pconnectioneventinit"><c- n>LP2PConnectionEventInit</c-></a> <a href="#dom-lp2pconnectionevent-lp2pconnectionevent-type-connectioneventinitdict-connectioneventinitdict"><code><c- g>connectionEventInitDict</c-></code></a>);
+    <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#lp2pconnection"><c- n>LP2PConnection</c-></a> <a data-readonly data-type="LP2PConnection" href="#dom-lp2pconnectionevent-connection"><code><c- g>connection</c-></code></a>;
+};
+
+<c- b>dictionary</c-> <a href="#dictdef-lp2pconnectioneventinit"><code><c- g>LP2PConnectionEventInit</c-></code></a> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#dictdef-eventinit"><c- n>EventInit</c-></a> {
+    <c- b>required</c-> <a data-link-type="idl-name" href="#lp2pconnection"><c- n>LP2PConnection</c-></a> <a data-type="LP2PConnection " href="#dom-lp2pconnectioneventinit-connection"><code><c- g>connection</c-></code></a>;
+};
+
+[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->), <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext"><c- g>SecureContext</c-></a>]
+<c- b>interface</c-> <a class="idl-code" data-link-type="interface" href="#lp2prequest"><c- g>LP2PRequest</c-></a> {
+    <a href="#dom-lp2prequest-lp2prequest"><code><c- g>constructor</c-></code></a>(<c- b>optional</c-> <a data-link-type="idl-name" href="#dictdef-lp2prequestoptions"><c- n>LP2PRequestOptions</c-></a> <a href="#dom-lp2prequest-lp2prequest-options-options"><code><c- g>options</c-></code></a> = {});
+    <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-promise"><c- b>Promise</c-></a>&lt;<a data-link-type="idl-name" href="#lp2pconnection"><c- n>LP2PConnection</c-></a>> <a href="#dom-lp2prequest-start"><code><c- g>start</c-></code></a>();
+};
+
+[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->), <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext"><c- g>SecureContext</c-></a>]
+<c- b>dictionary</c-> <a href="#dictdef-lp2prequestoptions"><code><c- g>LP2PRequestOptions</c-></code></a> {
+    <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-DOMString"><c- b>DOMString</c-></a> <a data-type="DOMString " href="#dom-lp2prequestoptions-nickname"><code><c- g>nickname</c-></code></a>;
+};
+
+[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->), <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext"><c- g>SecureContext</c-></a>]
+<c- b>interface</c-> <a class="idl-code" data-link-type="interface" href="#lp2pconnection"><c- g>LP2PConnection</c-></a> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#eventtarget"><c- n>EventTarget</c-></a> {
+};
+
+[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->), <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext"><c- g>SecureContext</c-></a>]
+<c- b>interface</c-> <a href="#lp2pdatachannel"><code><c- g>LP2PDataChannel</c-></code></a> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#eventtarget"><c- n>EventTarget</c-></a> {
+  <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-USVString"><c- b>USVString</c-></a> <a data-readonly data-type="USVString" href="#dom-lp2pdatachannel-label"><code><c- g>label</c-></code></a>;
+  <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-USVString"><c- b>USVString</c-></a> <a data-readonly data-type="USVString" href="#dom-lp2pdatachannel-protocol"><code><c- g>protocol</c-></code></a>;
+  <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-unsigned-short"><c- b>unsigned</c-> <c- b>short</c-></a>? <a data-readonly data-type="unsigned short?" href="#dom-lp2pdatachannel-id"><code><c- g>id</c-></code></a>;
+  <c- b>attribute</c-> <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler"><c- n>EventHandler</c-></a> <a class="idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-lp2pdatachannel-onopen"><c- g>onopen</c-></a>;
+  <c- b>attribute</c-> <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler"><c- n>EventHandler</c-></a> <a class="idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-lp2pdatachannel-onerror"><c- g>onerror</c-></a>;
+  <c- b>attribute</c-> <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler"><c- n>EventHandler</c-></a> <a class="idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-lp2pdatachannel-onclosing"><c- g>onclosing</c-></a>;
+  <c- b>attribute</c-> <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler"><c- n>EventHandler</c-></a> <a class="idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-lp2pdatachannel-onclose"><c- g>onclose</c-></a>;
+  <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-undefined"><c- b>undefined</c-></a> <a href="#dom-lp2pdatachannel-close"><code><c- g>close</c-></code></a>();
+  <c- b>attribute</c-> <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler"><c- n>EventHandler</c-></a> <a class="idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-lp2pdatachannel-onmessage"><c- g>onmessage</c-></a>;
+  <c- b>attribute</c-> <a data-link-type="idl-name" href="https://websockets.spec.whatwg.org/#enumdef-binarytype"><c- n>BinaryType</c-></a> <a data-type="BinaryType" href="#dom-lp2pdatachannel-binarytype"><code><c- g>binaryType</c-></code></a>;
+  <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-undefined"><c- b>undefined</c-></a> <a href="#dom-lp2pdatachannel-send"><code><c- g>send</c-></code></a>((<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-USVString"><c- b>USVString</c-></a> <c- b>or</c-> <a data-link-type="idl-name" href="https://w3c.github.io/FileAPI/#dfn-Blob"><c- n>Blob</c-></a> <c- b>or</c-> <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-ArrayBuffer"><c- b>ArrayBuffer</c-></a> <c- b>or</c-> <a data-link-type="idl-name" href="https://webidl.spec.whatwg.org/#ArrayBufferView"><c- n>ArrayBufferView</c-></a>) <a href="#dom-lp2pdatachannel-send-data-data"><code><c- g>data</c-></code></a>);
+};
+
+[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->), <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext"><c- g>SecureContext</c-></a>]
+<c- b>dictionary</c-> <a href="#dictdef-lp2pdatachannelinit"><code><c- g>LP2PDataChannelInit</c-></code></a> {
+  <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-USVString"><c- b>USVString</c-></a> <a data-default="&quot;&quot;" data-type="USVString " href="#dom-lp2pdatachannelinit-protocol"><code><c- g>protocol</c-></code></a> = "";
+  [<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#EnforceRange"><c- g>EnforceRange</c-></a>] <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-unsigned-short"><c- b>unsigned</c-> <c- b>short</c-></a> <a data-type="unsigned short " href="#dom-lp2pdatachannelinit-id"><code><c- g>id</c-></code></a>;
+};
+
+[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->), <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext"><c- g>SecureContext</c-></a>]
+<c- b>partial</c-> <c- b>interface</c-> <a class="idl-code" data-link-type="interface" href="#lp2pconnection"><c- g>LP2PConnection</c-></a> {
+  <a data-link-type="idl-name" href="#lp2pdatachannel"><c- n>LP2PDataChannel</c-></a> <a href="#dom-lp2pconnection-createdatachannel"><code><c- g>createDataChannel</c-></code></a>(<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-USVString"><c- b>USVString</c-></a> <a href="#dom-lp2pconnection-createdatachannel-label-datachanneldict-label"><code><c- g>label</c-></code></a>,
+                                   <c- b>optional</c-> <a data-link-type="idl-name" href="#dictdef-lp2pdatachannelinit"><c- n>LP2PDataChannelInit</c-></a> <a href="#dom-lp2pconnection-createdatachannel-label-datachanneldict-datachanneldict"><code><c- g>dataChannelDict</c-></code></a> = {});
+  <c- b>attribute</c-> <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler"><c- n>EventHandler</c-></a> <a class="idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-lp2pconnection-ondatachannel"><c- g>ondatachannel</c-></a>;
+};
+
+[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->), <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext"><c- g>SecureContext</c-></a>]
+<c- b>interface</c-> <a href="#lp2pdatachannelevent"><code><c- g>LP2PDataChannelEvent</c-></code></a> {
+  <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#lp2pdatachannel"><c- n>LP2PDataChannel</c-></a> <a data-readonly data-type="LP2PDataChannel" href="#dom-lp2pdatachannelevent-channel"><code><c- g>channel</c-></code></a>;
+};
+
+[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->), <a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#SecureContext"><c- g>SecureContext</c-></a>]
+<c- b>interface</c-> <a href="#lp2pquictransport"><code><c- g>LP2PQuicTransport</c-></code></a> : <a data-link-type="idl-name" href="https://w3c.github.io/webtransport/#webtransport"><c- n>WebTransport</c-></a> {
+  <a href="#dom-lp2pquictransport-lp2pquictransport"><code><c- g>constructor</c-></code></a>(<a data-link-type="idl-name" href="#lp2pconnection"><c- n>LP2PConnection</c-></a> <a href="#dom-lp2pquictransport-lp2pquictransport-transport-transport"><code><c- g>transport</c-></code></a>);
+  <a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-promise"><c- b>Promise</c-></a>&lt;<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-undefined"><c- b>undefined</c-></a>> <a href="#dom-lp2pquictransport-start"><code><c- g>start</c-></code></a>();
+};
+
+</pre>
+  <h2 class="no-num no-ref heading settled" id="issues-index"><span class="content">Issues Index</span><a class="self-link" href="#issues-index"></a></h2>
+  <div style="counter-reset:issue">
+   <div class="issue"> See also related <a href="https://github.com/wicg/local-peer-to-peer/issues/24">[Issue #wicg/local-peer-to-peer#24]</a> <a class="issue-return" href="#issue-45136692" title="Jump to section">↵</a></div>
+   <div class="issue"> In general, when defining a new interface that inherits from Event please always ask feedback from the WHATWG or the W3C WebApps WG community. See <a href="https://dom.spec.whatwg.org/#defining-event-interfaces">defining event interfaces</a>. <a class="issue-return" href="#issue-2e09a0e3" title="Jump to section">↵</a></div>
+  </div>
+<script>/* Boilerplate: script-dfn-panel */
+"use strict";
+{
+    const dfnsJson = window.dfnsJson || {};
+
+    function genDfnPanel({dfnID, url, dfnText, refSections, external}) {
+        return mk.aside({
+            class: "dfn-panel",
+            id: `infopanel-for-${dfnID}`,
+            "data-for": dfnID,
+            "aria-labelled-by":`infopaneltitle-for-${dfnID}`,
+            },
+            mk.span({id:`infopaneltitle-for-${dfnID}`, style:"display:none"},
+                `Info about the '${dfnText}' ${external?"external":""} reference.`),
+            mk.a({href:url}, url),
+            mk.b({}, "Referenced in:"),
+            mk.ul({},
+                ...refSections.map(section=>
+                    mk.li({},
+                        ...section.refs.map((ref, refI)=>
+                            [
+                                mk.a({
+                                    href: `#${ref.id}`
+                                    },
+                                    (refI == 0) ? section.title : `(${refI + 1})`
+                                ),
+                                " ",
+                            ]
+                        ),
+                    ),
+                ),
+            ),
+        );
+    }
+
+    function genAllDfnPanels() {
+        for(const panelData of Object.values(window.dfnpanelData)) {
+            const dfnID = panelData.dfnID;
+            const dfn = document.getElementById(dfnID);
+            if(!dfn) {
+                console.log(`Can't find dfn#${dfnID}.`, panelData);
+            } else {
+                const panel = genDfnPanel(panelData);
+                append(document.body, panel);
+                insertDfnPopupAction(dfn, panel)
+            }
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", ()=>{
+        genAllDfnPanels();
+
+        // Add popup behavior to all dfns to show the corresponding dfn-panel.
+        var dfns = queryAll('.dfn-paneled');
+        for(let dfn of dfns) { ; }
+
+        document.body.addEventListener("click", (e) => {
+            // If not handled already, just hide all dfn panels.
+            hideAllDfnPanels();
+        });
+    })
+
+
+    function hideAllDfnPanels() {
+        // Turn off any currently "on" or "activated" panels.
+        queryAll(".dfn-panel.on, .dfn-panel.activated").forEach(el=>hideDfnPanel(el));
+    }
+
+    function showDfnPanel(dfnPanel, dfn) {
+        hideAllDfnPanels(); // Only display one at this time.
+        dfn.setAttribute("aria-expanded", "true");
+        dfnPanel.classList.add("on");
+        dfnPanel.style.left = "5px";
+        dfnPanel.style.top = "0px";
+        const panelRect = dfnPanel.getBoundingClientRect();
+        const panelWidth = panelRect.right - panelRect.left;
+        if (panelRect.right > document.body.scrollWidth) {
+            // Panel's overflowing the screen.
+            // Just drop it below the dfn and flip it rightward instead.
+            // This still wont' fix things if the screen is *really* wide,
+            // but fixing that's a lot harder without 'anchor()'.
+            dfnPanel.style.top = "1.5em";
+            dfnPanel.style.left = "auto";
+            dfnPanel.style.right = "0px";
+        }
+    }
+
+    function pinDfnPanel(dfnPanel) {
+        // Switch it to "activated" state, which pins it.
+        dfnPanel.classList.add("activated");
+        dfnPanel.style.left = null;
+        dfnPanel.style.top = null;
+    }
+
+    function hideDfnPanel(dfnPanel, dfn) {
+        if(!dfn) {
+            dfn = document.getElementById(dfnPanel.getAttribute("data-for"));
+        }
+        dfn.setAttribute("aria-expanded", "false")
+        dfnPanel.classList.remove("on");
+        dfnPanel.classList.remove("activated");
+    }
+
+    function toggleDfnPanel(dfnPanel, dfn) {
+        if(dfnPanel.classList.contains("on")) {
+            hideDfnPanel(dfnPanel, dfn);
+        } else {
+            showDfnPanel(dfnPanel, dfn);
+        }
+    }
+
+    function insertDfnPopupAction(dfn, dfnPanel) {
+        // Find dfn panel
+        const panelWrapper = document.createElement('span');
+        panelWrapper.appendChild(dfnPanel);
+        panelWrapper.style.position = "relative";
+        panelWrapper.style.height = "0px";
+        dfn.insertAdjacentElement("afterend", panelWrapper);
+        dfn.setAttribute('role', 'button');
+        dfn.setAttribute('aria-expanded', 'false')
+        dfn.tabIndex = 0;
+        dfn.classList.add('has-dfn-panel');
+        dfn.addEventListener('click', (event) => {
+            showDfnPanel(dfnPanel, dfn);
+            event.stopPropagation();
+        });
+        dfn.addEventListener('keypress', (event) => {
+            const kc = event.keyCode;
+            // 32->Space, 13->Enter
+            if(kc == 32 || kc == 13) {
+                toggleDfnPanel(dfnPanel, dfn);
+                event.stopPropagation();
+                event.preventDefault();
+            }
+        });
+
+        dfnPanel.addEventListener('click', (event) => {
+            if (event.target.nodeName == 'A') {
+                pinDfnPanel(dfnPanel);
+            }
+            event.stopPropagation();
+        });
+
+        dfnPanel.addEventListener('keydown', (event) => {
+            if(event.keyCode == 27) { // Escape key
+                hideDfnPanel(dfnPanel, dfn);
+                event.stopPropagation();
+                event.preventDefault();
+            }
+        })
+    }
+}
+</script>
+<script>/* Boilerplate: script-dfn-panel */
+"use strict";
+{
+    const dfnsJson = window.dfnsJson || {};
+
+    function genDfnPanel({dfnID, url, dfnText, refSections, external}) {
+        return mk.aside({
+            class: "dfn-panel",
+            id: `infopanel-for-${dfnID}`,
+            "data-for": dfnID,
+            "aria-labelled-by":`infopaneltitle-for-${dfnID}`,
+            },
+            mk.span({id:`infopaneltitle-for-${dfnID}`, style:"display:none"},
+                `Info about the '${dfnText}' ${external?"external":""} reference.`),
+            mk.a({href:url}, url),
+            mk.b({}, "Referenced in:"),
+            mk.ul({},
+                ...refSections.map(section=>
+                    mk.li({},
+                        ...section.refs.map((ref, refI)=>
+                            [
+                                mk.a({
+                                    href: `#${ref.id}`
+                                    },
+                                    (refI == 0) ? section.title : `(${refI + 1})`
+                                ),
+                                " ",
+                            ]
+                        ),
+                    ),
+                ),
+            ),
+        );
+    }
+
+    function genAllDfnPanels() {
+        for(const panelData of Object.values(window.dfnpanelData)) {
+            const dfnID = panelData.dfnID;
+            const dfn = document.getElementById(dfnID);
+            if(!dfn) {
+                console.log(`Can't find dfn#${dfnID}.`, panelData);
+            } else {
+                const panel = genDfnPanel(panelData);
+                append(document.body, panel);
+                insertDfnPopupAction(dfn, panel)
+            }
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", ()=>{
+        genAllDfnPanels();
+
+        // Add popup behavior to all dfns to show the corresponding dfn-panel.
+        var dfns = queryAll('.dfn-paneled');
+        for(let dfn of dfns) { ; }
+
+        document.body.addEventListener("click", (e) => {
+            // If not handled already, just hide all dfn panels.
+            hideAllDfnPanels();
+        });
+    })
+
+
+    function hideAllDfnPanels() {
+        // Turn off any currently "on" or "activated" panels.
+        queryAll(".dfn-panel.on, .dfn-panel.activated").forEach(el=>hideDfnPanel(el));
+    }
+
+    function showDfnPanel(dfnPanel, dfn) {
+        hideAllDfnPanels(); // Only display one at this time.
+        dfn.setAttribute("aria-expanded", "true");
+        dfnPanel.classList.add("on");
+        dfnPanel.style.left = "5px";
+        dfnPanel.style.top = "0px";
+        const panelRect = dfnPanel.getBoundingClientRect();
+        const panelWidth = panelRect.right - panelRect.left;
+        if (panelRect.right > document.body.scrollWidth) {
+            // Panel's overflowing the screen.
+            // Just drop it below the dfn and flip it rightward instead.
+            // This still wont' fix things if the screen is *really* wide,
+            // but fixing that's a lot harder without 'anchor()'.
+            dfnPanel.style.top = "1.5em";
+            dfnPanel.style.left = "auto";
+            dfnPanel.style.right = "0px";
+        }
+    }
+
+    function pinDfnPanel(dfnPanel) {
+        // Switch it to "activated" state, which pins it.
+        dfnPanel.classList.add("activated");
+        dfnPanel.style.left = null;
+        dfnPanel.style.top = null;
+    }
+
+    function hideDfnPanel(dfnPanel, dfn) {
+        if(!dfn) {
+            dfn = document.getElementById(dfnPanel.getAttribute("data-for"));
+        }
+        dfn.setAttribute("aria-expanded", "false")
+        dfnPanel.classList.remove("on");
+        dfnPanel.classList.remove("activated");
+    }
+
+    function toggleDfnPanel(dfnPanel, dfn) {
+        if(dfnPanel.classList.contains("on")) {
+            hideDfnPanel(dfnPanel, dfn);
+        } else {
+            showDfnPanel(dfnPanel, dfn);
+        }
+    }
+
+    function insertDfnPopupAction(dfn, dfnPanel) {
+        // Find dfn panel
+        const panelWrapper = document.createElement('span');
+        panelWrapper.appendChild(dfnPanel);
+        panelWrapper.style.position = "relative";
+        panelWrapper.style.height = "0px";
+        dfn.insertAdjacentElement("afterend", panelWrapper);
+        dfn.setAttribute('role', 'button');
+        dfn.setAttribute('aria-expanded', 'false')
+        dfn.tabIndex = 0;
+        dfn.classList.add('has-dfn-panel');
+        dfn.addEventListener('click', (event) => {
+            showDfnPanel(dfnPanel, dfn);
+            event.stopPropagation();
+        });
+        dfn.addEventListener('keypress', (event) => {
+            const kc = event.keyCode;
+            // 32->Space, 13->Enter
+            if(kc == 32 || kc == 13) {
+                toggleDfnPanel(dfnPanel, dfn);
+                event.stopPropagation();
+                event.preventDefault();
+            }
+        });
+
+        dfnPanel.addEventListener('click', (event) => {
+            if (event.target.nodeName == 'A') {
+                pinDfnPanel(dfnPanel);
+            }
+            event.stopPropagation();
+        });
+
+        dfnPanel.addEventListener('keydown', (event) => {
+            if(event.keyCode == 27) { // Escape key
+                hideDfnPanel(dfnPanel, dfn);
+                event.stopPropagation();
+                event.preventDefault();
+            }
+        })
+    }
+}
+</script>
+<script>/* Boilerplate: script-dfn-panel-json */
+window.dfnpanelData = {};
+window.dfnpanelData['129bdae8'] = {"dfnID": "129bdae8", "url": "https://dom.spec.whatwg.org/#event", "dfnText": "Event", "refSections": [{"refs": [{"id": "ref-for-event"}], "title": "4.2. LP2PConnectionEvent"}, {"refs": [{"id": "ref-for-event\u2460"}, {"id": "ref-for-event\u2461"}, {"id": "ref-for-event\u2462"}, {"id": "ref-for-event\u2463"}], "title": "7.2. Events"}], "external": true};
+window.dfnpanelData['44a7708c'] = {"dfnID": "44a7708c", "url": "https://dom.spec.whatwg.org/#dictdef-eventinit", "dfnText": "EventInit", "refSections": [{"refs": [{"id": "ref-for-dictdef-eventinit"}], "title": "4.2. LP2PConnectionEvent"}], "external": true};
+window.dfnpanelData['2bc0cdf4'] = {"dfnID": "2bc0cdf4", "url": "https://dom.spec.whatwg.org/#eventtarget", "dfnText": "EventTarget", "refSections": [{"refs": [{"id": "ref-for-eventtarget"}], "title": "4. LP2PReceiver Interface"}, {"refs": [{"id": "ref-for-eventtarget\u2460"}], "title": "6. The LP2PConnection Interface"}, {"refs": [{"id": "ref-for-eventtarget\u2461"}], "title": "7. The LP2PDataChannel Interface"}], "external": true};
+window.dfnpanelData['5fd23811'] = {"dfnID": "5fd23811", "url": "https://dom.spec.whatwg.org/#concept-event-fire", "dfnText": "fire an event", "refSections": [{"refs": [{"id": "ref-for-concept-event-fire"}], "title": "4.4. Events"}, {"refs": [{"id": "ref-for-concept-event-fire\u2460"}], "title": "7.2. Events"}, {"refs": [{"id": "ref-for-concept-event-fire\u2461"}], "title": "7.6. Extensions Events"}], "external": true};
+window.dfnpanelData['b7d73f5b'] = {"dfnID": "b7d73f5b", "url": "https://w3c.github.io/FileAPI/#dfn-Blob", "dfnText": "Blob", "refSections": [{"refs": [{"id": "ref-for-dfn-Blob"}], "title": "7. The LP2PDataChannel Interface"}], "external": true};
+window.dfnpanelData['f0951476'] = {"dfnID": "f0951476", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler", "dfnText": "EventHandler", "refSections": [{"refs": [{"id": "ref-for-eventhandler"}], "title": "4. LP2PReceiver Interface"}, {"refs": [{"id": "ref-for-eventhandler\u2460"}, {"id": "ref-for-eventhandler\u2461"}, {"id": "ref-for-eventhandler\u2462"}, {"id": "ref-for-eventhandler\u2463"}, {"id": "ref-for-eventhandler\u2464"}], "title": "7. The LP2PDataChannel Interface"}, {"refs": [{"id": "ref-for-eventhandler\u2465"}], "title": "7.4. LP2PConnection Interface Extensions"}], "external": true};
+window.dfnpanelData['3e8c0e5f'] = {"dfnID": "3e8c0e5f", "url": "https://html.spec.whatwg.org/multipage/comms.html#messageevent", "dfnText": "MessageEvent", "refSections": [{"refs": [{"id": "ref-for-messageevent"}], "title": "7.2. Events"}], "external": true};
+window.dfnpanelData['6a5a59a0'] = {"dfnID": "6a5a59a0", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers", "dfnText": "event handler", "refSections": [{"refs": [{"id": "ref-for-event-handlers"}, {"id": "ref-for-event-handlers\u2460"}], "title": "4.5. Event handlers"}, {"refs": [{"id": "ref-for-event-handlers\u2461"}, {"id": "ref-for-event-handlers\u2462"}], "title": "7.3. Data Channel Event handlers"}, {"refs": [{"id": "ref-for-event-handlers\u2463"}, {"id": "ref-for-event-handlers\u2464"}], "title": "7.7. Extensions Event handlers"}], "external": true};
+window.dfnpanelData['9d386f55'] = {"dfnID": "9d386f55", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type", "dfnText": "event handler event type", "refSections": [{"refs": [{"id": "ref-for-event-handler-event-type"}, {"id": "ref-for-event-handler-event-type\u2460"}], "title": "4.5. Event handlers"}, {"refs": [{"id": "ref-for-event-handler-event-type\u2461"}, {"id": "ref-for-event-handler-event-type\u2462"}], "title": "7.3. Data Channel Event handlers"}, {"refs": [{"id": "ref-for-event-handler-event-type\u2463"}, {"id": "ref-for-event-handler-event-type\u2464"}], "title": "7.7. Extensions Event handlers"}], "external": true};
+window.dfnpanelData['03675365'] = {"dfnID": "03675365", "url": "https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes", "dfnText": "event handler idl attribute", "refSections": [{"refs": [{"id": "ref-for-event-handler-idl-attributes"}], "title": "4.5. Event handlers"}, {"refs": [{"id": "ref-for-event-handler-idl-attributes\u2460"}], "title": "7.3. Data Channel Event handlers"}, {"refs": [{"id": "ref-for-event-handler-idl-attributes\u2461"}], "title": "7.7. Extensions Event handlers"}], "external": true};
+window.dfnpanelData['84b454ff'] = {"dfnID": "84b454ff", "url": "https://infra.spec.whatwg.org/#ordered-map", "dfnText": "ordered map", "refSections": [{"refs": [{"id": "ref-for-ordered-map"}], "title": "2.1. Known peers"}], "external": true};
+window.dfnpanelData['2f8afbfe'] = {"dfnID": "2f8afbfe", "url": "https://webidl.spec.whatwg.org/#idl-ArrayBuffer", "dfnText": "ArrayBuffer", "refSections": [{"refs": [{"id": "ref-for-idl-ArrayBuffer"}], "title": "7. The LP2PDataChannel Interface"}], "external": true};
+window.dfnpanelData['6c9ab516'] = {"dfnID": "6c9ab516", "url": "https://webidl.spec.whatwg.org/#ArrayBufferView", "dfnText": "ArrayBufferView", "refSections": [{"refs": [{"id": "ref-for-ArrayBufferView"}], "title": "7. The LP2PDataChannel Interface"}], "external": true};
+window.dfnpanelData['8855a9aa'] = {"dfnID": "8855a9aa", "url": "https://webidl.spec.whatwg.org/#idl-DOMString", "dfnText": "DOMString", "refSections": [{"refs": [{"id": "ref-for-idl-DOMString"}], "title": "4.1. LP2PReceiverOptions"}, {"refs": [{"id": "ref-for-idl-DOMString\u2460"}], "title": "4.2. LP2PConnectionEvent"}, {"refs": [{"id": "ref-for-idl-DOMString\u2461"}], "title": "5.1. LP2PRequestOptions"}], "external": true};
+window.dfnpanelData['c01cbda0'] = {"dfnID": "c01cbda0", "url": "https://webidl.spec.whatwg.org/#EnforceRange", "dfnText": "EnforceRange", "refSections": [{"refs": [{"id": "ref-for-EnforceRange"}], "title": "7.1. LP2PDataChannelInit"}], "external": true};
+window.dfnpanelData['889e932f'] = {"dfnID": "889e932f", "url": "https://webidl.spec.whatwg.org/#Exposed", "dfnText": "Exposed", "refSections": [{"refs": [{"id": "ref-for-Exposed"}], "title": "4. LP2PReceiver Interface"}, {"refs": [{"id": "ref-for-Exposed\u2460"}], "title": "4.1. LP2PReceiverOptions"}, {"refs": [{"id": "ref-for-Exposed\u2461"}], "title": "4.2. LP2PConnectionEvent"}, {"refs": [{"id": "ref-for-Exposed\u2462"}], "title": "5. The LP2PRequest Interface"}, {"refs": [{"id": "ref-for-Exposed\u2463"}], "title": "5.1. LP2PRequestOptions"}, {"refs": [{"id": "ref-for-Exposed\u2464"}], "title": "6. The LP2PConnection Interface"}, {"refs": [{"id": "ref-for-Exposed\u2465"}], "title": "7. The LP2PDataChannel Interface"}, {"refs": [{"id": "ref-for-Exposed\u2466"}], "title": "7.1. LP2PDataChannelInit"}, {"refs": [{"id": "ref-for-Exposed\u2467"}], "title": "7.4. LP2PConnection Interface Extensions"}, {"refs": [{"id": "ref-for-Exposed\u2468"}], "title": "7.5. LP2PDataChannelEvent"}, {"refs": [{"id": "ref-for-Exposed\u2460\u24ea"}], "title": "8. The LP2PQuicTransport Interface"}], "external": true};
+window.dfnpanelData['bdbd19d1'] = {"dfnID": "bdbd19d1", "url": "https://webidl.spec.whatwg.org/#idl-promise", "dfnText": "Promise", "refSections": [{"refs": [{"id": "ref-for-idl-promise"}], "title": "4. LP2PReceiver Interface"}, {"refs": [{"id": "ref-for-idl-promise\u2460"}], "title": "5. The LP2PRequest Interface"}, {"refs": [{"id": "ref-for-idl-promise\u2461"}], "title": "8. The LP2PQuicTransport Interface"}], "external": true};
+window.dfnpanelData['b75bb3bd'] = {"dfnID": "b75bb3bd", "url": "https://webidl.spec.whatwg.org/#SecureContext", "dfnText": "SecureContext", "refSections": [{"refs": [{"id": "ref-for-SecureContext"}], "title": "4. LP2PReceiver Interface"}, {"refs": [{"id": "ref-for-SecureContext\u2460"}], "title": "4.1. LP2PReceiverOptions"}, {"refs": [{"id": "ref-for-SecureContext\u2461"}], "title": "4.2. LP2PConnectionEvent"}, {"refs": [{"id": "ref-for-SecureContext\u2462"}], "title": "5. The LP2PRequest Interface"}, {"refs": [{"id": "ref-for-SecureContext\u2463"}], "title": "5.1. LP2PRequestOptions"}, {"refs": [{"id": "ref-for-SecureContext\u2464"}], "title": "6. The LP2PConnection Interface"}, {"refs": [{"id": "ref-for-SecureContext\u2465"}], "title": "7. The LP2PDataChannel Interface"}, {"refs": [{"id": "ref-for-SecureContext\u2466"}], "title": "7.1. LP2PDataChannelInit"}, {"refs": [{"id": "ref-for-SecureContext\u2467"}], "title": "7.4. LP2PConnection Interface Extensions"}, {"refs": [{"id": "ref-for-SecureContext\u2468"}], "title": "7.5. LP2PDataChannelEvent"}, {"refs": [{"id": "ref-for-SecureContext\u2460\u24ea"}], "title": "8. The LP2PQuicTransport Interface"}], "external": true};
+window.dfnpanelData['b0d7f3c3'] = {"dfnID": "b0d7f3c3", "url": "https://webidl.spec.whatwg.org/#idl-USVString", "dfnText": "USVString", "refSections": [{"refs": [{"id": "ref-for-idl-USVString"}, {"id": "ref-for-idl-USVString\u2460"}, {"id": "ref-for-idl-USVString\u2461"}], "title": "7. The LP2PDataChannel Interface"}, {"refs": [{"id": "ref-for-idl-USVString\u2462"}], "title": "7.1. LP2PDataChannelInit"}, {"refs": [{"id": "ref-for-idl-USVString\u2463"}], "title": "7.4. LP2PConnection Interface Extensions"}], "external": true};
+window.dfnpanelData['5f90bbfb'] = {"dfnID": "5f90bbfb", "url": "https://webidl.spec.whatwg.org/#idl-undefined", "dfnText": "undefined", "refSections": [{"refs": [{"id": "ref-for-idl-undefined"}], "title": "4. LP2PReceiver Interface"}, {"refs": [{"id": "ref-for-idl-undefined\u2460"}, {"id": "ref-for-idl-undefined\u2461"}], "title": "7. The LP2PDataChannel Interface"}, {"refs": [{"id": "ref-for-idl-undefined\u2462"}], "title": "8. The LP2PQuicTransport Interface"}], "external": true};
+window.dfnpanelData['450958f7'] = {"dfnID": "450958f7", "url": "https://webidl.spec.whatwg.org/#idl-unsigned-short", "dfnText": "unsigned short", "refSections": [{"refs": [{"id": "ref-for-idl-unsigned-short"}], "title": "7. The LP2PDataChannel Interface"}, {"refs": [{"id": "ref-for-idl-unsigned-short\u2460"}], "title": "7.1. LP2PDataChannelInit"}], "external": true};
+window.dfnpanelData['88d6f55f'] = {"dfnID": "88d6f55f", "url": "https://websockets.spec.whatwg.org/#enumdef-binarytype", "dfnText": "BinaryType", "refSections": [{"refs": [{"id": "ref-for-enumdef-binarytype"}], "title": "7. The LP2PDataChannel Interface"}], "external": true};
+window.dfnpanelData['85122cbe'] = {"dfnID": "85122cbe", "url": "https://w3c.github.io/webtransport/#webtransport", "dfnText": "WebTransport", "refSections": [{"refs": [{"id": "ref-for-webtransport"}], "title": "8. The LP2PQuicTransport Interface"}], "external": true};
+window.dfnpanelData['peer'] = {"dfnID": "peer", "url": "#peer", "dfnText": "peer", "refSections": [{"refs": [{"id": "ref-for-peer"}], "title": "2. Peer Management"}, {"refs": [{"id": "ref-for-peer\u2460"}], "title": "2.1. Known peers"}], "external": false};
+window.dfnpanelData['local-peer-to-peer-manager'] = {"dfnID": "local-peer-to-peer-manager", "url": "#local-peer-to-peer-manager", "dfnText": "local peer-to-peer manager", "refSections": [{"refs": [{"id": "ref-for-local-peer-to-peer-manager"}], "title": "2.1. Known peers"}], "external": false};
+window.dfnpanelData['known-peers-map'] = {"dfnID": "known-peers-map", "url": "#known-peers-map", "dfnText": "known peers map", "refSections": [{"refs": [{"id": "ref-for-known-peers-map"}], "title": "2.3. Peer discovery"}], "external": false};
+window.dfnpanelData['known-peer'] = {"dfnID": "known-peer", "url": "#known-peer", "dfnText": "known peer", "refSections": [{"refs": [{"id": "ref-for-known-peer"}], "title": "2.1. Known peers"}, {"refs": [{"id": "ref-for-known-peer\u2460"}], "title": "2.5. Peer grant"}], "external": false};
+window.dfnpanelData['authentication-state'] = {"dfnID": "authentication-state", "url": "#authentication-state", "dfnText": "authentication state", "refSections": [{"refs": [{"id": "ref-for-authentication-state"}, {"id": "ref-for-authentication-state\u2460"}], "title": "2.1. Known peers"}, {"refs": [{"id": "ref-for-authentication-state\u2461"}, {"id": "ref-for-authentication-state\u2462"}], "title": "2.4. Peer authentication"}], "external": false};
+window.dfnpanelData['peer-grant-state'] = {"dfnID": "peer-grant-state", "url": "#peer-grant-state", "dfnText": "peer grant state", "refSections": [{"refs": [{"id": "ref-for-peer-grant-state"}, {"id": "ref-for-peer-grant-state\u2460"}], "title": "2.1. Known peers"}, {"refs": [{"id": "ref-for-peer-grant-state\u2461"}], "title": "2.5. Peer grant"}], "external": false};
+window.dfnpanelData['persisted'] = {"dfnID": "persisted", "url": "#persisted", "dfnText": "persisted", "refSections": [{"refs": [{"id": "ref-for-persisted"}], "title": "2.1. Known peers"}, {"refs": [{"id": "ref-for-persisted\u2460"}], "title": "2.5. Peer grant"}], "external": false};
+window.dfnpanelData['start-local-peer-discovery'] = {"dfnID": "start-local-peer-discovery", "url": "#start-local-peer-discovery", "dfnText": "start local peer discovery", "refSections": [{"refs": [{"id": "ref-for-start-local-peer-discovery"}], "title": "2. Peer Management"}], "external": false};
+window.dfnpanelData['authenticate-a-local-peer'] = {"dfnID": "authenticate-a-local-peer", "url": "#authenticate-a-local-peer", "dfnText": "authenticate a local peer", "refSections": [{"refs": [{"id": "ref-for-authenticate-a-local-peer"}], "title": "2.5. Peer grant"}], "external": false};
+window.dfnpanelData['authenticated'] = {"dfnID": "authenticated", "url": "#authenticated", "dfnText": "authenticated", "refSections": [{"refs": [{"id": "ref-for-authenticated"}], "title": "2.5. Peer grant"}], "external": false};
+window.dfnpanelData['acquire-a-local-peer-grant'] = {"dfnID": "acquire-a-local-peer-grant", "url": "#acquire-a-local-peer-grant", "dfnText": "acquire a local peer grant", "refSections": [{"refs": [{"id": "ref-for-acquire-a-local-peer-grant"}], "title": "2. Peer Management"}, {"refs": [{"id": "ref-for-acquire-a-local-peer-grant\u2460"}], "title": "2.3. Peer discovery"}, {"refs": [{"id": "ref-for-acquire-a-local-peer-grant\u2461"}], "title": "2.5. Peer grant"}], "external": false};
+window.dfnpanelData['establish-local-peer-connection'] = {"dfnID": "establish-local-peer-connection", "url": "#establish-local-peer-connection", "dfnText": "establish local peer connection", "refSections": [{"refs": [{"id": "ref-for-establish-local-peer-connection"}], "title": "2. Peer Management"}], "external": false};
+window.dfnpanelData['protocol-local-peer-to-peer-session'] = {"dfnID": "protocol-local-peer-to-peer-session", "url": "#protocol-local-peer-to-peer-session", "dfnText": "Local Peer-to-Peer session", "refSections": [{"refs": [{"id": "ref-for-protocol-local-peer-to-peer-session"}], "title": "3. Protocol concepts"}, {"refs": [{"id": "ref-for-protocol-local-peer-to-peer-session\u2460"}], "title": "3.1. Data channel extension"}], "external": false};
+window.dfnpanelData['session-advertise-agent'] = {"dfnID": "session-advertise-agent", "url": "#session-advertise-agent", "dfnText": "advertise agent", "refSections": [{"refs": [{"id": "ref-for-session-advertise-agent"}], "title": "2.2. Peer advertisement"}], "external": false};
+window.dfnpanelData['session-discover-agents'] = {"dfnID": "session-discover-agents", "url": "#session-discover-agents", "dfnText": "discover agents", "refSections": [{"refs": [{"id": "ref-for-session-discover-agents"}, {"id": "ref-for-session-discover-agents\u2460"}], "title": "2.3. Peer discovery"}], "external": false};
+window.dfnpanelData['session-discover-metadata'] = {"dfnID": "session-discover-metadata", "url": "#session-discover-metadata", "dfnText": "discover metadata", "refSections": [{"refs": [{"id": "ref-for-session-discover-metadata"}], "title": "3.1. Data channel extension"}, {"refs": [{"id": "ref-for-session-discover-metadata\u2460"}], "title": "3.2. WebTransport extension"}], "external": false};
+window.dfnpanelData['session-authenticate-an-agent'] = {"dfnID": "session-authenticate-an-agent", "url": "#session-authenticate-an-agent", "dfnText": "authenticate an agent", "refSections": [{"refs": [{"id": "ref-for-session-authenticate-an-agent"}, {"id": "ref-for-session-authenticate-an-agent\u2460"}], "title": "2.4. Peer authentication"}, {"refs": [{"id": "ref-for-session-authenticate-an-agent\u2461"}], "title": "3.2. WebTransport extension"}], "external": false};
+window.dfnpanelData['open-a-data-channel'] = {"dfnID": "open-a-data-channel", "url": "#open-a-data-channel", "dfnText": "open a data channel", "refSections": [{"refs": [{"id": "ref-for-open-a-data-channel"}], "title": "3. Protocol concepts"}], "external": false};
+window.dfnpanelData['send-data-on-a-channel'] = {"dfnID": "send-data-on-a-channel", "url": "#send-data-on-a-channel", "dfnText": "send data on a channel", "refSections": [{"refs": [{"id": "ref-for-send-data-on-a-channel"}], "title": "3. Protocol concepts"}, {"refs": [{"id": "ref-for-send-data-on-a-channel\u2460"}], "title": "3.2. WebTransport extension"}], "external": false};
+window.dfnpanelData['open-a-webtransport-session'] = {"dfnID": "open-a-webtransport-session", "url": "#open-a-webtransport-session", "dfnText": "open a WebTransport session", "refSections": [{"refs": [{"id": "ref-for-open-a-webtransport-session"}], "title": "3. Protocol concepts"}, {"refs": [{"id": "ref-for-open-a-webtransport-session\u2460"}], "title": "3.2. WebTransport extension"}], "external": false};
+window.dfnpanelData['lp2preceiver'] = {"dfnID": "lp2preceiver", "url": "#lp2preceiver", "dfnText": "LP2PReceiver", "refSections": [{"refs": [{"id": "ref-for-lp2preceiver"}], "title": "4. LP2PReceiver Interface"}, {"refs": [{"id": "ref-for-lp2preceiver\u2460"}], "title": "4.4. Events"}], "external": false};
+window.dfnpanelData['dictdef-lp2preceiveroptions'] = {"dfnID": "dictdef-lp2preceiveroptions", "url": "#dictdef-lp2preceiveroptions", "dfnText": "LP2PReceiverOptions", "refSections": [{"refs": [{"id": "ref-for-dictdef-lp2preceiveroptions"}], "title": "4. LP2PReceiver Interface"}], "external": false};
+window.dfnpanelData['lp2pconnectionevent'] = {"dfnID": "lp2pconnectionevent", "url": "#lp2pconnectionevent", "dfnText": "LP2PConnectionEvent", "refSections": [{"refs": [{"id": "ref-for-lp2pconnectionevent"}], "title": "4.4. Events"}], "external": false};
+window.dfnpanelData['dictdef-lp2pconnectioneventinit'] = {"dfnID": "dictdef-lp2pconnectioneventinit", "url": "#dictdef-lp2pconnectioneventinit", "dfnText": "LP2PConnectionEventInit", "refSections": [{"refs": [{"id": "ref-for-dictdef-lp2pconnectioneventinit"}], "title": "4.2. LP2PConnectionEvent"}], "external": false};
+window.dfnpanelData['eventdef-lp2preceiver-connection'] = {"dfnID": "eventdef-lp2preceiver-connection", "url": "#eventdef-lp2preceiver-connection", "dfnText": "connection", "refSections": [{"refs": [{"id": "ref-for-eventdef-lp2preceiver-connection"}], "title": "4.5. Event handlers"}], "external": false};
+window.dfnpanelData['dom-lp2preceiver-onconnection'] = {"dfnID": "dom-lp2preceiver-onconnection", "url": "#dom-lp2preceiver-onconnection", "dfnText": "onconnection", "refSections": [{"refs": [{"id": "ref-for-dom-lp2preceiver-onconnection"}], "title": "4. LP2PReceiver Interface"}], "external": false};
+window.dfnpanelData['lp2prequest'] = {"dfnID": "lp2prequest", "url": "#lp2prequest", "dfnText": "LP2PRequest", "refSections": [{"refs": [{"id": "ref-for-lp2prequest"}], "title": "5. The LP2PRequest Interface"}], "external": false};
+window.dfnpanelData['dictdef-lp2prequestoptions'] = {"dfnID": "dictdef-lp2prequestoptions", "url": "#dictdef-lp2prequestoptions", "dfnText": "LP2PRequestOptions", "refSections": [{"refs": [{"id": "ref-for-dictdef-lp2prequestoptions"}], "title": "5. The LP2PRequest Interface"}], "external": false};
+window.dfnpanelData['lp2pconnection'] = {"dfnID": "lp2pconnection", "url": "#lp2pconnection", "dfnText": "LP2PConnection", "refSections": [{"refs": [{"id": "ref-for-lp2pconnection"}, {"id": "ref-for-lp2pconnection\u2460"}], "title": "4.2. LP2PConnectionEvent"}, {"refs": [{"id": "ref-for-lp2pconnection\u2461"}], "title": "5. The LP2PRequest Interface"}, {"refs": [{"id": "ref-for-lp2pconnection\u2462"}], "title": "6. The LP2PConnection Interface"}, {"refs": [{"id": "ref-for-lp2pconnection\u2463"}], "title": "7.4. LP2PConnection Interface Extensions"}, {"refs": [{"id": "ref-for-lp2pconnection\u2464"}], "title": "7.6. Extensions Events"}, {"refs": [{"id": "ref-for-lp2pconnection\u2465"}], "title": "7.7. Extensions Event handlers"}, {"refs": [{"id": "ref-for-lp2pconnection\u2466"}], "title": "8. The LP2PQuicTransport Interface"}], "external": false};
+window.dfnpanelData['lp2pdatachannel'] = {"dfnID": "lp2pdatachannel", "url": "#lp2pdatachannel", "dfnText": "LP2PDataChannel", "refSections": [{"refs": [{"id": "ref-for-lp2pdatachannel"}], "title": "7.2. Events"}, {"refs": [{"id": "ref-for-lp2pdatachannel\u2460"}], "title": "7.4. LP2PConnection Interface Extensions"}, {"refs": [{"id": "ref-for-lp2pdatachannel\u2461"}], "title": "7.5. LP2PDataChannelEvent"}], "external": false};
+window.dfnpanelData['dictdef-lp2pdatachannelinit'] = {"dfnID": "dictdef-lp2pdatachannelinit", "url": "#dictdef-lp2pdatachannelinit", "dfnText": "LP2PDataChannelInit", "refSections": [{"refs": [{"id": "ref-for-dictdef-lp2pdatachannelinit"}], "title": "7.4. LP2PConnection Interface Extensions"}], "external": false};
+window.dfnpanelData['eventdef-lp2pdatachannel-open'] = {"dfnID": "eventdef-lp2pdatachannel-open", "url": "#eventdef-lp2pdatachannel-open", "dfnText": "open", "refSections": [{"refs": [{"id": "ref-for-eventdef-lp2pdatachannel-open"}], "title": "7.3. Data Channel Event handlers"}], "external": false};
+window.dfnpanelData['eventdef-lp2pdatachannel-message'] = {"dfnID": "eventdef-lp2pdatachannel-message", "url": "#eventdef-lp2pdatachannel-message", "dfnText": "message", "refSections": [{"refs": [{"id": "ref-for-eventdef-lp2pdatachannel-message"}], "title": "7.3. Data Channel Event handlers"}], "external": false};
+window.dfnpanelData['eventdef-lp2pdatachannel-error'] = {"dfnID": "eventdef-lp2pdatachannel-error", "url": "#eventdef-lp2pdatachannel-error", "dfnText": "error", "refSections": [{"refs": [{"id": "ref-for-eventdef-lp2pdatachannel-error"}], "title": "7.3. Data Channel Event handlers"}], "external": false};
+window.dfnpanelData['eventdef-lp2pdatachannel-closing'] = {"dfnID": "eventdef-lp2pdatachannel-closing", "url": "#eventdef-lp2pdatachannel-closing", "dfnText": "closing", "refSections": [{"refs": [{"id": "ref-for-eventdef-lp2pdatachannel-closing"}], "title": "7.3. Data Channel Event handlers"}], "external": false};
+window.dfnpanelData['eventdef-lp2pdatachannel-close'] = {"dfnID": "eventdef-lp2pdatachannel-close", "url": "#eventdef-lp2pdatachannel-close", "dfnText": "close", "refSections": [{"refs": [{"id": "ref-for-eventdef-lp2pdatachannel-close"}], "title": "7.3. Data Channel Event handlers"}], "external": false};
+window.dfnpanelData['dom-lp2pdatachannel-onopen'] = {"dfnID": "dom-lp2pdatachannel-onopen", "url": "#dom-lp2pdatachannel-onopen", "dfnText": "onopen", "refSections": [{"refs": [{"id": "ref-for-dom-lp2pdatachannel-onopen"}], "title": "7. The LP2PDataChannel Interface"}], "external": false};
+window.dfnpanelData['dom-lp2pdatachannel-onmessage'] = {"dfnID": "dom-lp2pdatachannel-onmessage", "url": "#dom-lp2pdatachannel-onmessage", "dfnText": "onmessage", "refSections": [{"refs": [{"id": "ref-for-dom-lp2pdatachannel-onmessage"}], "title": "7. The LP2PDataChannel Interface"}], "external": false};
+window.dfnpanelData['dom-lp2pdatachannel-onerror'] = {"dfnID": "dom-lp2pdatachannel-onerror", "url": "#dom-lp2pdatachannel-onerror", "dfnText": "onerror", "refSections": [{"refs": [{"id": "ref-for-dom-lp2pdatachannel-onerror"}], "title": "7. The LP2PDataChannel Interface"}], "external": false};
+window.dfnpanelData['dom-lp2pdatachannel-onclosing'] = {"dfnID": "dom-lp2pdatachannel-onclosing", "url": "#dom-lp2pdatachannel-onclosing", "dfnText": "onclosing", "refSections": [{"refs": [{"id": "ref-for-dom-lp2pdatachannel-onclosing"}], "title": "7. The LP2PDataChannel Interface"}], "external": false};
+window.dfnpanelData['dom-lp2pdatachannel-onclose'] = {"dfnID": "dom-lp2pdatachannel-onclose", "url": "#dom-lp2pdatachannel-onclose", "dfnText": "onclose", "refSections": [{"refs": [{"id": "ref-for-dom-lp2pdatachannel-onclose"}], "title": "7. The LP2PDataChannel Interface"}], "external": false};
+window.dfnpanelData['lp2pdatachannelevent'] = {"dfnID": "lp2pdatachannelevent", "url": "#lp2pdatachannelevent", "dfnText": "LP2PDataChannelEvent", "refSections": [{"refs": [{"id": "ref-for-lp2pdatachannelevent"}], "title": "7.6. Extensions Events"}], "external": false};
+window.dfnpanelData['eventdef-lp2pconnection-datachannel'] = {"dfnID": "eventdef-lp2pconnection-datachannel", "url": "#eventdef-lp2pconnection-datachannel", "dfnText": "datachannel", "refSections": [{"refs": [{"id": "ref-for-eventdef-lp2pconnection-datachannel"}], "title": "7.7. Extensions Event handlers"}], "external": false};
+window.dfnpanelData['dom-lp2pconnection-ondatachannel'] = {"dfnID": "dom-lp2pconnection-ondatachannel", "url": "#dom-lp2pconnection-ondatachannel", "dfnText": "ondatachannel", "refSections": [{"refs": [{"id": "ref-for-dom-lp2pconnection-ondatachannel"}], "title": "7.4. LP2PConnection Interface Extensions"}], "external": false};
+window.dfnpanelData['agent-capability'] = {"dfnID": "agent-capability", "url": "#agent-capability", "dfnText": "agent-capability", "refSections": [{"refs": [{"id": "ref-for-agent-capability"}], "title": "3.1. Data channel extension"}, {"refs": [{"id": "ref-for-agent-capability\u2460"}], "title": "3.2. WebTransport extension"}], "external": false};
+window.dfnpanelData['data-channels'] = {"dfnID": "data-channels", "url": "#data-channels", "dfnText": "data-channels", "refSections": [{"refs": [{"id": "ref-for-data-channels"}], "title": "3.1. Data channel extension"}], "external": false};
+window.dfnpanelData['quick-transport'] = {"dfnID": "quick-transport", "url": "#quick-transport", "dfnText": "quick-transport", "refSections": [{"refs": [{"id": "ref-for-quick-transport"}], "title": "3.2. WebTransport extension"}], "external": false};
+window.dfnpanelData['data-channel-encoding-id'] = {"dfnID": "data-channel-encoding-id", "url": "#data-channel-encoding-id", "dfnText": "data-channel-encoding-id", "refSections": [{"refs": [{"id": "ref-for-data-channel-encoding-id"}], "title": "3.1. Data channel extension"}], "external": false};
+window.dfnpanelData['encoding-id-blob'] = {"dfnID": "encoding-id-blob", "url": "#encoding-id-blob", "dfnText": "encoding-id-blob", "refSections": [{"refs": [{"id": "ref-for-encoding-id-blob"}], "title": "3.1. Data channel extension"}], "external": false};
+window.dfnpanelData['encoding-id-string'] = {"dfnID": "encoding-id-string", "url": "#encoding-id-string", "dfnText": "encoding-id-string", "refSections": [{"refs": [{"id": "ref-for-encoding-id-string"}], "title": "3.1. Data channel extension"}], "external": false};
+window.dfnpanelData['encoding-id-array-buffer'] = {"dfnID": "encoding-id-array-buffer", "url": "#encoding-id-array-buffer", "dfnText": "encoding-id-array-buffer", "refSections": [{"refs": [{"id": "ref-for-encoding-id-array-buffer"}], "title": "3.1. Data channel extension"}], "external": false};
+window.dfnpanelData['data-frame'] = {"dfnID": "data-frame", "url": "#data-frame", "dfnText": "data-frame", "refSections": [{"refs": [{"id": "ref-for-data-frame"}], "title": "3.1. Data channel extension"}], "external": false};
+window.dfnpanelData['data-channel-open-request'] = {"dfnID": "data-channel-open-request", "url": "#data-channel-open-request", "dfnText": "data-channel-open-request", "refSections": [{"refs": [{"id": "ref-for-data-channel-open-request"}, {"id": "ref-for-data-channel-open-request\u2460"}], "title": "3.1. Data channel extension"}], "external": false};
+window.dfnpanelData['data-channel-open-response'] = {"dfnID": "data-channel-open-response", "url": "#data-channel-open-response", "dfnText": "data-channel-open-response", "refSections": [{"refs": [{"id": "ref-for-data-channel-open-response"}, {"id": "ref-for-data-channel-open-response\u2460"}], "title": "3.1. Data channel extension"}], "external": false};
+</script>
+<script>/* Boilerplate: script-dom-helper */
+function query(sel) { return document.querySelector(sel); }
+
+function queryAll(sel) { return [...document.querySelectorAll(sel)]; }
+
+function iter(obj) {
+	if(!obj) return [];
+	var it = obj[Symbol.iterator];
+	if(it) return it;
+	return Object.entries(obj);
+}
+
+function mk(tagname, attrs, ...children) {
+	const el = document.createElement(tagname);
+	for(const [k,v] of iter(attrs)) {
+		if(k.slice(0,3) == "_on") {
+			const eventName = k.slice(3);
+			el.addEventListener(eventName, v);
+		} else if(k[0] == "_") {
+			// property, not attribute
+			el[k.slice(1)] = v;
+		} else {
+			if(v === false || v == null) {
+        continue;
+      } else if(v === true) {
+        el.setAttribute(k, "");
+        continue;
+      } else {
+  			el.setAttribute(k, v);
+      }
+		}
+	}
+	append(el, children);
+	return el;
+}
+
+/* Create shortcuts for every known HTML element */
+[
+  "a",
+  "abbr",
+  "acronym",
+  "address",
+  "applet",
+  "area",
+  "article",
+  "aside",
+  "audio",
+  "b",
+  "base",
+  "basefont",
+  "bdo",
+  "big",
+  "blockquote",
+  "body",
+  "br",
+  "button",
+  "canvas",
+  "caption",
+  "center",
+  "cite",
+  "code",
+  "col",
+  "colgroup",
+  "datalist",
+  "dd",
+  "del",
+  "details",
+  "dfn",
+  "dialog",
+  "div",
+  "dl",
+  "dt",
+  "em",
+  "embed",
+  "fieldset",
+  "figcaption",
+  "figure",
+  "font",
+  "footer",
+  "form",
+  "frame",
+  "frameset",
+  "head",
+  "header",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "hr",
+  "html",
+  "i",
+  "iframe",
+  "img",
+  "input",
+  "ins",
+  "kbd",
+  "label",
+  "legend",
+  "li",
+  "link",
+  "main",
+  "map",
+  "mark",
+  "meta",
+  "meter",
+  "nav",
+  "nobr",
+  "noscript",
+  "object",
+  "ol",
+  "optgroup",
+  "option",
+  "output",
+  "p",
+  "param",
+  "pre",
+  "progress",
+  "q",
+  "s",
+  "samp",
+  "script",
+  "section",
+  "select",
+  "small",
+  "source",
+  "span",
+  "strike",
+  "strong",
+  "style",
+  "sub",
+  "summary",
+  "sup",
+  "table",
+  "tbody",
+  "td",
+  "template",
+  "textarea",
+  "tfoot",
+  "th",
+  "thead",
+  "time",
+  "title",
+  "tr",
+  "u",
+  "ul",
+  "var",
+  "video",
+  "wbr",
+  "xmp",
+].forEach(tagname=>{
+	mk[tagname] = (...args) => mk(tagname, ...args);
+});
+
+function* nodesFromChildList(children) {
+	for(const child of children.flat(Infinity)) {
+		if(child instanceof Node) {
+			yield child;
+		} else {
+			yield new Text(child);
+		}
+	}
+}
+function append(el, ...children) {
+	for(const child of nodesFromChildList(children)) {
+		if(el instanceof Node) el.appendChild(child);
+		else el.push(child);
+	}
+	return el;
+}
+
+function insertAfter(el, ...children) {
+	for(const child of nodesFromChildList(children)) {
+		el.parentNode.insertBefore(child, el.nextSibling);
+	}
+	return el;
+}
+
+function clearContents(el) {
+	el.innerHTML = "";
+	return el;
+}
+
+function parseHTML(markup) {
+	if(markup.toLowerCase().trim().indexOf('<!doctype') === 0) {
+		const doc = document.implementation.createHTMLDocument("");
+		doc.documentElement.innerHTML = markup;
+		return doc;
+	} else {
+		const el = mk.template({});
+		el.innerHTML = markup;
+		return el.content;
+	}
+}
+</script>
