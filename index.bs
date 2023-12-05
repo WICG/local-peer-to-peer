@@ -32,6 +32,37 @@ This specification aims to strike a balance between creating a powerful new buil
 
 The API is designed to be backed by an authenticated, streams-based transport. As a commitment to an open standards-based implementation path, this specification describes how the API can be implemented on top of the [Open Screen Protocol](https://w3c.github.io/openscreenprotocol/). While not described here, the API is expected to be implementable on top of other transports when technically feasible.
 
+Permission Policy Integration {#permission-policy-integration}
+======================================================
+
+The Local Peer-to-Peer API defines a [=policy-controlled feature=] identified by the token "local-peer-to-peer". Its [=default allowlist=] is `"self"`.
+
+Workers (dedicated and shared) adhere to the permission policy set by their owning document(s):
+<ul>
+  <li>
+    Dedicated workers can be created from other workers, in which case the permission policy of the first owning document (in case of a dedicated worker) or owning documents (in case of a shared worker) up the owner chain will be used.
+  </li>
+  <li>
+    Shared workers often have multiple owning documents as they can be obtained by other documents with the [=same origin=]. In this case, all owning documents must be [=allowed to use=] the [=policy-controlled feature=] defined by this specification.
+  </li>
+</ul>
+
+Note: There has been discussion on allowing setting permission policy directly on a worker on creation, in which case that would have to be consulted as well.
+ 
+The [=policy-controlled feature/default allowlist=] of `"self"` allows usage in same-origin nested frames but prevents third-party content from using the feature. Third-party content usage can be selectively enabled by adding `allow="local-peer-to-peer"` attribute to the frame container element:
+
+<pre class="example" title= "Enabling Local Peer-to-Peer API on third-party content" highlight='js'>
+&lt;iframe src="https://third-party.com" allow="local-peer-to-peer"/&gt;&lt;/iframe&gt;
+</pre>
+
+Alternatively, the Local Peer-to-Peer API can be disabled completely by specifying the permissions policy in a HTTP response header:
+
+<pre class="example" title="Permission Policy over HTTP" highlight='js'>
+Permissions-Policy: {"local-peer-to-peer": []}
+</pre>
+
+See [[!PERMISSIONS-POLICY]] for more details.
+
 Peer Management {#peer-management}
 ==================================
 
