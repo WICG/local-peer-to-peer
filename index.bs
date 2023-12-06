@@ -58,7 +58,7 @@ The [=policy-controlled feature/default allowlist=] of `"self"` allows usage in 
 Alternatively, the Local Peer-to-Peer API can be disabled completely by specifying the permissions policy in a HTTP response header:
 
 <pre class="example" title="Permission Policy over HTTP" highlight='js'>
-Permissions-Policy: {"local-peer-to-peer": []}
+Permissions-Policy: local-peer-to-peer=()
 </pre>
 
 See [[!PERMISSIONS-POLICY]] for more details.
@@ -85,7 +85,7 @@ Note: The [=peer grant state=] is origin-level while the [=authentication state=
 
 Issue(wicg/local-peer-to-peer#24): See also related
 
-The user agent may persist known peers, their authentication state and/or peer grant states. If the user agent chooses to do so, it must do so in accordance with the [[!openscreenprotocol|OpenScreen Protocol]] Persistent State rules. Such a peer or its state is said to be <dfn>persisted</dfn>.
+The user agent may persist known peers, their [=authentication states=] and/or [=peer grant states=]. If the user agent chooses to do so, it must do so in accordance with the [[!openscreenprotocol|Open Screen Protocol]] Persistent State rules. Such a peer or its state is said to be <dfn>persisted</dfn>.
 
 Peer advertisement {#peer-advertisement}
 ----------------------------------------
@@ -94,7 +94,7 @@ The user agent can make itself discoverable by advertising using the [=session/a
 
 Note: The user agent must get the user's explicit consent in order to start advertising.
 
-When advertising, the user agent must listen for incoming peer connections. In case a connection is received, the peer is added to the known peer list. The user agent must not directly provide access to the incoming peer connection to any origin. Instead, the user agent must prompt to [grant peer](#peer-grant) access to the origin that initiated peer advertisement.
+When advertising, the user agent must listen for incoming peer connections. In case a connection is received, the peer is added to the [=known peers map=]. The user agent must not directly provide access to the incoming peer connection to any origin. Instead, the user agent must prompt to [grant peer](#peer-grant) access to the origin that initiated peer advertisement.
 
 Peer discovery {#peer-discovery}
 --------------------------------
@@ -103,7 +103,7 @@ The user agent can discover local peers using the [=session/discover agents=] ca
 
 When asked to <dfn>start local peer discovery</dfn>, the user agent discovers local peers using the [=session/discover agents=] capability.
 
-If a peer is discovered, the user agent should add it to the [=known peers map=]. The user agent must never expose the full result of peer discovery with an origin. Instead, the user agent must [=acquire a local peer grant=] to grant access to a peer to the origin that initiated the peer request.
+If a peer is discovered, the user agent should add it to the [=known peers map=]. The user agent must never expose the full result of peer discovery with an origin. Instead, the user agent must [=acquire a local peer grant=] to grant access to a peer for the origin that initiated the peer request.
 
 Peer authentication {#peer-authentication}
 ------------------------------------------
@@ -175,7 +175,7 @@ A [=Local Peer-to-Peer session=] has the following capabilities:
  </tbody>
 </table>
 
-Part of these capabilities are defined below as [protocol extensions](https://www.w3.org/TR/openscreenprotocol/#protocol-extensions) to the [[!openscreenprotocol|OpenScreen Protocol]].
+Part of these capabilities are defined below as [protocol extensions](https://www.w3.org/TR/openscreenprotocol/#protocol-extensions) to the [[!openscreenprotocol|Open Screen Protocol]].
 
 Data channel extension {#data-channel-extension}
 ------------------------------------------------
@@ -227,7 +227,7 @@ LP2PReceiver Interface {#lp2p-receiver}
 
 <section algorithm="LP2PReceiver">
 
-The <dfn interface>LP2PReceiver</dfn> interface allows advertising on the local network, enabling other peers to connect.
+The <dfn interface>LP2PReceiver</dfn> interface allows advertising on the local network, enabling other peers to discover and connect.
 
 <pre class="idl">
 [Exposed=(Window,Worker), SecureContext]
@@ -356,7 +356,7 @@ dictionary LP2PRequestOptions {
 Examples {#lp2p-request-examples}
 ---------------------------------
 
-Example: Setting up a request for a connections:
+Example: Setting up a request for a connection:
 
 
 <pre class='example' highlight='js'>
@@ -391,13 +391,15 @@ interface LP2PConnection : EventTarget {
 The LP2PDataChannel Interface {#lp2p-data-channel}
 ==========================================
 
-The LP2PDataChannel interface represents a bi-directional data channel between two peers. An LP2PDataChannel is created via a [factory method](#lp2p-data-channel-extensions) on an LP2PConnection object.
+The LP2PDataChannel interface represents a bi-directional data channel between two peers. An LP2PDataChannel is created via a [factory method](#lp2p-data-channel-extensions) on a LP2PConnection object.
 
 Note: The LP2PDataChannel interface is purposefully kept as close as possible to the [RTCDataChannel](https://www.w3.org/TR/webrtc/#rtcdatachannel) interface defined in [[!webrtc]]. The aim is to allow seamless transition of developers that are familiar with WebRTC as well as allowing libraries to easily work with both the [[!webrtc]] and LP2P API.
 
 <pre class="idl">
 [Exposed=(Window,Worker), SecureContext]
 interface LP2PDataChannel : EventTarget {
+  constructor(USVString label,
+              optional LP2PDataChannelInit dataChannelDict = {});
   readonly attribute USVString label;
   readonly attribute USVString protocol;
   readonly attribute unsigned short? id;
@@ -508,7 +510,7 @@ LP2PConnection Interface Extensions {#lp2p-data-channel-extensions}
 [Exposed=(Window,Worker), SecureContext]
 partial interface LP2PConnection {
   LP2PDataChannel createDataChannel(USVString label,
-                                   optional LP2PDataChannelInit dataChannelDict = {});
+                                    optional LP2PDataChannelInit dataChannelDict = {});
   attribute EventHandler ondatachannel;
 };
 </pre>
@@ -516,10 +518,17 @@ partial interface LP2PConnection {
 LP2PDataChannelEvent {#lp2p-data-channel-event}
 ------------------------------------------------
 
+Issue: In general, when defining a new interface that inherits from Event please always ask feedback from the WHATWG or the W3C WebApps WG community. See [defining event interfaces](https://dom.spec.whatwg.org/#defining-event-interfaces).
+
 <pre class="idl">
 [Exposed=(Window,Worker), SecureContext]
-interface LP2PDataChannelEvent {
+interface LP2PDataChannelEvent : Event {
+  constructor(DOMString type, LP2PDataChannelEventInit DataChannelEventInitDict);
   readonly attribute LP2PDataChannel channel;
+};
+
+dictionary LP2PDataChannelEventInit : EventInit {
+    required LP2PDataChannel channel;
 };
 </pre>
 
@@ -540,7 +549,7 @@ The following event is [=fire an event|fired=] at the {{LP2PConnection}} object:
     <tr>
       <td><dfn event for="LP2PConnection"><code>datachannel</code></dfn></td>
       <td>{{LP2PDataChannelEvent}}</td>
-      <td>An incoming connection is received.</td>
+      <td>An incoming data channel is received.</td>
     </tr>
   </tbody>
 </table>
@@ -631,7 +640,7 @@ receiver.onconnection = e => {
     };
 };
 
-receiver.start();
+await receiver.start();
 
 // Peer B
 const request = new LP2PRequest({
@@ -656,7 +665,7 @@ channel.onopen = e => {
 Appendix A: OSP Extension Messages {#appendix-a}
 ================================================
 
-The following messages are defined according to and as an extension to the [[!openscreenprotocol|OpenScreen Protocol]] [Messages](https://www.w3.org/TR/openscreenprotocol/#appendix-a).
+The following messages are defined according to and as an extension to the [[!openscreenprotocol|Open Screen Protocol]] [Messages](https://www.w3.org/TR/openscreenprotocol/#appendix-a).
 
 Note: The type keys and capability IDs for these extensions are not officially registered yet. They will be registered as this specification matures. 
 
