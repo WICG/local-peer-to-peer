@@ -2,7 +2,7 @@
 
 The Local Peer-to-Peer API aims to give browsers the means to communicate directly, without the aid of a server in the middle. It is designed to enable this communication within the confines of a local communication medium such as the Local Area Network.
 
-The API aims to strike a balance between creating a powerful new building block for developers and providing a seamless, secure and privacy preserving experience the browser user. As an example: while the API doesn’t provide raw socket access, it does aim to give developers the flexibility to innovate on top by providing a persistent, two-way communication channel with little overhead.
+The API aims to strike a balance between creating a powerful new building block for developers and providing a seamless, secure and privacy preserving experience for the user. As an example: while the API doesn’t provide raw socket access, it does aim to give developers the flexibility to innovate on top by providing a persistent, two-way communication channel with little overhead.
 
 See also:
 
@@ -20,9 +20,9 @@ This proposal sets to make a part of this Tim's vision a reality while adhering 
 
 When a user wants to connect between two devices on the same network, for example to another device nearby—be it another device the user owns or that of a friend—the user has multiple ways to accomplish this task:
 
-1. _A cloud service_. The web has many ways of connections to a third-party cloud service: HTTP, WebSocket or WebTransport. However, all of these methods require a round trip through the internet. This is inherently dependant on external resources, it consumes network bandwidth and can be slow or costly and has privacy implications in all both the strongest E2E encryption schemes.
+1. _A cloud service_. The web has many ways of connections to a third-party cloud service: HTTP, WebSocket or WebTransport. However, all of these methods require a round trip through the internet. This is inherently dependant on external resources, it consumes network bandwidth and can be slow or costly and has privacy implications in all but the strongest E2E encryption schemes.
 
-2. _A local server_. Many modern Web security measures rely on the presence of naming, signaling and certificate authorities. Local use-cases where these authorities are not readily available have started lagging behind in user experience or are not supported altogether. A local solution involves knowing IPs, Ports and accepting/ignoring a plethora of "Not secure" warnings to get going. This falls short of the user-friendliness that one can expect of -nowadays ubiquitous- cloud services.
+2. _A local server_. Many modern Web security measures rely on the presence of naming, signaling and certificate authorities. Local use-cases where these authorities are not readily available have started lagging behind in user experience or are not supported altogether. A local solution involves knowing IPs, ports and accepting/ignoring a plethora of "Not secure" warnings to get going. This falls short of the user-friendliness that one can expect of—nowadays ubiquitous—cloud services.
 
 3. _A WebRTC connection_. While WebRTC is a P2P protocol, it still requires a setup step usually referred to as 'signaling'. There is no good way to perform this step without relying on an existing connection between peers, commonly a cloud service is used.
 
@@ -190,7 +190,7 @@ The API is designed to be backed by an authenticated, streams-based transport. A
 
 ## Non-goals
 
-- Providing direct access TCP/UDP sockets.
+- Providing direct access to TCP/UDP sockets.
 
 ## Security and Privacy
 
