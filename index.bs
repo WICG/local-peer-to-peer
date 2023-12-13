@@ -698,6 +698,6 @@ Note: The type keys and capability IDs for these extensions are not officially r
 ; type key 1102
 <dfn>data-channel-open-response</dfn> = {
   response
-  1: &result ; result
+  1: &amp;result ; result
 }
 </pre>
