@@ -388,6 +388,58 @@ interface LP2PConnection : EventTarget {
 
 <section algorithm="LP2PDataChannel">
 
+LP2PQuicTransport Interface Extensions {#lp2p-connection-quic-transport-extensions}
+-------------------------------------------------------------------
+
+This {{LP2PQuicTransport}} extension allows opening a QuicTransport using an existing connection. In this case, the already established permission and grants should be used.
+
+<pre class="idl">
+[Exposed=(Window,Worker), SecureContext]
+partial interface LP2PQuicTransport {
+  constructor(LP2PConnection connection,
+              optional LP2PQuicTransportInit dataChannelDict = {});
+};
+</pre>
+
+Examples {#lp2p-connection-examples}
+----------------------------------------
+
+Example: Open a {{LP2PQuicTransport}} using an existing connection as receiver:
+
+<pre class='example' highlight='js'>
+const receiver = new LP2PReceiver({
+    nickname: "example-receiver",
+});
+receiver.onconnection = async e => {
+    const conn = e.connection;
+    
+    const transport = new LP2PQuicTransport(conn);
+
+    // Blocks until transport is ready.
+    await transport.ready;
+};
+
+// Blocks until permission is received.
+await receiver.start();
+</pre>
+
+Example: Open a {{LP2PQuicTransport}} using an existing connection as requester:
+
+<pre class='example' highlight='js'>
+const request = new LP2PRequest({
+    nickname: "example-request",
+});
+
+// Blocks until connection is received.
+const conn = await request.start();
+
+const transport = new LP2PQuicTransport(conn);
+
+// Blocks until transport is ready.
+await transport.ready;
+</pre>
+
+
 The LP2PDataChannel Interface {#lp2p-data-channel}
 ==========================================
 
@@ -581,31 +633,123 @@ The following are the <a>event handlers</a> (and their corresponding <a>event ha
 The LP2PQuicTransport Interface {#lp2p-quic-transport}
 ======================================================
 
+The <dfn interface>LP2PQuicTransport</dfn> Interface allows opening a dedicated [[!webtransport]] between peers. If the LP2PRequest is not yet started, it must be started when the start method of the LP2PQuicTransport is called.
+
 <pre class="idl">
 [Exposed=(Window,Worker), SecureContext]
 interface LP2PQuicTransport : WebTransport {
-  constructor(LP2PConnection transport);
-  Promise&lt;undefined&gt; start();
+  constructor(LP2PRequest request,
+              optional LP2PQuicTransportInit dataChannelDict = {});
+};
+
+[Exposed=(Window,Worker), SecureContext]
+dictionary LP2PQuicTransportInit {
+};
+</pre>
+
+Issue: Define LP2PQuicTransportInit as needed using WebTransportOptions as reference.
+
+LP2PReceiver Interface Extensions {#lp2p-quic-transport-extensions}
+-------------------------------------------------------------------
+
+<pre class="idl">
+[Exposed=(Window,Worker), SecureContext]
+partial interface LP2PReceiver {
+  attribute EventHandler ontransport;
+};
+</pre>
+
+Extensions Events {#lp2p-quic-transport-events}
+------------------------------
+
+The following event is [=fire an event|fired=] at the {{LP2PReceiver}} object:
+
+<table class="data">
+  <thead>
+    <tr>
+      <th>Event name</th>
+      <th>Interface</th>
+      <th>Fired when&mldr;</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><dfn event for="LP2PReceiver"><code>transport</code></dfn></td>
+      <td>{{LP2PQuicTransportEvent}}</td>
+      <td>An incoming QuicTransport is received.</td>
+    </tr>
+  </tbody>
+</table>
+
+Extensions Event handlers {#lp2p-quic-transport-event-handlers}
+------------------------------------------------------------------------
+
+The following are the <a>event handlers</a> (and their corresponding <a>event handler event types</a>) that must be supported, as <a>event handler IDL attributes</a>, by all objects implementing the {{LP2PReceiver}} interface:
+
+<table class="data">
+  <thead>
+    <tr>
+      <th><a>event handler</a></th>
+      <th><a>event handler event type</a></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><dfn attribute for="LP2PReceiver"><code>ontransport</code></dfn></td>
+      <td>{{LP2PReceiver/transport}}</td>
+    </tr>
+  </tbody>
+</table>
+
+LP2PQuicTransportEvent {#lp2p-quic-transport-event}
+------------------------------------------------
+
+Issue: In general, when defining a new interface that inherits from Event please always ask feedback from the WHATWG or the W3C WebApps WG community. See [defining event interfaces](https://dom.spec.whatwg.org/#defining-event-interfaces).
+
+<pre class="idl">
+[Exposed=(Window,Worker), SecureContext]
+interface LP2PQuicTransportEvent : Event {
+  constructor(DOMString type, LP2PQuicTransportEventInit QuicTransportEventInitDict);
+  readonly attribute LP2PQuicTransport transport;
+};
+
+dictionary LP2PQuicTransportEventInit : EventInit {
+    required LP2PQuicTransport transport;
 };
 </pre>
 
 Examples {#lp2p-quic-transport-examples}
 ----------------------------------------
 
-Example: Setting up a request for a connections:
-
+Example: Setting up a request for a LP2PQuicTransport:
 
 <pre class='example' highlight='js'>
 const request = new LP2PRequest({
     nickname: "example-request",
 });
 
-const conn = await request.start();
+const transport = new LP2PQuicTransport(request);
 
-const transport = new LP2PQuicTransport(conn);
+// Blocks until transport is ready.
+await transport.ready;
+</pre>
 
-// Blocks until transport is opened.
-await transport.start();
+Example: Receiving a LP2PQuicTransport:
+
+<pre class='example' highlight='js'>
+const receiver = new LP2PReceiver({
+    nickname: "example-receiver",
+});
+
+receiver.ontransport = e => {
+    const transport = e.transport;
+    
+    // Blocks until transport is ready.
+    await transport.ready;
+}
+
+// Blocks until permission is received.
+await receiver.start();
 </pre>
 
 Refer to the [WebTransport examples](https://www.w3.org/TR/webtransport/#examples) for usage of a [[!webtransport]] object.
@@ -661,6 +805,38 @@ channel.onopen = e => {
     channel.send("Good day to you, receiver!");
 };
 </pre>
+
+WebTransport Communication {#examples-web-transport}
+---------------------------------------------------
+
+<pre class='example' highlight='js'>
+// Peer A
+const receiver = new LP2PReceiver({
+    nickname: "Peer A",
+});
+
+receiver.ontransport = e => {
+    const transport = e.transport;
+    
+    // Blocks until transport is ready.
+    await transport.ready;
+}
+
+// Blocks until permission is received.
+await receiver.start();
+
+// Peer B
+const request = new LP2PRequest({
+    nickname: "Peer B",
+});
+
+const transport = new LP2PQuicTransport(request);
+
+// Blocks until transport is ready.
+await transport.ready;
+</pre>
+
+Refer to the [WebTransport examples](https://www.w3.org/TR/webtransport/#examples) for usage of a [[!webtransport]] object.
 
 Appendix A: OSP Extension Messages {#appendix-a}
 ================================================
