@@ -632,7 +632,7 @@ receiver.onconnection = e => {
         const channel = e.channel;
 
         channel.onmessage = e => {
-            const message = e.message;
+            const message = e.data;
             console.log(\`Receiver: Received message: ${message}\`);
         };
 
