@@ -84,15 +84,17 @@ channel.onmessage = (e) => {
 
 ```js
 // Peer A
-const transport = new LP2PQuicTransport(conn);
+const transport = new LP2PQuicTransport(request);
 
-await transport.start();
+await transport.ready;
 ```
 
 ```js
 // Peer B
-conn.ontransport = (e) => {
+receiver.ontransport = async (e) => {
   const transport = e.transport;
+
+  await transport.ready;
 };
 ```
 
