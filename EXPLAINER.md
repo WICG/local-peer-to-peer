@@ -76,7 +76,7 @@ conn.ondatachannel = (e) => {
 const channel = conn.createDataChannel("My Channel");
 
 channel.onmessage = (e) => {
-  console.log(`Receiver: Received message: ${e.message}`);
+  console.log(`Receiver: Received message: ${e.data}`);
 };
 ```
 
