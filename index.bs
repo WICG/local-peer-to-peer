@@ -26,7 +26,7 @@ The Local Peer-to-Peer API aims to give browsers the means to communicate direct
 
 Many modern Web security measures rely on the presence of naming, signaling and certificate authorities. Local use-cases where these authorities are not readily available have started lagging behind in user experience or are not supported altogether. The Local Peer-to-Peer API aims to bring back first-class support for local communication use-cases while working within the same strict user-friendliness, security and privacy requirements.
 
-Examples of potential uses of this API include: Collaboration tools that work during an internet outage or emergency situations, connecting to your NAS, your home security system, your robotic assistant doing the dishes or your GPU farm in the basement that's running your personalized virtual assistant.
+Examples of potential uses of this API include: Collaboration tools that work during an internet outage or emergency situations, connecting to your NAS, your home security system, your robotic assistant doing the dishes or your GPU farm in the basement that's running your personalized virtual assistant. See also [Use Cases](https://github.com/WICG/local-peer-to-peer/blob/main/EXPLAINER.md#use-cases).
 
 This specification aims to strike a balance between creating a powerful new building block for developers and providing a seamless, secure and privacy preserving experience for browser users. As an example: while the API doesn't provide raw socket access, it does aim to give developers the flexibility to innovate on top by providing a persistent, two-way communication channel with little overhead.
 
@@ -222,10 +222,10 @@ The capabilities of the Local WebTransport session are defined in [[!webtranspor
 
 Note: The WebTransport-over-QUIC protocol is yet to be defined. Potentially considering earlier work such as [draft-vvv-webtransport-quic](https://datatracker.ietf.org/doc/html/draft-vvv-webtransport-quic-02).
 
+<section algorithm="LP2PReceiver">
+
 LP2PReceiver Interface {#lp2p-receiver}
 ================================================
-
-<section algorithm="LP2PReceiver">
 
 The <dfn interface>LP2PReceiver</dfn> interface allows advertising on the local network, enabling other peers to discover and connect.
 
@@ -263,25 +263,6 @@ interface LP2PConnectionEvent : Event {
 dictionary LP2PConnectionEventInit : EventInit {
     required LP2PConnection connection;
 };
-</pre>
-
-Examples {#lp2p-receiver-examples}
----------------------------------
-
-Example: Setting up a receiver to listen for connections:
-
-
-<pre class='example' highlight='js'>
-const receiver = new LP2PReceiver({
-    nickname: "example-receiver",
-});
-receiver.onconnection = e => {
-    console.log("Connection established!");
-    const conn = e.connection;
-};
-
-// Blocks until permission is received.
-await receiver.start();
 </pre>
 
 Events {#lp2p-receiver-events}
@@ -326,6 +307,24 @@ The following are the <a>event handlers</a> (and their corresponding <a>event ha
   </tbody>
 </table>
 
+Examples {#lp2p-receiver-examples}
+---------------------------------
+
+Example: Setting up a receiver to listen for connections:
+
+<pre class='example' highlight='js'>
+const receiver = new LP2PReceiver({
+    nickname: "example-receiver",
+});
+receiver.onconnection = e => {
+    console.log("Connection established!");
+    const conn = e.connection;
+};
+
+// Blocks until permission is received.
+await receiver.start();
+</pre>
+
 </section>
 
 <section algorithm="LP2PRequest">
@@ -358,7 +357,6 @@ Examples {#lp2p-request-examples}
 
 Example: Setting up a request for a connection:
 
-
 <pre class='example' highlight='js'>
 const request = new LP2PRequest({
     nickname: "example-request",
@@ -383,10 +381,6 @@ The <dfn interface>LP2PConnection</dfn> interface represents a connection with a
 interface LP2PConnection : EventTarget {
 };
 </pre>
-
-</section>
-
-<section algorithm="LP2PDataChannel">
 
 LP2PQuicTransport Interface Extensions {#lp2p-connection-quic-transport-extensions}
 -------------------------------------------------------------------
@@ -439,11 +433,14 @@ const transport = new LP2PQuicTransport(conn);
 await transport.ready;
 </pre>
 
+</section>
+
+<section algorithm="LP2PDataChannel">
 
 The LP2PDataChannel Interface {#lp2p-data-channel}
 ==========================================
 
-The LP2PDataChannel interface represents a bi-directional data channel between two peers. An LP2PDataChannel is created via a [factory method](#lp2p-data-channel-extensions) on a LP2PConnection object.
+The LP2PDataChannel interface represents a bi-directional data channel between two peers. An LP2PDataChannel is created via a [factory method](#lp2p-connection-data-channel-extensions) on a LP2PConnection object.
 
 Note: The LP2PDataChannel interface is purposefully kept as close as possible to the [RTCDataChannel](https://www.w3.org/TR/webrtc/#rtcdatachannel) interface defined in [[!webrtc]]. The aim is to allow seamless transition of developers that are familiar with WebRTC as well as allowing libraries to easily work with both the [[!webrtc]] and LP2P API.
 
@@ -476,7 +473,6 @@ dictionary LP2PDataChannelInit {
   [EnforceRange] unsigned short id;
 };
 </pre>
-
 
 Events {#lp2p-data-channel-events}
 ---------------------------------
@@ -520,10 +516,10 @@ The following event is [=fire an event|fired=] at the {{LP2PDataChannel}} object
   </tbody>
 </table>
 
-Data Channel Event handlers {#lp2p-data-channel-event-handlers}
+Event handlers {#lp2p-data-channel-event-handlers}
 ---------------------------------------------------------------
 
-The following are the <a>event handlers</a> (and their corresponding <a>event handler event types</a>) that must be supported, as <a>event handler IDL attributes</a>, by all objects implementing the [[#lp2p-connection|LP2PConnection]] interface:
+The following are the <a>event handlers</a> (and their corresponding <a>event handler event types</a>) that must be supported, as <a>event handler IDL attributes</a>, by all objects implementing the [[#lp2p-data-channel|LP2PDataChannel]] interface:
 
 <table class="data">
   <thead>
@@ -555,7 +551,7 @@ The following are the <a>event handlers</a> (and their corresponding <a>event ha
     </tr>
 </table>
 
-LP2PConnection Interface Extensions {#lp2p-data-channel-extensions}
+LP2PConnection Interface Extensions {#lp2p-connection-data-channel-extensions}
 -------------------------------------------------------------------
 
 <pre class="idl">
@@ -584,7 +580,7 @@ dictionary LP2PDataChannelEventInit : EventInit {
 };
 </pre>
 
-Extensions Events {#lp2p-data-channel-extensions-events}
+Extensions Events {#lp2p-connection-data-channel-extensions-events}
 ------------------------------
 
 The following event is [=fire an event|fired=] at the {{LP2PConnection}} object:
@@ -606,7 +602,7 @@ The following event is [=fire an event|fired=] at the {{LP2PConnection}} object:
   </tbody>
 </table>
 
-Extensions Event handlers {#lp2p-data-channel-extensions-event-handlers}
+Extensions Event handlers {#lp2p-connection-data-channel-extensions-event-handlers}
 ------------------------------------------------------------------------
 
 The following are the <a>event handlers</a> (and their corresponding <a>event handler event types</a>) that must be supported, as <a>event handler IDL attributes</a>, by all objects implementing the {{LP2PConnection}} interface:
@@ -625,6 +621,57 @@ The following are the <a>event handlers</a> (and their corresponding <a>event ha
     </tr>
   </tbody>
 </table>
+
+Examples {#data-channel-communication-examples}
+---------------------------------------------------
+
+Example: Receive a {{LP2PDataChannel}} on an existing connection as receiver:
+
+<pre class='example' highlight='js'>
+const receiver = new LP2PReceiver({
+    nickname: "example-receiver",
+});
+
+receiver.onconnection = e => {
+    const conn = e.connection;
+    console.log("Receiver: Got a connection!");
+
+    conn.ondatachannel = e => {
+        const channel = e.channel;
+
+        channel.onmessage = e => {
+            const message = e.data;
+            console.log(\`Receiver: Received message: ${message}\`);
+        };
+
+        channel.send("Good day to you, requester!");
+    };
+};
+
+await receiver.start();
+</pre>
+
+Example: Create a {{LP2PDataChannel}} on an existing connection as requester:
+
+<pre class='example' highlight='js'>
+const request = new LP2PRequest({
+    nickname: "example-request",
+});
+
+const conn = await request.start();
+console.log("Requester: Got a connection!");
+
+const channel = conn.createDataChannel("My Channel");
+
+channel.onopen = e => {
+    channel.onmessage = e => {
+        const message = e.data;
+        console.log(\`Requester: Received message: ${message}\`);
+    };
+
+    channel.send("Good day to you, receiver!");
+};
+</pre>
 
 </section>
 
@@ -656,6 +703,23 @@ LP2PReceiver Interface Extensions {#lp2p-quic-transport-extensions}
 [Exposed=(Window,Worker), SecureContext]
 partial interface LP2PReceiver {
   attribute EventHandler ontransport;
+};
+</pre>
+
+LP2PQuicTransportEvent {#lp2p-quic-transport-event}
+------------------------------------------------
+
+Issue: In general, when defining a new interface that inherits from Event please always ask feedback from the WHATWG or the W3C WebApps WG community. See [defining event interfaces](https://dom.spec.whatwg.org/#defining-event-interfaces).
+
+<pre class="idl">
+[Exposed=(Window,Worker), SecureContext]
+interface LP2PQuicTransportEvent : Event {
+  constructor(DOMString type, LP2PQuicTransportEventInit QuicTransportEventInitDict);
+  readonly attribute LP2PQuicTransport transport;
+};
+
+dictionary LP2PQuicTransportEventInit : EventInit {
+    required LP2PQuicTransport transport;
 };
 </pre>
 
@@ -701,23 +765,6 @@ The following are the <a>event handlers</a> (and their corresponding <a>event ha
   </tbody>
 </table>
 
-LP2PQuicTransportEvent {#lp2p-quic-transport-event}
-------------------------------------------------
-
-Issue: In general, when defining a new interface that inherits from Event please always ask feedback from the WHATWG or the W3C WebApps WG community. See [defining event interfaces](https://dom.spec.whatwg.org/#defining-event-interfaces).
-
-<pre class="idl">
-[Exposed=(Window,Worker), SecureContext]
-interface LP2PQuicTransportEvent : Event {
-  constructor(DOMString type, LP2PQuicTransportEventInit QuicTransportEventInitDict);
-  readonly attribute LP2PQuicTransport transport;
-};
-
-dictionary LP2PQuicTransportEventInit : EventInit {
-    required LP2PQuicTransport transport;
-};
-</pre>
-
 Examples {#lp2p-quic-transport-examples}
 ----------------------------------------
 
@@ -741,7 +788,7 @@ const receiver = new LP2PReceiver({
     nickname: "example-receiver",
 });
 
-receiver.ontransport = e => {
+receiver.ontransport = async e => {
     const transport = e.transport;
     
     // Blocks until transport is ready.
@@ -755,88 +802,6 @@ await receiver.start();
 Refer to the [WebTransport examples](https://www.w3.org/TR/webtransport/#examples) for usage of a [[!webtransport]] object.
 
 </section>
-
-Examples {#examples}
-====================
-
-Data Channel Communication {#examples-data-channel}
----------------------------------------------------
-
-<pre class='example' highlight='js'>
-// Peer A
-const receiver = new LP2PReceiver({
-    nickname: "Peer A",
-});
-
-receiver.onconnection = e => {
-    const conn = e.connection;
-    console.log("Receiver: Got a connection!");
-
-    conn.ondatachannel = e => {
-        const channel = e.channel;
-
-        channel.onmessage = e => {
-            const message = e.data;
-            console.log(\`Receiver: Received message: ${message}\`);
-        };
-
-        channel.send("Good day to you, requester!");
-    };
-};
-
-await receiver.start();
-
-// Peer B
-const request = new LP2PRequest({
-    nickname: "Peer B",
-});
-
-const conn = await request.start();
-console.log("Requester: Got a connection!");
-
-const channel = conn.createDataChannel("My Channel");
-
-channel.onopen = e => {
-    channel.onmessage = e => {
-        const message = e.data;
-        console.log(\`Requester: Received message: ${message}\`);
-    };
-
-    channel.send("Good day to you, receiver!");
-};
-</pre>
-
-WebTransport Communication {#examples-web-transport}
----------------------------------------------------
-
-<pre class='example' highlight='js'>
-// Peer A
-const receiver = new LP2PReceiver({
-    nickname: "Peer A",
-});
-
-receiver.ontransport = e => {
-    const transport = e.transport;
-    
-    // Blocks until transport is ready.
-    await transport.ready;
-}
-
-// Blocks until permission is received.
-await receiver.start();
-
-// Peer B
-const request = new LP2PRequest({
-    nickname: "Peer B",
-});
-
-const transport = new LP2PQuicTransport(request);
-
-// Blocks until transport is ready.
-await transport.ready;
-</pre>
-
-Refer to the [WebTransport examples](https://www.w3.org/TR/webtransport/#examples) for usage of a [[!webtransport]] object.
 
 Appendix A: OSP Extension Messages {#appendix-a}
 ================================================
