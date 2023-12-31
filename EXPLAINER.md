@@ -91,11 +91,11 @@ await transport.ready;
 
 ```js
 // Peer B
-receiver.ontransport = async (e) => {
-  const transport = e.transport;
+const listener = new LP2PQuicTransportListener(receiver);
 
+for await (const transport of listener.incomingTransports) {
   await transport.ready;
-};
+}
 ```
 
 Refer to the [WebTransport examples](https://www.w3.org/TR/webtransport/#examples) for usage of a WebTransport object.
