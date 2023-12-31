@@ -391,7 +391,7 @@ This {{LP2PQuicTransport}} extension allows opening a QuicTransport using an exi
 [Exposed=(Window,Worker), SecureContext]
 partial interface LP2PQuicTransport {
   constructor(LP2PConnection connection,
-              optional LP2PQuicTransportInit dataChannelDict = {});
+              optional LP2PQuicTransportInit quicTransportDict = {});
 };
 </pre>
 
@@ -680,13 +680,13 @@ channel.onopen = e => {
 The LP2PQuicTransport Interface {#lp2p-quic-transport}
 ======================================================
 
-The <dfn interface>LP2PQuicTransport</dfn> Interface allows opening a dedicated [[!webtransport]] between peers. If the LP2PRequest is not yet started, it must be started when the start method of the LP2PQuicTransport is called.
+The <dfn interface>LP2PQuicTransport</dfn> Interface allows opening a [[!webtransport]] between peers. If the LP2PRequest or LP2PReceiver is not yet started, it must be started when the LP2PQuicTransport is constructed.
 
 <pre class="idl">
 [Exposed=(Window,Worker), SecureContext]
 interface LP2PQuicTransport : WebTransport {
-  constructor(LP2PRequest request,
-              optional LP2PQuicTransportInit dataChannelDict = {});
+  constructor((LP2PRequest or LP2PReceiver) source,
+              optional LP2PQuicTransportInit quicTransportDict = {});
 };
 
 [Exposed=(Window,Worker), SecureContext]
@@ -696,74 +696,27 @@ dictionary LP2PQuicTransportInit {
 
 Issue: Define LP2PQuicTransportInit as needed using WebTransportOptions as reference.
 
-LP2PReceiver Interface Extensions {#lp2p-quic-transport-extensions}
+LP2PQuicTransportListener Interface {#lp2p-quic-transport-listener}
 -------------------------------------------------------------------
 
-<pre class="idl">
-[Exposed=(Window,Worker), SecureContext]
-partial interface LP2PReceiver {
-  attribute EventHandler ontransport;
-};
-</pre>
-
-LP2PQuicTransportEvent {#lp2p-quic-transport-event}
-------------------------------------------------
-
-Issue: In general, when defining a new interface that inherits from Event please always ask feedback from the WHATWG or the W3C WebApps WG community. See [defining event interfaces](https://dom.spec.whatwg.org/#defining-event-interfaces).
+The <dfn interface>LP2PQuicTransportListener</dfn> Interface allows listening for incoming [[!webtransport]] transports. If the LP2PRequest or LP2PReceiver is not yet started, it must be started when the LP2PQuicTransport is constructed.
 
 <pre class="idl">
 [Exposed=(Window,Worker), SecureContext]
-interface LP2PQuicTransportEvent : Event {
-  constructor(DOMString type, LP2PQuicTransportEventInit QuicTransportEventInitDict);
-  readonly attribute LP2PQuicTransport transport;
+partial interface LP2PQuicTransportListener {
+  constructor((LP2PRequest or LP2PReceiver) source,
+              optional LP2PQuicTransportListenerInit quicTransportListenerDict = {});
+  readonly attribute Promise&lt;undefined&gt; ready;
+  /* a ReadableStream of LP2PQuicTransport objects */
+  readonly attribute ReadableStream incomingTransports;
 };
 
-dictionary LP2PQuicTransportEventInit : EventInit {
-    required LP2PQuicTransport transport;
+[Exposed=(Window,Worker), SecureContext]
+dictionary LP2PQuicTransportListenerInit {
 };
 </pre>
 
-Extensions Events {#lp2p-quic-transport-events}
-------------------------------
-
-The following event is [=fire an event|fired=] at the {{LP2PReceiver}} object:
-
-<table class="data">
-  <thead>
-    <tr>
-      <th>Event name</th>
-      <th>Interface</th>
-      <th>Fired when&mldr;</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><dfn event for="LP2PReceiver"><code>transport</code></dfn></td>
-      <td>{{LP2PQuicTransportEvent}}</td>
-      <td>An incoming QuicTransport is received.</td>
-    </tr>
-  </tbody>
-</table>
-
-Extensions Event handlers {#lp2p-quic-transport-event-handlers}
-------------------------------------------------------------------------
-
-The following are the <a>event handlers</a> (and their corresponding <a>event handler event types</a>) that must be supported, as <a>event handler IDL attributes</a>, by all objects implementing the {{LP2PReceiver}} interface:
-
-<table class="data">
-  <thead>
-    <tr>
-      <th><a>event handler</a></th>
-      <th><a>event handler event type</a></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><dfn attribute for="LP2PReceiver"><code>ontransport</code></dfn></td>
-      <td>{{LP2PReceiver/transport}}</td>
-    </tr>
-  </tbody>
-</table>
+Issue: Define LP2PQuicTransportListenerInit as needed using WebTransportOptions as reference.
 
 Examples {#lp2p-quic-transport-examples}
 ----------------------------------------
@@ -788,15 +741,12 @@ const receiver = new LP2PReceiver({
     nickname: "example-receiver",
 });
 
-receiver.ontransport = async e => {
-    const transport = e.transport;
-    
-    // Blocks until transport is ready.
-    await transport.ready;
-}
+const listener = new LP2PQuicTransportListener(receiver);
 
-// Blocks until permission is received.
-await receiver.start();
+for await (const transport of listener.incomingTransports) {
+  // Blocks until transport is ready.
+  await transport.ready;
+}
 </pre>
 
 Refer to the [WebTransport examples](https://www.w3.org/TR/webtransport/#examples) for usage of a [[!webtransport]] object.
