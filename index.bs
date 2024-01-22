@@ -764,6 +764,48 @@ Refer to the [WebTransport examples](https://www.w3.org/TR/webtransport/#example
 
 </section>
 
+Security and privacy considerations {#security-and-privacy-considerations}
+=========================================================================
+
+Open Screen Protocol {#security-osp}
+------------------------------------
+The Local Peer to Peer API is meant to be implementable on the [[!openscreenprotocol|Open Screen Protocol]]. The Security and Privacy considerations of the Open Screen Protocol must therefore be considered when implementing this API.
+
+Personally identifiable information {#security-pii}
+---------------------------------------------------
+The peer attributes, such as the nickname and device model, are provided to give minimal context to a connected peer. This information could be used in conjunction with other information for fingerprinting the user. However, this information is only available to an origin after it has been authenticated and a user has given explicit concent to make the connection to the remote peer.
+
+No information is exposed to the origin during service discovery. No IP information is exposed to an origin. This is fully managed by the user agent.
+
+Issue(WICG/local-peer-to-peer#15): Refine peer attributes, related:
+
+User interface guidelines {#security-ui}
+----------------------------------------
+
+When the user is asked permission to connect to a peer, the user agent should make it clear what origin the request is coming from.
+
+Issue(WICG/local-peer-to-peer#15): Define filtering to provide additional context, related:
+
+Impact on same origin policy {#security-same-origin}
+----------------------------------------
+
+This document extends the Web platform with the ability to set up real-time, direct communication between browsers and other devices, including other browsers, within the local area network.
+
+This means that data and media can be shared between applications running in different browsers, or between an application running in the same browser and something that is not a browser, something that is an extension to the usual barriers in the Web model against sending data between entities with different origins.
+
+Device Access {#security-device-access}
+---------------------------------------
+
+The Local Peer to Peer API requires user permission for a page to access any peers. The API uses purpose-fit protocols for data communication. It cannot be used to connect to raw sockets or unknowing HTTP servers. In addition, a user must [=acquire a local peer grant=] by explicitly providing consenting for an origin to connect to a peer. In addition, a user must [=authenticate a local peer=] before use.
+
+Persistent State {#security-persistent-state}
+---------------------------------------------
+The persisted state considerations of the  [[!openscreenprotocol|Open Screen Protocol]] must be followed when implementing this API.
+
+Secure Contexts {#security-secure-context}
+------------------------------------------
+The Local Peer to Peer API must only be provided in a secure context.
+
 Appendix A: OSP Extension Messages {#appendix-a}
 ================================================
 
