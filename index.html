@@ -4,9 +4,9 @@
   <title>Local Peer-to-Peer API</title>
   <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
-  <meta content="Bikeshed version 4416b18d5, updated Tue Jan 2 15:52:39 2024 -0800" name="generator">
+  <meta content="Bikeshed version e20e08949, updated Wed Jan 24 11:50:28 2024 -0800" name="generator">
   <link href="https://WICG.github.io/local-peer-to-peer/" rel="canonical">
-  <meta content="20b82b3f25c66dab10ea654601143e0ba307cf2f" name="revision">
+  <meta content="57be8da16f00fbbb9c5c792582dac8f6819481b6" name="revision">
 <style>/* Boilerplate: style-autolinks */
 .css.css, .property.property, .descriptor.descriptor {
     color: var(--a-normal-text);
@@ -692,7 +692,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2021/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Local Peer-to-Peer API</h1>
-   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2024-01-22">22 January 2024</time></p>
+   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2024-01-25">25 January 2024</time></p>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -793,6 +793,17 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
      <ol class="toc">
       <li><a href="#lp2p-quic-transport-listener"><span class="secno">10.1</span> <span class="content">LP2PQuicTransportListener Interface</span></a>
       <li><a href="#lp2p-quic-transport-examples"><span class="secno">10.2</span> <span class="content">Examples</span></a>
+     </ol>
+    <li>
+     <a href="#security-and-privacy-considerations"><span class="secno">11</span> <span class="content">Security and privacy considerations</span></a>
+     <ol class="toc">
+      <li><a href="#security-osp"><span class="secno">11.1</span> <span class="content">Open Screen Protocol</span></a>
+      <li><a href="#security-pii"><span class="secno">11.2</span> <span class="content">Personally identifiable information</span></a>
+      <li><a href="#security-ui"><span class="secno">11.3</span> <span class="content">User interface guidelines</span></a>
+      <li><a href="#security-same-origin"><span class="secno">11.4</span> <span class="content">Impact on same-origin policy</span></a>
+      <li><a href="#security-device-access"><span class="secno">11.5</span> <span class="content">Device Access</span></a>
+      <li><a href="#security-persistent-state"><span class="secno">11.6</span> <span class="content">Persistent State</span></a>
+      <li><a href="#security-secure-context"><span class="secno">11.7</span> <span class="content">Secure Contexts</span></a>
      </ol>
     <li><a href="#appendix-a"><span class="secno"></span> <span class="content">Appendix A: OSP Extension Messages</span></a>
     <li>
@@ -1309,6 +1320,25 @@ channel<c- p>.</c->onopen <c- o>=</c-> e <c- p>=></c-> <c- p>{</c->
 </pre>
     <p>Refer to the <a href="https://www.w3.org/TR/webtransport/#examples">WebTransport examples</a> for usage of a <a data-link-type="biblio" href="#biblio-webtransport" title="WebTransport">[webtransport]</a> object.</p>
    </section>
+   <h2 class="heading settled" data-level="11" id="security-and-privacy-considerations"><span class="secno">11. </span><span class="content">Security and privacy considerations</span><a class="self-link" href="#security-and-privacy-considerations"></a></h2>
+   <h3 class="heading settled" data-level="11.1" id="security-osp"><span class="secno">11.1. </span><span class="content">Open Screen Protocol</span><a class="self-link" href="#security-osp"></a></h3>
+    The Local Peer-to-Peer API is meant to be implementable on the <a data-link-type="biblio" href="#biblio-openscreenprotocol" title="Open Screen Protocol">Open Screen Protocol</a>. The Security and Privacy considerations of the Open Screen Protocol must therefore be considered when implementing this API. 
+   <h3 class="heading settled" data-level="11.2" id="security-pii"><span class="secno">11.2. </span><span class="content">Personally identifiable information</span><a class="self-link" href="#security-pii"></a></h3>
+    The peer attributes, such as the nickname and device model, are provided to give minimal context to a connected peer. This information could be used in conjunction with other information for fingerprinting the user. However, this information is only available to an origin after it has been authenticated and a user has given explicit consent to make the connection to the remote peer. 
+   <p>No information is exposed to the origin during service discovery. No IP information is exposed to an origin. This is fully managed by the user agent.</p>
+   <p class="issue" id="issue-804ebe7f"><a class="self-link" href="#issue-804ebe7f"></a> Refine peer attributes, related: <a href="https://github.com/WICG/local-peer-to-peer/issues/15">[Issue #WICG/local-peer-to-peer#15]</a></p>
+   <h3 class="heading settled" data-level="11.3" id="security-ui"><span class="secno">11.3. </span><span class="content">User interface guidelines</span><a class="self-link" href="#security-ui"></a></h3>
+   <p>When the user is asked to grant permission to connect to a peer, the user agent should make it clear what origin the request is coming from.</p>
+   <p class="issue" id="issue-2d8fb87e"><a class="self-link" href="#issue-2d8fb87e"></a> Define filtering to provide additional context, related: <a href="https://github.com/WICG/local-peer-to-peer/issues/15">[Issue #WICG/local-peer-to-peer#15]</a></p>
+   <h3 class="heading settled" data-level="11.4" id="security-same-origin"><span class="secno">11.4. </span><span class="content">Impact on same-origin policy</span><a class="self-link" href="#security-same-origin"></a></h3>
+   <p>This document extends the Web platform with the ability to set up real-time, direct communication between browsers and other devices, including other browsers, within the local area network.</p>
+   <p>This means that data and media can be shared between applications running in different browsers, or between an application running in the browser and another user agent that is not a browser such as a headless service provided by a smart TV or smart fridge. This extends the usual barriers in the Web’s security model that prevents sending data between entities with different origins.</p>
+   <h3 class="heading settled" data-level="11.5" id="security-device-access"><span class="secno">11.5. </span><span class="content">Device Access</span><a class="self-link" href="#security-device-access"></a></h3>
+   <p>The Local Peer-to-Peer API requires user permission for a page to access any peers. The API uses purpose-fit protocols for data communication. It cannot be used to connect to raw sockets or unknowing HTTP servers. In addition, a user must <a data-link-type="dfn" href="#acquire-a-local-peer-grant" id="ref-for-acquire-a-local-peer-grant③">acquire a local peer grant</a> by explicitly providing consenting for an origin to connect to a peer. In addition, a user must <a data-link-type="dfn" href="#authenticate-a-local-peer" id="ref-for-authenticate-a-local-peer①">authenticate a local peer</a> before use.</p>
+   <h3 class="heading settled" data-level="11.6" id="security-persistent-state"><span class="secno">11.6. </span><span class="content">Persistent State</span><a class="self-link" href="#security-persistent-state"></a></h3>
+    The persisted state considerations of the <a data-link-type="biblio" href="#biblio-openscreenprotocol" title="Open Screen Protocol">Open Screen Protocol</a> must be followed when implementing this API. 
+   <h3 class="heading settled" data-level="11.7" id="security-secure-context"><span class="secno">11.7. </span><span class="content">Secure Contexts</span><a class="self-link" href="#security-secure-context"></a></h3>
+    The Local Peer-to-Peer API must only be provided in a secure context. 
    <h2 class="heading settled" id="appendix-a"><span class="content">Appendix A: OSP Extension Messages</span><a class="self-link" href="#appendix-a"></a></h2>
    <p>The following messages are defined according to and as an extension to the <a data-link-type="biblio" href="#biblio-openscreenprotocol" title="Open Screen Protocol">Open Screen Protocol</a> <a href="https://www.w3.org/TR/openscreenprotocol/#appendix-a">Messages</a>.</p>
    <p class="note" role="note"><span class="marker">Note:</span> The type keys and capability IDs for these extensions are not officially registered yet. They will be registered as this specification matures.</p>
@@ -1732,6 +1762,8 @@ channel<c- p>.</c->onopen <c- o>=</c-> e <c- p>=></c-> <c- p>{</c->
    <div class="issue"> In general, when defining a new interface that inherits from Event please always ask feedback from the WHATWG or the W3C WebApps WG community. See <a href="https://dom.spec.whatwg.org/#defining-event-interfaces">defining event interfaces</a>. <a class="issue-return" href="#issue-2e09a0e3①" title="Jump to section">↵</a></div>
    <div class="issue"> Define LP2PQuicTransportInit as needed using WebTransportOptions as reference. <a class="issue-return" href="#issue-7594e909" title="Jump to section">↵</a></div>
    <div class="issue"> Define LP2PQuicTransportListenerInit as needed using WebTransportOptions as reference. <a class="issue-return" href="#issue-ebaed6cc" title="Jump to section">↵</a></div>
+   <div class="issue"> Refine peer attributes, related: <a href="https://github.com/WICG/local-peer-to-peer/issues/15">[Issue #WICG/local-peer-to-peer#15]</a> <a class="issue-return" href="#issue-804ebe7f" title="Jump to section">↵</a></div>
+   <div class="issue"> Define filtering to provide additional context, related: <a href="https://github.com/WICG/local-peer-to-peer/issues/15">[Issue #WICG/local-peer-to-peer#15]</a> <a class="issue-return" href="#issue-2d8fb87e" title="Jump to section">↵</a></div>
   </div>
 <script>/* Boilerplate: script-dom-helper */
 "use strict";
@@ -1954,9 +1986,9 @@ let dfnPanelData = {
 "889e932f": {"dfnID":"889e932f","dfnText":"Exposed","external":true,"refSections":[{"refs":[{"id":"ref-for-Exposed"}],"title":"6. LP2PReceiver Interface"},{"refs":[{"id":"ref-for-Exposed\u2460"}],"title":"6.1. LP2PReceiverOptions"},{"refs":[{"id":"ref-for-Exposed\u2461"}],"title":"6.2. LP2PConnectionEvent"},{"refs":[{"id":"ref-for-Exposed\u2462"}],"title":"7. The LP2PRequest Interface"},{"refs":[{"id":"ref-for-Exposed\u2463"}],"title":"7.1. LP2PRequestOptions"},{"refs":[{"id":"ref-for-Exposed\u2464"}],"title":"8. The LP2PConnection Interface"},{"refs":[{"id":"ref-for-Exposed\u2465"}],"title":"8.1. LP2PQuicTransport Interface Extensions"},{"refs":[{"id":"ref-for-Exposed\u2466"}],"title":"9. The LP2PDataChannel Interface"},{"refs":[{"id":"ref-for-Exposed\u2467"}],"title":"9.1. LP2PDataChannelInit"},{"refs":[{"id":"ref-for-Exposed\u2468"}],"title":"9.4. LP2PConnection Interface Extensions"},{"refs":[{"id":"ref-for-Exposed\u2460\u24ea"}],"title":"9.5. LP2PDataChannelEvent"},{"refs":[{"id":"ref-for-Exposed\u2460\u2460"},{"id":"ref-for-Exposed\u2460\u2461"}],"title":"10. The LP2PQuicTransport Interface"},{"refs":[{"id":"ref-for-Exposed\u2460\u2462"},{"id":"ref-for-Exposed\u2460\u2463"}],"title":"10.1. LP2PQuicTransportListener Interface"}],"url":"https://webidl.spec.whatwg.org/#Exposed"},
 "88d6f55f": {"dfnID":"88d6f55f","dfnText":"BinaryType","external":true,"refSections":[{"refs":[{"id":"ref-for-enumdef-binarytype"}],"title":"9. The LP2PDataChannel Interface"}],"url":"https://websockets.spec.whatwg.org/#enumdef-binarytype"},
 "9d386f55": {"dfnID":"9d386f55","dfnText":"event handler event type","external":true,"refSections":[{"refs":[{"id":"ref-for-event-handler-event-type"},{"id":"ref-for-event-handler-event-type\u2460"}],"title":"6.4. Event handlers"},{"refs":[{"id":"ref-for-event-handler-event-type\u2461"},{"id":"ref-for-event-handler-event-type\u2462"}],"title":"9.3. Event handlers"},{"refs":[{"id":"ref-for-event-handler-event-type\u2463"},{"id":"ref-for-event-handler-event-type\u2464"}],"title":"9.7. Extensions Event handlers"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type"},
-"acquire-a-local-peer-grant": {"dfnID":"acquire-a-local-peer-grant","dfnText":"acquire a local peer grant","external":false,"refSections":[{"refs":[{"id":"ref-for-acquire-a-local-peer-grant"}],"title":"3. Peer Management"},{"refs":[{"id":"ref-for-acquire-a-local-peer-grant\u2460"}],"title":"3.3. Peer discovery"},{"refs":[{"id":"ref-for-acquire-a-local-peer-grant\u2461"}],"title":"3.5. Peer grant"}],"url":"#acquire-a-local-peer-grant"},
+"acquire-a-local-peer-grant": {"dfnID":"acquire-a-local-peer-grant","dfnText":"acquire a local peer grant","external":false,"refSections":[{"refs":[{"id":"ref-for-acquire-a-local-peer-grant"}],"title":"3. Peer Management"},{"refs":[{"id":"ref-for-acquire-a-local-peer-grant\u2460"}],"title":"3.3. Peer discovery"},{"refs":[{"id":"ref-for-acquire-a-local-peer-grant\u2461"}],"title":"3.5. Peer grant"},{"refs":[{"id":"ref-for-acquire-a-local-peer-grant\u2462"}],"title":"11.5. Device Access"}],"url":"#acquire-a-local-peer-grant"},
 "agent-capability": {"dfnID":"agent-capability","dfnText":"agent-capability","external":false,"refSections":[{"refs":[{"id":"ref-for-agent-capability"}],"title":"4.1. Data channel extension"},{"refs":[{"id":"ref-for-agent-capability\u2460"}],"title":"4.2. WebTransport extension"}],"url":"#agent-capability"},
-"authenticate-a-local-peer": {"dfnID":"authenticate-a-local-peer","dfnText":"authenticate a local peer","external":false,"refSections":[{"refs":[{"id":"ref-for-authenticate-a-local-peer"}],"title":"3.5. Peer grant"}],"url":"#authenticate-a-local-peer"},
+"authenticate-a-local-peer": {"dfnID":"authenticate-a-local-peer","dfnText":"authenticate a local peer","external":false,"refSections":[{"refs":[{"id":"ref-for-authenticate-a-local-peer"}],"title":"3.5. Peer grant"},{"refs":[{"id":"ref-for-authenticate-a-local-peer\u2460"}],"title":"11.5. Device Access"}],"url":"#authenticate-a-local-peer"},
 "authenticated": {"dfnID":"authenticated","dfnText":"authenticated","external":false,"refSections":[{"refs":[{"id":"ref-for-authenticated"}],"title":"3.5. Peer grant"},{"refs":[{"id":"ref-for-authenticated\u2460"}],"title":"5. Local HTTPS"},{"refs":[{"id":"ref-for-authenticated\u2461"}],"title":"5.1. Endpoint discovery"}],"url":"#authenticated"},
 "authentication-state": {"dfnID":"authentication-state","dfnText":"authentication state","external":false,"refSections":[{"refs":[{"id":"ref-for-authentication-state"},{"id":"ref-for-authentication-state\u2460"},{"id":"ref-for-authentication-state\u2461"}],"title":"3.1. Known peers"},{"refs":[{"id":"ref-for-authentication-state\u2462"},{"id":"ref-for-authentication-state\u2463"}],"title":"3.4. Peer authentication"}],"url":"#authentication-state"},
 "b0d7f3c3": {"dfnID":"b0d7f3c3","dfnText":"USVString","external":true,"refSections":[{"refs":[{"id":"ref-for-idl-USVString"},{"id":"ref-for-idl-USVString\u2460"},{"id":"ref-for-idl-USVString\u2461"},{"id":"ref-for-idl-USVString\u2462"}],"title":"9. The LP2PDataChannel Interface"},{"refs":[{"id":"ref-for-idl-USVString\u2463"}],"title":"9.1. LP2PDataChannelInit"},{"refs":[{"id":"ref-for-idl-USVString\u2464"}],"title":"9.4. LP2PConnection Interface Extensions"}],"url":"https://webidl.spec.whatwg.org/#idl-USVString"},
@@ -2739,20 +2771,33 @@ function getRootLevelAbsolutePosition(el) {
     };
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    document.body.addEventListener("mouseover", e=>{
-        let link = e.target.closest("a");
-        if(link) showRefHint(link);
-    });
-    document.body.addEventListener("focus", e=>{
-        let link = e.target.closest("a");
-        if(link) showRefHint(link);
-    });
+function showRefHintListener(e) {
+    // If the target isn't in a link (or is a link),
+    // just ignore it.
+    let link = e.target.closest("a");
+    if(!link) return;
 
-    document.body.addEventListener("click", (e) => {
-        // If not handled already, just hide all link panels.
-        hideAllRefHints();
-    });
+    // If the target is in a ref-hint panel
+    // (aka a link in the already-open one),
+    // also just ignore it.
+    if(link.closest(".ref-hint")) return;
+
+    // Otherwise, show the panel for the link.
+    showRefHint(link);
+}
+
+function hideAllHintsListener(e) {
+    // If the click is inside a ref-hint panel, ignore it.
+    if(e.target.closest(".ref-hint")) return;
+    // Otherwise, close all the current panels.
+    hideAllRefHints();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.body.addEventListener("mouseover", showRefHintListener);
+    document.body.addEventListener("focus", showRefHintListener);
+
+    document.body.addEventListener("click", hideAllHintsListener);
 });
 
 window.addEventListener("resize", () => {
