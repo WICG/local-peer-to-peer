@@ -232,6 +232,8 @@ This section represents concepts of how a user could discover, connect and share
 
 ![User flow](./images/userflow.svg)
 
+Figure 4: User flow to discover and share files
+
 ## Security and Privacy
 
 The Local Peer-to-Peer API has been designed specifically with security and privacy in mind. Please refer to the [Security and Privacy Self-Review](./security-privacy-questionnaire.md) for more details.
