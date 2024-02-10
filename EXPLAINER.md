@@ -1,8 +1,8 @@
 # Local Peer-to-Peer API Explained
 
-The Local Peer-to-Peer API enables browsers to connect securely over the Local Area Network, without the aid of a server in the middle.
+The Local Peer-to-Peer API enables browsers to connect securely over a [local communication medium](https://wicg.github.io/local-peer-to-peer/#local-communication-medium), without the aid of a server in the middle.
 
-The API provides a powerful new building block for developers while ensuring a seamless, secure and privacy preserving experience for the user. By putting the user-agent in control during discovery and authentication, bare minimal network topology information is exposed to an origin.
+The API provides a powerful new building block for developers while ensuring a seamless, secure and privacy preserving experience for the user. By putting the user-agent in control during discovery and authentication, bare minimal [communication medium topology](https://wicg.github.io/local-peer-to-peer/#communication-medium-topology) information is exposed to an origin.
 
 Please refer to the [specification](https://WICG.github.io/local-peer-to-peer/) for the the formal draft spec.
 
@@ -16,13 +16,13 @@ This proposal sets to make a part of this Tim's vision a reality while adhering 
 
 ### Goals
 
-Build a generic Local Peer-to-Peer API and provide an arbitrary bidirectional channel on the web for devices under short-range communication environment, including:
+Build a generic Local Peer-to-Peer API and provide an arbitrary bidirectional communication channel to the web for devices in the context of a [local communication medium](https://wicg.github.io/local-peer-to-peer/#local-communication-medium), including:
 
-- Methods to discover, request, and connect to peers on the local network
+- Methods to discover, request, and connect to peers on the local communication medium
 - Listeners to notify if these method calls succeed or fail
 - Listeners to notify if the connection is received or its status is updated
 - Means to send and receive data after connection to a peer device has been established
-- Means to enable secure HTTPS connections on the local network
+- Means to enable secure HTTPS connections on the local communication medium
 
 As a commitment to an open standards-based implementation path, this specification describes how the API can be implemented on top of the [Open Screen Protocol](https://w3c.github.io/openscreenprotocol/). While not described here, the API is expected to be implementable on top of other transports when technically feasible.
 
@@ -40,7 +40,7 @@ As a commitment to an open standards-based implementation path, this specificati
 
 ![G](./images/n2.svg)
 
-Figure 1: Collaborate from nearby devices in Google Doc
+Figure 1: Collaborate using local communication in Google Doc
 
 ### UC2: Disaster relief
 
@@ -81,20 +81,19 @@ Figure 3: Play web game cross smart TV and mobile phone
 
 The following are the high-level requirements derived from the use cases:
 
-- R1: Discover nearby device(s)
-- R2: Advertise yourself to nearby device(s)
-- R3: Establish a bi-directional communication channel between two nearby devices
-- R4: Allow secure connection to locally hosted web pages.
+- R1: Discover device(s) on the local communication medium
+- R2: Advertise yourself to device(s) on the local communication medium
+- R3: Establish a bi-directional communication channel between two devices on the local communication medium
+- R4: Allow secure connection to web pages hosted on the local communication medium.
 - R5: User consent and delegation per web origin.
 
 ### Prerequisites
 
-What is a prerequisite for all these use cases is that the participating devices are physically nearby to each other and as such able to establish a direct connection using either a wireless connectivity technology such as Wi-Fi Direct, Wi-Fi via access point, or a wired computer networking technology such as Ethernet. This connection technology and its details are abstracted out by both the Web API exposed to web developers as well as the UI/UX visible to the user.
+What is a prerequisite for all these use cases is that the participating devices can be connected via a [local communication medium](https://wicg.github.io/local-peer-to-peer/#local-communication-medium) because they are physically nearby to each other and as such able to establish a direct connection using either a wireless connectivity technology such as Wi-Fi Direct, Wi-Fi via access point, or a wired computer networking technology such as Ethernet. This connection technology and its details are abstracted out by both the Web API exposed to web developers as well as the UI/UX visible to the user.
 
 In summary, the following are the prerequisites:
 
-- The participating devices are physically nearby (the definition of "nearby" is an implementation detail)
-- The participating devices are able to establish a direct connection using some connection technology (the supported technologies may vary depending on hardware and OS capabilities and remain an implementation detail)
+- The participating devices share a local communication medium.
 
 ### References
 
@@ -107,14 +106,14 @@ In summary, the following are the prerequisites:
 
 ## Solution Approach
 
-The Local Peer-to-Peer API uses the to mutual authentication provided by the Open Screen Protocol to establish mutual TLS certificates between peers. These certificates serve as a trust anchor for secure communication. The Local Peer-to-Peer specification defines two uses of this new trust anchor:
+The Local Peer-to-Peer API uses the to mutual authentication provided by the Open Screen Protocol to establish mutual TLS certificates between peers. These certificates serve as a trust anchor for secure [local communication](https://wicg.github.io/local-peer-to-peer/#local-communication). The Local Peer-to-Peer specification defines two uses of this new trust anchor:
 
-1. Enabling HTTPS on the local network.
-2. Enabling data communication on the local network using the `DataChannel` and `WebTransport` APIs.
+1. Enabling HTTPS on the local communication medium.
+2. Enabling secure local communication using the `DataChannel` and `WebTransport` APIs.
 
 ### API Design
 
-Peer-to-Peer communication starts with service discovery. For this purpose, the LP2PReceiver API allows an origin to advertise itself. The LP2PRequest API allows discovery of a peer on the network. The design if these APIs is inspired by the work of the Presentation API's PresentationRequest & PresentationReceiver. Data exchange itself is provided by two APIs: `LP2PDataChannel` & `LP2PQuicTransport`. The [LP2PDataChannel API](https://wicg.github.io/local-peer-to-peer/#lp2p-data-channel) is inspired by the RTCDataChannel API. This API caters to simple message passing use-cases and developer familiar with WebRTC. The API design augments that of the WebRTC RTCDataChannel API. The [LP2PQuicTransport API](<](https://wicg.github.io/local-peer-to-peer/#lp2p-quic-transport)>) design is inspired by the WebTransport API. This API is designed for use-cases where more direct control over the underlying transport is preferred.
+Peer-to-Peer communication starts with service discovery. For this purpose, the LP2PReceiver API allows an origin to advertise itself. The LP2PRequest API allows discovery of a peer on the local communication medium. The design if these APIs is inspired by the work of the Presentation API's PresentationRequest & PresentationReceiver. Data exchange itself is provided by two APIs: `LP2PDataChannel` & `LP2PQuicTransport`. The [LP2PDataChannel API](https://wicg.github.io/local-peer-to-peer/#lp2p-data-channel) is inspired by the RTCDataChannel API. This API caters to simple message passing use-cases and developer familiar with WebRTC. The API design augments that of the WebRTC RTCDataChannel API. The [LP2PQuicTransport API](<](https://wicg.github.io/local-peer-to-peer/#lp2p-quic-transport)>) design is inspired by the WebTransport API. This API is designed for use-cases where more direct control over the underlying transport is preferred.
 
 ## Shorthand APIs
 
@@ -140,7 +139,7 @@ _Note_: the shorthand APIs are a work in progress. They are illustrative and wil
 
 ## Local HTTPS
 
-The Local Peer-to-Peer API's authentication process establishes mutual TLS certificates between peers on the local network. These certificates can serve as a trust anchor to validate certificates used by HTTPS servers on the local network.
+The Local Peer-to-Peer API's authentication process establishes mutual TLS certificates between peers on a [local communication medium](https://wicg.github.io/local-peer-to-peer/#local-communication-medium). These certificates can serve as a trust anchor to validate certificates used by HTTPS servers on the local communication medium.
 
 Please refer to [Local HTTPS](https://wicg.github.io/local-peer-to-peer/#local-https) in the specification for more details.
 
@@ -148,7 +147,7 @@ _Note_: Local HTTPS is a work in progress, see [#34](https://github.com/WICG/loc
 
 ## Peer discovery
 
-Before any connection can be established, two peers on the local network must find each other. This is done using the `LP2PReceiver` and `LP2PRequest` interfaces:
+Before any connection can be established, two peers on the local communication medium must find each other. This is done using the `LP2PReceiver` and `LP2PRequest` interfaces:
 
 ```js
 // Peer A
@@ -240,7 +239,7 @@ The Local Peer-to-Peer API has been designed specifically with security and priv
 
 ## Considered Alternatives
 
-When a user wants to connect between two devices on the same network, for example to another device nearby—be it another device the user owns or that of a friend—the user has multiple ways to accomplish this task:
+When a user wants to connect between two devices on the same local communication medium, for example to another device nearby—be it another device the user owns or that of a friend—the user has multiple ways to accomplish this task:
 
 1. _A cloud service_. The web has many ways of connections to a third-party cloud service: HTTP, WebSocket or WebTransport. However, all of these methods require a round trip through the internet. This is inherently dependant on external resources, it consumes network bandwidth and can be slow or costly and has privacy implications in all but the strongest E2E encryption schemes.
 
@@ -248,9 +247,9 @@ When a user wants to connect between two devices on the same network, for exampl
 
 3. _A WebRTC connection_. While WebRTC is a P2P protocol, it still requires a setup step usually referred to as 'signaling'. There is no good way to perform this step without relying on an existing connection between peers, commonly a cloud service is used.
 
-None of these solutions to this seemingly common task provide a compelling user experience. When the devices are physically nearby the user's expectation is the connection process should be as seamless as any physical interaction. With close-range communication technologies widely supported on today's devices we believe this user experience can be vastly improved.
+None of these solutions to this seemingly common task provide a compelling user experience. When the devices share a local communication medium the user's expectation is the connection process should be as seamless as any physical interaction. With a variety of [local communication](https://wicg.github.io/local-peer-to-peer/#local-communication) technologies widely supported on today's devices we believe this user experience can be vastly improved.
 
-We need an optimized network path to use a local network connected by the devices for web applications.
+This illustrates the gap for an optimized path for [local communication](https://wicg.github.io/local-peer-to-peer/#local-communication) by web applications.
 
 ![problem](./images/problem.svg)
 
@@ -266,7 +265,7 @@ Certain use cases can benefit from an internet-based P2P fallback if local commu
 
 A number of efforts exist in this area including the [TCP and UDP Socket API](https://www.w3.org/TR/tcp-udp-sockets/), [Discovery API](https://www.w3.org/TR/discovery-api/) and [FlyWeb](https://flyweb.github.io/).
 
-The Local Peer-to-Peer approach differs from previous work by putting the user-agent in control during device discovery and mutual authentication. This approach allows exposing bare minimal information about the device to an origin. The list of discovered devices is never shared with the origin and individual peer descriptors such as nickname are only shared with the origin after authentication and user consent. No network information such as IP addresses is ever shared with an origin.
+The Local Peer-to-Peer approach differs from previous work by putting the user-agent in control during device discovery and mutual authentication. This approach allows exposing bare minimal information about the device to an origin. The list of discovered devices is never shared with the origin and individual peer descriptors such as nickname are only shared with the origin after authentication and user consent. No [communication medium topology](https://wicg.github.io/local-peer-to-peer/#communication-medium-topology) information such as IP addresses is ever shared with an origin.
 
 The following works are seen as precedent and guide the design of the Local Peer-to-Peer API: [Open Screen Protocol](https://www.w3.org/TR/openscreenprotocol/), [Presentation API](https://www.w3.org/TR/presentation-api/), [Remote Playback API](https://www.w3.org/TR/remote-playback/) [WebRTC](https://www.w3.org/TR/webrtc/), [ORTC (draft)](https://draft.ortc.org/), [WebTransport](https://www.w3.org/TR/webtransport/), [P2P WebTransport (draft)](https://w3c.github.io/p2p-webtransport/).
 
