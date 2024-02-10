@@ -22,7 +22,7 @@ Introduction {#intro}
 
 *This section is non-normative.*
 
-The Local Peer-to-Peer API aims to give browsers the means to communicate directly, without the aid of a server in the middle. It is designed to enable this communication within the confines of a local communication medium such as the Local Area Network.
+The Local Peer-to-Peer API aims to give browsers the means to communicate directly, without the aid of a server in the middle. It is designed to enable this communication within the confines of a [=local communication medium=].
 
 Many modern Web security measures rely on the presence of naming, signaling and certificate authorities. Local use-cases where these authorities are not readily available have started lagging behind in user experience or are not supported altogether. The Local Peer-to-Peer API aims to bring back first-class support for local communication use-cases while working within the same strict user-friendliness, security and privacy requirements.
 
@@ -30,7 +30,16 @@ Examples of potential uses of this API include: Collaboration tools that work du
 
 This specification aims to strike a balance between creating a powerful new building block for developers and providing a seamless, secure and privacy preserving experience for browser users. As an example: while the API doesn't provide raw socket access, it does aim to give developers the flexibility to innovate on top by providing a persistent, two-way communication channel with little overhead.
 
-The API is designed to be backed by an authenticated, streams-based transport. As a commitment to an open standards-based implementation path, this specification describes how the API can be implemented on top of the [Open Screen Protocol](https://w3c.github.io/openscreenprotocol/). While not described here, the API is expected to be implementable on top of other transports when technically feasible.
+The API is designed to be backed by an authenticated, streams-based transport. As a commitment to an open standards-based implementation path, this specification describes how the API can be implemented on top of the [[!openscreenprotocol|Open Screen Protocol]]. While not described here, the API is expected to be implementable on top of other transports when technically feasible.
+
+Terminology {#terminology}
+======================================================
+
+The term <dfn>local communication medium</dfn> refers to a communication medium that provides a local, direct communication channel between the communicating devices. This is a purposefully broad term that covers any medium that can be used to establish a an authenticated, streams-based transport between the devices. Examples may include but are not limited to: a wired or wireless local area network, a Thread network, Bluetooth Low Energy or Wi-Fi Direct. This spec will not mandate which underlying technologies must be supported.
+
+The term <dfn>local communication</dfn> refers to data communication over the [=local communication medium=].
+
+The term <dfn>communication medium topology</dfn> refers to the composition of the [=local communication medium=] which may include sensitive information such as IP or other address information or the number of devices connected to the medium.
 
 Permission Policy Integration {#permission-policy-integration}
 ======================================================
@@ -70,9 +79,9 @@ Note: This section and its subsections use RFC 2119 terminology in a relaxed man
 
 The user agent is in charge of managing peers.
 
-A <dfn>peer</dfn> is an equal participants in the network that forms a peer-to-peer network of nodes. These nodes can communicate without the need for a central coordination by a server.
+A <dfn>peer</dfn> is an equal participant in the [=local communication=]. These nodes can communicate without the need for a central coordination by a server.
 
-A user agent has an associated <dfn>local peer-to-peer manager</dfn> in charge of managing [=peers=]. Its responsibility is to [=start local peer discovery=], [=establish local peer connections=] and [=acquire a local peer grant=] on a per-origin basis. This is done to avoid exposing information about a user's local network topology.
+A user agent has an associated <dfn>local peer-to-peer manager</dfn> in charge of managing [=peers=]. Its responsibility is to [=start local peer discovery=], [=establish local peer connections=] and [=acquire a local peer grant=] on a per-origin basis. This is done to avoid exposing information about the [=communication medium topology=].
 
 Known peers {#known-peers}
 --------------------------
@@ -227,18 +236,18 @@ Note: The WebTransport-over-QUIC protocol is yet to be defined. Potentially cons
 Local HTTPS {#local-https}
 ==========================
 
-Authentication establishes a mutual trust anchor between peers on the local network. This trust anchor can also be used to validate certificates used by HTTP servers on the local network. An Open Screen Protocol agent certificate can be identified by the common name of its subject ending in "._openscreen._udp". When a user agent loads a webpage and finds an agent certificate in the certificate chain, it can use it as a trust anchor for authentication of the server. If the corresponding agent is not [=authenticated=], the user agent should prompt the user to authenticate the agent before proceeding with certificate validation.
+Authentication establishes a mutual trust anchor between peers on the [=local communication medium=]. This trust anchor can also be used to validate certificates used by HTTP servers on the [=local communication medium=]. An Open Screen Protocol agent certificate can be identified by the common name of its subject ending in "._openscreen._udp". When a user agent loads a webpage and finds an agent certificate in the certificate chain, it can use it as a trust anchor for authentication of the server. If the corresponding agent is not [=authenticated=], the user agent should prompt the user to authenticate the agent before proceeding with certificate validation.
 
 Endpoint discovery {#local-https-discovery}
 -------------------------------------------
-If a peer is [=authenticated=], it may advertize one or more HTTPS endpoints it provides. A user agent may display these to the user to connect to servers on the local network without knowledge of the corresponding hostname and/or IP address.
+If a peer is [=authenticated=], it may advertize one or more HTTPS endpoints it provides. A user agent may display these to the user to connect to servers on the [=local communication medium=] without knowledge of the corresponding hostname and/or IP address.
 
 Issue: define endpoint-info messages
 
 LP2PReceiver Interface {#lp2p-receiver}
 ================================================
 
-The <dfn interface>LP2PReceiver</dfn> interface allows advertising on the local network, enabling other peers to discover and connect.
+The <dfn interface>LP2PReceiver</dfn> interface allows advertising on the [=local communication medium=], enabling other peers to discover and connect.
 
 <pre class="idl">
 [Exposed=(Window,Worker), SecureContext]
@@ -789,7 +798,7 @@ Issue(WICG/local-peer-to-peer#15): Define filtering to provide additional contex
 Impact on same-origin policy {#security-same-origin}
 ----------------------------------------
 
-This document extends the Web platform with the ability to set up real-time, direct communication between browsers and other devices, including other browsers, within the local area network.
+This document extends the Web platform with the ability to set up real-time, direct communication between browsers and other devices, including other browsers, within a [=local communication medium=].
 
 This means that data and media can be shared between applications running in different browsers, or between an application running in the browser and another user agent that is not a browser such as a headless service provided by a smart TV or smart fridge. This extends the usual barriers in the Web's security model that prevents sending data between entities with different origins.
 
