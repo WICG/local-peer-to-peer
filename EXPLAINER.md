@@ -8,6 +8,10 @@ Please refer to the [specification](https://WICG.github.io/local-peer-to-peer/) 
 
 ### Motivation
 
+The local network is not a first-class citizen of the web. It’s easier for a browser to trust a faraway server than your NAS, TV or thermostat sitting right next to you.
+
+![motivation](./images/motivation.svg)
+
 As a blast from the past:
 
 > Tim Berners-Lee's [vision for the World Wide Web](https://www.w3.org/People/Berners-Lee/1996/ppf.html) was close to a P2P network [...] The early Internet was more open than the present day, where _two machines connected to the Internet could send packets to each other_ without firewalls and other security measures. ([Wikipedia](https://en.wikipedia.org/wiki/Peer-to-peer#Historical_development))

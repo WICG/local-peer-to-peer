@@ -21,6 +21,7 @@ This specification is a work in progress.
 
 - [Explainer](EXPLAINER.md)
 - [Specification](https://WICG.github.io/local-peer-to-peer/)
+- [One-Pager](./images/onepager.svg) ([PDF](./images/Local%20Peer-to-Peer%20API%20-%20One-Pager.pdf))
 
 ## Feedback
 
