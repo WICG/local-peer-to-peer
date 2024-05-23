@@ -69,6 +69,7 @@ Figure 2: Web Drop, an In-App Sharing feature based on Local Peer-to-Peer API co
 - Seamlessly connecting to your NAS or your home security system. Avoiding the need for workarounds including self-signed certificates or a cloud proxy services.
 - Allow web apps to connect to your robot mower, vacuum or robotic assistant folding the laundry.
 - Avoiding the need for companion native apps for services running in the home environment, e.g.: Home Assistant, Plex, BitWarden, NextCloud, ...
+- Users value the ability to connect to a baby monitor even when their ISP or a cloud service is out of action. A huge percentage of the time the viewer and the monitor are on the same LAN. There are cost/privacy benefits too. Reference: [#50](https://github.com/WICG/local-peer-to-peer/issues/50).
 
 ### UC5: Local multi-player
 
