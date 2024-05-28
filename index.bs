@@ -132,6 +132,38 @@ Note: The user agent must get the user's explicit consent in order to grant an o
 
 When asked to <dfn>acquire a local peer grant</dfn>, the user agent displays the [=known peers=] to the user through its native user interface. When the user selects a peer from the user interface, the user agent must check the selected peer is [=authenticated=], and run the [=authenticate a local peer=] algorithm otherwise, and set the [=peer grant state=] according to the user's explicit selection.
 
+Authentication {#authentication-methods}
+=======================================
+
+The core concept of the local peer to peer is authentication. Modern secure communications protocols, such as TLS 1.3 [[RFC8446]] rely on certificates for authentication. When connecting over the internet, the Public Key Infrastructure establishes a trust anchor to validate certificates. This specification introduces a way to establish a trust anchor between two peers on the local network, in the absence of a central authority.
+Authentication establishes a mutual trust anchor between peers, as represented by a an X.509 v3 certificate.
+
+PAKE {#authentication-pake}
+-----------------------------------------------------------
+
+The main method for authentication is by means of Password-Authenticated Key Agreement (PAKE).
+
+Issue: Integrate with peer-authentication section above.
+
+Signaling {#authentication-signaling}
+-------------------------------------
+
+In the context of local peer to peer, signaling is a way to automate the Password-Authenticated Key Agreement in case two peers share a earlier establisched communication channel. An application may use this to avoid a manual authentication interaction.
+
+Issue: detail signaling protocol & API signature.
+
+Certification Path Validation {#authentication-path-validation}
+---------------------------------------------------------------
+
+[X.509 Certification Path Validation](https://datatracker.ietf.org/doc/html/rfc5280#section-6) can be used to validate the chain of trust to an earlier establisched trust anchor. A user agent may use this to establish longer lived trust anchors, reducing the number of manual authentication actions required.
+
+Other methods {#authentication-others}
+--------------------------------------
+
+Other means of authentication may be supported. One noteworthy example is the use of an existing [Matter Fabric](https://csa-iot.org/all-solutions/matter/).
+
+Issue(w3c/openscreenprotocol#308): See also related
+
 Protocol concepts {#protocol-concepts}
 ======================================
 
