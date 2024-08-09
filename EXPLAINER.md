@@ -48,7 +48,7 @@ Figure 1: Collaborate using local communication in Google Doc
 
 ### UC2: Disaster relief
 
-- The ability to for Web-based tools to work on ad-hoc networks in the absence of internet infrastructure.
+- The ability for Web-based tools to work on ad-hoc networks in the absence of internet infrastructure.
 - An app that allows humanitarian field workers in remote areas with no connectivity to gather, synchronize, review, and edit data offline for several days, the data can then be synchronized with the central server when internet connection becomes available
 - A non-profit educational organization is concerned about the large file download size required for on-device speech recognition in the browser. This is problematic in low bandwidth, high latency environments such as classrooms, particularly in emerging countries. Their goal is for one student to download the file first and then easily share/distribute it with classmates without low speed internet connections any more to save time and cost
 
