@@ -13,7 +13,7 @@ Editor: Wei Wang, Intel https://intel.com, wei4.wang@intel.com
 !Tests: <a href=https://github.com/w3c/web-platform-tests/tree/master/local-peer-to-peer>web-platform-tests local-peer-to-peer/</a> (<a href=https://github.com/w3c/web-platform-tests/labels/local-peer-to-peer>ongoing work</a>)
 Abstract: Local Peer-to-Peer is a Web platform API proposal for local communication between browsers without the aid of a server.
 Markup Shorthands: markdown yes, dfn yes, idl yes, markup yes
-!openscreenprotocol: https://www.w3.org/TR/openscreen-network/ Open Screen Network Protocol
+!openscreen-network: https://www.w3.org/TR/openscreen-network/ Open Screen Network Protocol
 </pre>
 
 Note: This specification is under active development and therefore incomplete. If you're looking for an overview of the proposal, please refer to the [Explainer](https://github.com/WICG/local-peer-to-peer/blob/main/EXPLAINER.md).
@@ -31,7 +31,7 @@ Examples of potential uses of this API include: Collaboration tools that work du
 
 This specification aims to strike a balance between creating a powerful new building block for developers and providing a seamless, secure and privacy preserving experience for browser users. As an example: while the API doesn't provide raw socket access, it does aim to give developers the flexibility to innovate on top by providing a persistent, two-way communication channel with little overhead.
 
-The API is designed to be backed by an authenticated, streams-based transport. As a commitment to an open standards-based implementation path, this specification describes how the API can be implemented on top of the [[!openscreenprotocol|Open Screen Network Protocol]]. While not described here, the API is expected to be implementable on top of other transports when technically feasible.
+The API is designed to be backed by an authenticated, streams-based transport. As a commitment to an open standards-based implementation path, this specification describes how the API can be implemented on top of the [[!openscreen-network|Open Screen Network Protocol]]. While not described here, the API is expected to be implementable on top of other transports when technically feasible.
 
 Terminology {#terminology}
 ======================================================
@@ -95,7 +95,7 @@ Note: The [=peer grant state=] is origin-level while the [=authentication state=
 
 Issue(wicg/local-peer-to-peer#24): See also related
 
-The user agent may persist known peers, their [=authentication states=] and/or [=peer grant states=]. If the user agent chooses to do so, it must do so in accordance with the [[!openscreenprotocol|Open Screen Network Protocol]] [Persistent State rules](https://www.w3.org/TR/openscreen-network/#persistent-state). Such a peer or its state is said to be <dfn>persisted</dfn>.
+The user agent may persist known peers, their [=authentication states=] and/or [=peer grant states=]. If the user agent chooses to do so, it must do so in accordance with the [[!openscreen-network|Open Screen Network Protocol]] [Persistent State rules](https://www.w3.org/TR/openscreen-network/#persistent-state). Such a peer or its state is said to be <dfn>persisted</dfn>.
 
 Peer advertisement {#peer-advertisement}
 ----------------------------------------
@@ -138,7 +138,7 @@ Protocol concepts {#protocol-concepts}
 
 When asked to <dfn>establish local peer connection</dfn>, the user agent ...
 
-A <dfn for="protocol">Local Peer-to-Peer session</dfn> represents an authenticated [[!RFC9000|QUIC]] connection as defined in [[!openscreenprotocol|Open Screen Network Protocol]] or OSP.
+A <dfn for="protocol">Local Peer-to-Peer session</dfn> represents an authenticated [[!RFC9000|QUIC]] connection as defined in [[!openscreen-network|Open Screen Network Protocol]] or OSP.
 
 A [=Local Peer-to-Peer session=] has the following capabilities:
 
@@ -152,22 +152,22 @@ A [=Local Peer-to-Peer session=] has the following capabilities:
  <tbody>
   <tr>
    <td><dfn>advertise agent</dfn>
-   <td>[[!openscreenprotocol|Open Screen Network Protocol]]
+   <td>[[!openscreen-network|Open Screen Network Protocol]]
    [discovery](https://www.w3.org/TR/openscreen-network/#discovery)
   </tr>
   <tr>
    <td><dfn>discover agents</dfn>
-   <td>[[!openscreenprotocol|Open Screen Network Protocol]]
+   <td>[[!openscreen-network|Open Screen Network Protocol]]
    [discovery](https://www.w3.org/TR/openscreen-network/#discovery)
   </tr>
   <tr>
    <td><dfn>discover metadata</dfn>
-   <td>[[!openscreenprotocol|Open Screen Network Protocol]]
+   <td>[[!openscreen-network|Open Screen Network Protocol]]
    [transport](https://www.w3.org/TR/openscreen-network/#transport)
   </tr>
   <tr>
    <td><dfn>authenticate an agent</dfn>
-   <td>[[!openscreenprotocol|Open Screen Network Protocol]]
+   <td>[[!openscreen-network|Open Screen Network Protocol]]
    [authentication](https://www.w3.org/TR/openscreen-network/#authentication)
   </tr>
   <tr>
@@ -185,7 +185,7 @@ A [=Local Peer-to-Peer session=] has the following capabilities:
  </tbody>
 </table>
 
-Part of these capabilities are defined below as [protocol extensions](https://www.w3.org/TR/openscreen-network/#protocol-extensions) to the [[!openscreenprotocol|Open Screen Network Protocol]].
+Part of these capabilities are defined below as [protocol extensions](https://www.w3.org/TR/openscreen-network/#protocol-extensions) to the [[!openscreen-network|Open Screen Network Protocol]].
 
 Data channel extension {#data-channel-extension}
 ------------------------------------------------
@@ -779,7 +779,7 @@ Security and privacy considerations {#security-and-privacy-considerations}
 
 Open Screen Network Protocol {#security-osp}
 ------------------------------------
-The Local Peer-to-Peer API is meant to be implementable on the [[!openscreenprotocol|Open Screen Network Protocol]]. The Security and Privacy considerations of the Open Screen Network Protocol must therefore be considered when implementing this API.
+The Local Peer-to-Peer API is meant to be implementable on the [[!openscreen-network|Open Screen Network Protocol]]. The Security and Privacy considerations of the Open Screen Network Protocol must therefore be considered when implementing this API.
 
 Personally identifiable information {#security-pii}
 ---------------------------------------------------
@@ -810,7 +810,7 @@ The Local Peer-to-Peer API requires user permission for a page to access any pee
 
 Persistent State {#security-persistent-state}
 ---------------------------------------------
-The persisted state considerations of the  [[!openscreenprotocol|Open Screen Network Protocol]] [Persistent State rules](https://www.w3.org/TR/openscreen-network/#persistent-state) must be followed when implementing this API.
+The persisted state considerations of the  [[!openscreen-network|Open Screen Network Protocol]] [Persistent State rules](https://www.w3.org/TR/openscreen-network/#persistent-state) must be followed when implementing this API.
 
 Secure Contexts {#security-secure-context}
 ------------------------------------------
@@ -819,7 +819,7 @@ The Local Peer-to-Peer API must only be provided in a secure context.
 Appendix A: OSP Extension Messages {#appendix-a}
 ================================================
 
-The following messages are defined according to and as an extension to the [[!openscreenprotocol|Open Screen Network Protocol]] [Messages](https://www.w3.org/TR/openscreen-network/#appendix-a).
+The following messages are defined according to and as an extension to the [[!openscreen-network|Open Screen Network Protocol]] [Messages](https://www.w3.org/TR/openscreen-network/#appendix-a).
 
 Note: The type keys and capability IDs for these extensions are not officially registered yet. They will be registered as this specification matures. 
 
