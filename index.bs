@@ -16,6 +16,10 @@ Markup Shorthands: markdown yes, dfn yes, idl yes, markup yes
 !openscreen-network: https://www.w3.org/TR/openscreen-network/ Open Screen Network Protocol
 </pre>
 
+<pre class="link-defaults">
+spec:html; type:dfn; text:allowed to use
+</pre>
+
 Note: This specification is under active development and therefore incomplete. If you're looking for an overview of the proposal, please refer to the [Explainer](https://github.com/WICG/local-peer-to-peer/blob/main/EXPLAINER.md).
 
 Introduction {#intro}
