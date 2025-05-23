@@ -20,7 +20,7 @@
     - A: By design no such information should be exposed.
 7.  Does this specification allow an origin to send data to the underlying
     platform?
-    - A: The specification is meant to be implementable using the Open Screen Protocol, a cross platform protocol.
+    - A: The specification is meant to be implementable using the Open Screen Network Protocol, a cross platform protocol.
 8.  Do features in this specification enable access to device sensors?
     - A: The specification doesn't allow direct access to device sensors.
 9.  Do features in this specification enable new script execution/loading
@@ -39,7 +39,7 @@
     - A: A [Permission Policy Integration](https://wicg.github.io/local-peer-to-peer/#permission-policy-integration) has been defined.
 14. How do the features in this specification work in the context of a browser’s
     Private Browsing or Incognito mode?
-    - A: The [specification](https://www.w3.org/TR/openscreenprotocol/#private-browsing-mode) of the OpenScreen protocol are to be followed in this area.
+    - A: The [specification](https://www.w3.org/TR/openscreen-network/#private-browsing-mode) of the Open Screen Network Protocol are to be followed in this area.
 15. Does this specification have both "Security Considerations" and "Privacy
     Considerations" sections?
     - A: Both Security and Privacy concerns have been considered.

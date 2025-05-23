@@ -28,7 +28,7 @@ Build a generic Local Peer-to-Peer API and provide an arbitrary bidirectional co
 - Means to send and receive data after connection to a peer device has been established
 - Means to enable secure HTTPS connections on the local communication medium
 
-As a commitment to an open standards-based implementation path, this specification describes how the API can be implemented on top of the [Open Screen Protocol](https://w3c.github.io/openscreenprotocol/). While not described here, the API is expected to be implementable on top of other transports when technically feasible.
+As a commitment to an open standards-based implementation path, this specification describes how the API can be implemented on top of the [Open Screen Network Protocol](https://www.w3.org/TR/openscreen-network/). While not described here, the API is expected to be implementable on top of other transports when technically feasible.
 
 ### Non-goals
 
@@ -111,7 +111,7 @@ In summary, the following are the prerequisites:
 
 ## Solution Approach
 
-The Local Peer-to-Peer API uses the to mutual authentication provided by the Open Screen Protocol to establish mutual TLS certificates between peers. These certificates serve as a trust anchor for secure [local communication](https://wicg.github.io/local-peer-to-peer/#local-communication). The Local Peer-to-Peer specification defines two uses of this new trust anchor:
+The Local Peer-to-Peer API uses the to mutual authentication provided by the Open Screen Network Protocol to establish mutual TLS certificates between peers. These certificates serve as a trust anchor for secure [local communication](https://wicg.github.io/local-peer-to-peer/#local-communication). The Local Peer-to-Peer specification defines two uses of this new trust anchor:
 
 1. Enabling HTTPS on the local communication medium.
 2. Enabling secure local communication using the `DataChannel` and `WebTransport` APIs.
@@ -272,7 +272,7 @@ A number of efforts exist in this area including the [TCP and UDP Socket API](ht
 
 The Local Peer-to-Peer approach differs from previous work by putting the user-agent in control during device discovery and mutual authentication. This approach allows exposing bare minimal information about the device to an origin. The list of discovered devices is never shared with the origin and individual peer descriptors such as nickname are only shared with the origin after authentication and user consent. No [communication medium topology](https://wicg.github.io/local-peer-to-peer/#communication-medium-topology) information such as IP addresses is ever shared with an origin.
 
-The following works are seen as precedent and guide the design of the Local Peer-to-Peer API: [Open Screen Protocol](https://www.w3.org/TR/openscreenprotocol/), [Presentation API](https://www.w3.org/TR/presentation-api/), [Remote Playback API](https://www.w3.org/TR/remote-playback/) [WebRTC](https://www.w3.org/TR/webrtc/), [ORTC (draft)](https://draft.ortc.org/), [WebTransport](https://www.w3.org/TR/webtransport/), [P2P WebTransport (draft)](https://w3c.github.io/p2p-webtransport/).
+The following works are seen as precedent and guide the design of the Local Peer-to-Peer API: [Open Screen Network Protocol](https://www.w3.org/TR/openscreen-network/), [Presentation API](https://www.w3.org/TR/presentation-api/), [Remote Playback API](https://www.w3.org/TR/remote-playback/) [WebRTC](https://www.w3.org/TR/webrtc/), [ORTC (draft)](https://draft.ortc.org/), [WebTransport](https://www.w3.org/TR/webtransport/), [P2P WebTransport (draft)](https://w3c.github.io/p2p-webtransport/).
 
 ## References & Acknowledgements
 

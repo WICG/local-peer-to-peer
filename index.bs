@@ -13,6 +13,7 @@ Editor: Wei Wang, Intel https://intel.com, wei4.wang@intel.com
 !Tests: <a href=https://github.com/w3c/web-platform-tests/tree/master/local-peer-to-peer>web-platform-tests local-peer-to-peer/</a> (<a href=https://github.com/w3c/web-platform-tests/labels/local-peer-to-peer>ongoing work</a>)
 Abstract: Local Peer-to-Peer is a Web platform API proposal for local communication between browsers without the aid of a server.
 Markup Shorthands: markdown yes, dfn yes, idl yes, markup yes
+!openscreenprotocol: https://www.w3.org/TR/openscreen-network/ Open Screen Network Protocol
 </pre>
 
 Note: This specification is under active development and therefore incomplete. If you're looking for an overview of the proposal, please refer to the [Explainer](https://github.com/WICG/local-peer-to-peer/blob/main/EXPLAINER.md).
@@ -30,7 +31,7 @@ Examples of potential uses of this API include: Collaboration tools that work du
 
 This specification aims to strike a balance between creating a powerful new building block for developers and providing a seamless, secure and privacy preserving experience for browser users. As an example: while the API doesn't provide raw socket access, it does aim to give developers the flexibility to innovate on top by providing a persistent, two-way communication channel with little overhead.
 
-The API is designed to be backed by an authenticated, streams-based transport. As a commitment to an open standards-based implementation path, this specification describes how the API can be implemented on top of the [[!openscreenprotocol|Open Screen Protocol]]. While not described here, the API is expected to be implementable on top of other transports when technically feasible.
+The API is designed to be backed by an authenticated, streams-based transport. As a commitment to an open standards-based implementation path, this specification describes how the API can be implemented on top of the [[!openscreenprotocol|Open Screen Network Protocol]]. While not described here, the API is expected to be implementable on top of other transports when technically feasible.
 
 Terminology {#terminology}
 ======================================================
@@ -94,7 +95,7 @@ Note: The [=peer grant state=] is origin-level while the [=authentication state=
 
 Issue(wicg/local-peer-to-peer#24): See also related
 
-The user agent may persist known peers, their [=authentication states=] and/or [=peer grant states=]. If the user agent chooses to do so, it must do so in accordance with the [[!openscreenprotocol|Open Screen Protocol]] Persistent State rules. Such a peer or its state is said to be <dfn>persisted</dfn>.
+The user agent may persist known peers, their [=authentication states=] and/or [=peer grant states=]. If the user agent chooses to do so, it must do so in accordance with the [[!openscreenprotocol|Open Screen Network Protocol]] [Persistent State rules](https://www.w3.org/TR/openscreen-network/#persistent-state). Such a peer or its state is said to be <dfn>persisted</dfn>.
 
 Peer advertisement {#peer-advertisement}
 ----------------------------------------
@@ -137,7 +138,7 @@ Protocol concepts {#protocol-concepts}
 
 When asked to <dfn>establish local peer connection</dfn>, the user agent ...
 
-A <dfn for="protocol">Local Peer-to-Peer session</dfn> represents an authenticated [[!RFC9000|QUIC]] connection as defined in [[!openscreenprotocol|Open Screen Protocol]] or OSP.
+A <dfn for="protocol">Local Peer-to-Peer session</dfn> represents an authenticated [[!RFC9000|QUIC]] connection as defined in [[!openscreenprotocol|Open Screen Network Protocol]] or OSP.
 
 A [=Local Peer-to-Peer session=] has the following capabilities:
 
@@ -151,23 +152,23 @@ A [=Local Peer-to-Peer session=] has the following capabilities:
  <tbody>
   <tr>
    <td><dfn>advertise agent</dfn>
-   <td>[[!openscreenprotocol]]
-   [discovery](https://www.w3.org/TR/openscreenprotocol/#discovery)
+   <td>[[!openscreenprotocol|Open Screen Network Protocol]]
+   [discovery](https://www.w3.org/TR/openscreen-network/#discovery)
   </tr>
   <tr>
    <td><dfn>discover agents</dfn>
-   <td>[[!openscreenprotocol]]
-   [discovery](https://www.w3.org/TR/openscreenprotocol/#discovery)
+   <td>[[!openscreenprotocol|Open Screen Network Protocol]]
+   [discovery](https://www.w3.org/TR/openscreen-network/#discovery)
   </tr>
   <tr>
    <td><dfn>discover metadata</dfn>
-   <td>[[!openscreenprotocol]]
-   [transport](https://www.w3.org/TR/openscreenprotocol/#transport)
+   <td>[[!openscreenprotocol|Open Screen Network Protocol]]
+   [transport](https://www.w3.org/TR/openscreen-network/#transport)
   </tr>
   <tr>
    <td><dfn>authenticate an agent</dfn>
-   <td>[[!openscreenprotocol]]
-   [authentication](https://www.w3.org/TR/openscreenprotocol/#authentication)
+   <td>[[!openscreenprotocol|Open Screen Network Protocol]]
+   [authentication](https://www.w3.org/TR/openscreen-network/#authentication)
   </tr>
   <tr>
    <td>[=open a data channel=]
@@ -184,12 +185,12 @@ A [=Local Peer-to-Peer session=] has the following capabilities:
  </tbody>
 </table>
 
-Part of these capabilities are defined below as [protocol extensions](https://www.w3.org/TR/openscreenprotocol/#protocol-extensions) to the [[!openscreenprotocol|Open Screen Protocol]].
+Part of these capabilities are defined below as [protocol extensions](https://www.w3.org/TR/openscreen-network/#protocol-extensions) to the [[!openscreenprotocol|Open Screen Network Protocol]].
 
 Data channel extension {#data-channel-extension}
 ------------------------------------------------
 
-In order to signal support for this protocol extension, the agent should include the [=data-channels=] [=agent-capability=] as part of the [agent-info-response](https://www.w3.org/TR/openscreenprotocol/#agent-info-response) message exchanged during [=discover metadata=].
+In order to signal support for this protocol extension, the agent should include the [=data-channels=] [=agent-capability=] as part of the [agent-info-response](https://www.w3.org/TR/openscreen-network/#messages) message exchanged during [=discover metadata=].
 
 To <dfn>open a data channel</dfn> an agent may send a [=data-channel-open-request=] message on a new [[!RFC9000|QUIC]] stream. The [=Local Peer-to-Peer session=] must be authenticated. The message must contain the following values:
 
@@ -223,7 +224,7 @@ WebTransport extension {#webtransport-extension}
 
 The protocol extension to [=send data on a channel=] provides an ergonomic way to send simple messages. An agent can [=open a WebTransport session=] for communication that requires low overhead and more granular streams control.
 
-In order to signal support for this protocol extension, the agent should include the [=quick-transport=] [=agent-capability=] as part of the [agent-info-response](https://www.w3.org/TR/openscreenprotocol/#agent-info-response) message exchanged during [=discover metadata=].
+In order to signal support for this protocol extension, the agent should include the [=quick-transport=] [=agent-capability=] as part of the [agent-info-response](https://www.w3.org/TR/openscreen-network/#messages) message exchanged during [=discover metadata=].
 
 An agent can <dfn>open a WebTransport session</dfn> by dialing a new [[!RFC9000|QUIC]] connection using the agent certificates established during [=authenticate an agent=]. During connection establishment, the ALPN token "q2q" must be used in the TLS handshake.
 
@@ -236,7 +237,7 @@ Note: The WebTransport-over-QUIC protocol is yet to be defined. Potentially cons
 Local HTTPS {#local-https}
 ==========================
 
-Authentication establishes a mutual trust anchor between peers on the [=local communication medium=]. This trust anchor can also be used to validate certificates used by HTTP servers on the [=local communication medium=]. An Open Screen Protocol agent certificate can be identified by the common name of its subject ending in "._openscreen._udp". When a user agent loads a webpage and finds an agent certificate in the certificate chain, it can use it as a trust anchor for authentication of the server. If the corresponding agent is not [=authenticated=], the user agent should prompt the user to authenticate the agent before proceeding with certificate validation.
+Authentication establishes a mutual trust anchor between peers on the [=local communication medium=]. This trust anchor can also be used to validate certificates used by HTTP servers on the [=local communication medium=]. An Open Screen Network Protocol agent certificate can be identified by the common name of its subject ending in "._openscreen._udp". When a user agent loads a webpage and finds an agent certificate in the certificate chain, it can use it as a trust anchor for authentication of the server. If the corresponding agent is not [=authenticated=], the user agent should prompt the user to authenticate the agent before proceeding with certificate validation.
 
 Endpoint discovery {#local-https-discovery}
 -------------------------------------------
@@ -776,9 +777,9 @@ Refer to the [WebTransport examples](https://www.w3.org/TR/webtransport/#example
 Security and privacy considerations {#security-and-privacy-considerations}
 =========================================================================
 
-Open Screen Protocol {#security-osp}
+Open Screen Network Protocol {#security-osp}
 ------------------------------------
-The Local Peer-to-Peer API is meant to be implementable on the [[!openscreenprotocol|Open Screen Protocol]]. The Security and Privacy considerations of the Open Screen Protocol must therefore be considered when implementing this API.
+The Local Peer-to-Peer API is meant to be implementable on the [[!openscreenprotocol|Open Screen Network Protocol]]. The Security and Privacy considerations of the Open Screen Network Protocol must therefore be considered when implementing this API.
 
 Personally identifiable information {#security-pii}
 ---------------------------------------------------
@@ -809,7 +810,7 @@ The Local Peer-to-Peer API requires user permission for a page to access any pee
 
 Persistent State {#security-persistent-state}
 ---------------------------------------------
-The persisted state considerations of the  [[!openscreenprotocol|Open Screen Protocol]] must be followed when implementing this API.
+The persisted state considerations of the  [[!openscreenprotocol|Open Screen Network Protocol]] [Persistent State rules](https://www.w3.org/TR/openscreen-network/#persistent-state) must be followed when implementing this API.
 
 Secure Contexts {#security-secure-context}
 ------------------------------------------
@@ -818,7 +819,7 @@ The Local Peer-to-Peer API must only be provided in a secure context.
 Appendix A: OSP Extension Messages {#appendix-a}
 ================================================
 
-The following messages are defined according to and as an extension to the [[!openscreenprotocol|Open Screen Protocol]] [Messages](https://www.w3.org/TR/openscreenprotocol/#appendix-a).
+The following messages are defined according to and as an extension to the [[!openscreenprotocol|Open Screen Network Protocol]] [Messages](https://www.w3.org/TR/openscreen-network/#appendix-a).
 
 Note: The type keys and capability IDs for these extensions are not officially registered yet. They will be registered as this specification matures. 
 
