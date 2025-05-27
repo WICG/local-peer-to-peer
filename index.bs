@@ -13,7 +13,6 @@ Editor: Wei Wang, Intel https://intel.com, wei4.wang@intel.com
 !Tests: <a href=https://github.com/w3c/web-platform-tests/tree/master/local-peer-to-peer>web-platform-tests local-peer-to-peer/</a> (<a href=https://github.com/w3c/web-platform-tests/labels/local-peer-to-peer>ongoing work</a>)
 Abstract: Local Peer-to-Peer is a Web platform API proposal for local communication between browsers without the aid of a server.
 Markup Shorthands: markdown yes, dfn yes, idl yes, markup yes
-!openscreen-network: https://www.w3.org/TR/openscreen-network/ Open Screen Network Protocol
 </pre>
 
 <pre class="link-defaults">
