@@ -21,6 +21,7 @@ This specification is a work in progress.
 
 - [Explainer](EXPLAINER.md)
 - [Specification](https://WICG.github.io/local-peer-to-peer/)
+- [Local HTTPS](https://WICG.github.io/local-peer-to-peer/local-https.html) (separate draft)
 - [One-Pager](./images/onepager.svg) ([PDF](./images/Local%20Peer-to-Peer%20API%20-%20One-Pager.pdf))
 
 ## Feedback

@@ -1,0 +1,30 @@
+<pre class='metadata'>
+Title: Local HTTPS
+Shortname: local-https
+Level: 1
+Status: UD
+Org: W3C
+Repository: WICG/local-peer-to-peer
+URL: https://WICG.github.io/local-peer-to-peer/local-https.html
+Editor: Anssi Kostiainen, Intel https://intel.com, anssi.kostiainen@intel.com
+Editor: Belem Zhang, Intel https://intel.com, belem.zhang@intel.com
+Editor: Michiel De Backker, Twintag https://twintag.com, mail@backkem.me
+Editor: Wei Wang, Intel https://intel.com, wei4.wang@intel.com
+Abstract: Local HTTPS lets user agents validate HTTPS servers on a local communication medium using the trust anchor established by Local Peer-to-Peer authentication.
+Markup Shorthands: markdown yes, dfn yes, idl yes, markup yes
+</pre>
+
+Note: This document was split out of the [Local Peer-to-Peer API](https://wicg.github.io/local-peer-to-peer/) specification. It is an early, unofficial draft.
+
+Local HTTPS {#local-https}
+==========================
+
+Authentication establishes a mutual trust anchor between peers on the [local communication medium](https://wicg.github.io/local-peer-to-peer/#local-communication-medium). This trust anchor can also be used to validate certificates used by HTTP servers on the [local communication medium](https://wicg.github.io/local-peer-to-peer/#local-communication-medium). An Open Screen Network Protocol agent certificate can be identified by the common name of its subject ending in "._openscreen._udp". When a user agent loads a webpage and finds an agent certificate in the certificate chain, it can use it as a trust anchor for authentication of the server. If the corresponding agent is not [authenticated](https://wicg.github.io/local-peer-to-peer/#authenticated), the user agent should prompt the user to authenticate the agent before proceeding with certificate validation.
+
+Issue: Browsers match the server name against the certificate's subjectAltName only ([[RFC9525]]), but [[openscreen-network|Open Screen Network Protocol]] agent certificates only carry a common name, so they would fail validation. The subject common name is also the agent hostname, which no longer ends in "._openscreen._udp". Finally, an authenticated agent certificate would be an unscoped trust anchor: nothing limits which names or origins it may vouch for. Define how names are bound and how the trust anchor is scoped.
+
+Endpoint discovery {#local-https-discovery}
+-------------------------------------------
+If a peer is [authenticated](https://wicg.github.io/local-peer-to-peer/#authenticated), it may advertize one or more HTTPS endpoints it provides. A user agent may display these to the user to connect to servers on the [local communication medium](https://wicg.github.io/local-peer-to-peer/#local-communication-medium) without knowledge of the corresponding hostname and/or IP address.
+
+Issue: define endpoint-info messages

@@ -10,12 +10,20 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        include:
+          - source: index.bs
+            destination: index.html
+          - source: local-https.bs
+            destination: local-https.html
     steps:
     - uses: actions/checkout@v3
     - uses: w3c/spec-prod@v2
       with:
         TOOLCHAIN: bikeshed
-        SOURCE: index.bs
-        DESTINATION: index.html
+        SOURCE: ${{ matrix.source }}
+        DESTINATION: ${{ matrix.destination }}
         GH_PAGES_BRANCH: gh-pages
         BUILD_FAIL_ON: warning
