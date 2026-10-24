@@ -153,6 +153,10 @@ A [=peer=] has the following, provided by its [=transport binding=]. None of the
 
 A <dfn for="protocol">Local Peer-to-Peer session</dfn> is a confidential connection with one [=peer=]. It is <dfn for="protocol">authenticated</dfn> if the [=peer/peer identity=] of the peer has been verified for it, either by [=authenticate a session=] or because the binding matched it to a [=known peer=] that is [=/authenticated=].
 
+A [=Local Peer-to-Peer session=] that is exposed to an origin is not shared with other origins. A binding may carry several sessions with the same peer over one underlying connection, or use a separate connection for each.
+
+Note: Authentication is device-level, while sessions exposed to pages are origin-level. A future binding could give each such session its own credential derived from the device's authenticated key, for example a per-origin child certificate, so that each side can tell the sessions of different origins apart.
+
 A <dfn>data channel</dfn> is a reliable, ordered, message-preserving, bidirectional channel on a [=Local Peer-to-Peer session=]. Either side can open one. It has an <dfn for="data channel">id</dfn>, an integer between 0 and 65,534 that is unique within the session, a <dfn for="data channel">label</dfn> and a <dfn for="data channel">protocol</dfn>. A message on a [=data channel=] is a sequence of bytes, marked as either text or binary.
 
 Operations {#transport-operations}
