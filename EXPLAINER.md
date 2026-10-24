@@ -146,7 +146,7 @@ _Note_: the shorthand APIs are a work in progress. They are illustrative and wil
 
 The Local Peer-to-Peer API's authentication process establishes mutual TLS certificates between peers on a [local communication medium](https://wicg.github.io/local-peer-to-peer/#local-communication-medium). These certificates can serve as a trust anchor to validate certificates used by HTTPS servers on the local communication medium.
 
-Please refer to [Local HTTPS](https://wicg.github.io/local-peer-to-peer/#local-https) in the specification for more details.
+Please refer to the separate [Local HTTPS](https://wicg.github.io/local-peer-to-peer/local-https.html) draft for more details.
 
 _Note_: Local HTTPS is a work in progress, see [#34](https://github.com/WICG/local-peer-to-peer/issues/34).
 
