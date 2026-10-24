@@ -16,6 +16,8 @@ Markup Shorthands: markdown yes, dfn yes, idl yes, markup yes
 
 Note: This document was split out of the [Local Peer-to-Peer API](https://wicg.github.io/local-peer-to-peer/) specification. It is an early, unofficial draft.
 
+Issue(34): Local HTTPS is a work in progress.
+
 Local HTTPS {#local-https}
 ==========================
 
