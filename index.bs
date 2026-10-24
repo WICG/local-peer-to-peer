@@ -139,7 +139,7 @@ Transport abstraction {#transport-abstraction}
 
 The API and its algorithms are defined against the abstract concepts and operations in this section. A <dfn>transport binding</dfn> defines how a concrete protocol implements them. This specification defines one [=transport binding=], in [[#osp-binding]]. Which bindings a user agent implements is [=implementation-defined=]. A [=peer=] is associated with the binding through which it was discovered or through which its session arrived, and all operations involving that peer use that binding.
 
-A [=transport binding=] must provide confidentiality and integrity for all communication with a peer.
+A [=transport binding=] must provide end-to-end confidentiality and integrity for all communication with a peer, including when the path to the peer goes through an intermediary.
 
 Peers and sessions {#transport-concepts}
 ----------------------------------------
@@ -147,7 +147,7 @@ Peers and sessions {#transport-concepts}
 A [=peer=] has the following, provided by its [=transport binding=]. None of them is exposed to an origin.
 
 : <dfn for="peer">peer identity</dfn>
-:: An opaque value that identifies the peer, stable across sessions, scoped to the [=transport binding=]. It is derived from the keys that authenticate a [=Local Peer-to-Peer session=], and is only trusted once verified by [=authenticate a session=]. [=Known peers=] and their [=peer grant states=] are keyed on it.
+:: An opaque value that identifies the peer, stable across sessions, scoped to the [=transport binding=]. It is derived from the credentials that authenticate a [=Local Peer-to-Peer session=], and is only trusted once verified by [=authenticate a session=]. [=Known peers=] and their [=peer grant states=] are keyed on it.
 : <dfn for="peer">display name</dfn>
 :: A name for the peer device, for display in user agent user interface, or null. It is asserted by the peer's user agent, not by script.
 : <dfn for="peer">nickname</dfn>
@@ -173,7 +173,7 @@ A [=transport binding=] provides the following operations. Any of them can fail,
 : To <dfn>establish local peer connection</dfn> with a [=peer=]
 :: Establish a [=Local Peer-to-Peer session=] with the peer. On the peer, the session is reported as an [=incoming session=].
 : To <dfn>authenticate a session</dfn>
-:: Mutually authenticate the two sides of a [=Local Peer-to-Peer session=] and verify the [=peer/peer identity=] of the peer, so that the session is [=protocol/authenticated=]. This may require user interaction on one or both devices, such as entering a PIN or scanning a QR code. Either side can initiate it.
+:: Mutually authenticate the two sides of a [=Local Peer-to-Peer session=] and verify the [=peer/peer identity=] of the peer, so that the session is [=protocol/authenticated=]. This may require user interaction on one or both devices, such as entering a PIN or scanning a QR code, or rely on trust established earlier, possibly on another device or through another party. Either side can initiate it.
 : To <dfn>open a data channel</dfn> on an [=protocol/authenticated=] [=Local Peer-to-Peer session=] given a label, a protocol and an optional id
 :: Open a [=data channel=] with that [=data channel/label=] and [=data channel/protocol=], and with the given [=data channel/id=] or, if none is given, one chosen by the binding. The other side is notified of an <dfn>incoming data channel</dfn>, which its user agent accepts or refuses. The operation succeeds if it is accepted.
 : To <dfn>send data on a channel</dfn> given a [=data channel=] and a message
