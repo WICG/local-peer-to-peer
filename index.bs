@@ -183,9 +183,11 @@ A [=transport binding=] provides the following operations. Any of them can fail,
 : To <dfn>close a session</dfn>
 :: Close the [=Local Peer-to-Peer session=], all of its [=data channels=] and any WebTransport session opened over it. The other side is notified that it was closed. The binding also reports a session as closed when the underlying transport fails.
 : To <dfn>open a WebTransport session</dfn> over an [=protocol/authenticated=] [=Local Peer-to-Peer session=]
-:: Establish a session with the same peer that provides the capabilities of a WebTransport session as defined in [[!webtransport]], bound to the same [=peer/peer identity=]. The other side is notified of an incoming WebTransport session. A binding may not support this operation.
+:: Establish a session with the same peer that provides the capabilities of a WebTransport session as defined in [[!webtransport]], bound to the same [=peer/peer identity=]. The other side is notified of an incoming WebTransport session.
 
-Note: {{LP2PQuicTransport}} is not built on [=data channels=]: it needs unidirectional streams, datagrams and the session semantics of [[!webtransport]], so it has its own operation.
+Note: [=Data channels=] ({{LP2PDataChannel}}) and WebTransport sessions ({{LP2PQuicTransport}}) are two independent ways to communicate over a [=Local Peer-to-Peer session=]; neither is built on the other.
+
+Issue(29): Decide whether to keep both data channels and WebTransport sessions, or converge on one.
 
 <section algorithm="LP2PReceiver">
 
