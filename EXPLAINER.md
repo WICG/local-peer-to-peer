@@ -111,14 +111,14 @@ In summary, the following are the prerequisites:
 
 ## Solution Approach
 
-The Local Peer-to-Peer API uses the to mutual authentication provided by the Open Screen Network Protocol to establish mutual TLS certificates between peers. These certificates serve as a trust anchor for secure [local communication](https://wicg.github.io/local-peer-to-peer/#local-communication). The Local Peer-to-Peer specification defines two uses of this new trust anchor:
+The Local Peer-to-Peer API uses the mutual authentication provided by the Open Screen Network Protocol to establish mutual TLS certificates between peers. These certificates serve as a trust anchor for secure [local communication](https://wicg.github.io/local-peer-to-peer/#local-communication). The Local Peer-to-Peer specification defines two uses of this new trust anchor:
 
 1. Enabling HTTPS on the local communication medium.
 2. Enabling secure local communication using the `DataChannel` and `WebTransport` APIs.
 
 ### API Design
 
-Peer-to-Peer communication starts with service discovery. For this purpose, the LP2PReceiver API allows an origin to advertise itself. The LP2PRequest API allows discovery of a peer on the local communication medium. The design if these APIs is inspired by the work of the Presentation API's PresentationRequest & PresentationReceiver. Data exchange itself is provided by two APIs: `LP2PDataChannel` & `LP2PQuicTransport`. The [LP2PDataChannel API](https://wicg.github.io/local-peer-to-peer/#lp2p-data-channel) is inspired by the RTCDataChannel API. This API caters to simple message passing use-cases and developer familiar with WebRTC. The API design augments that of the WebRTC RTCDataChannel API. The [LP2PQuicTransport API](<](https://wicg.github.io/local-peer-to-peer/#lp2p-quic-transport)>) design is inspired by the WebTransport API. This API is designed for use-cases where more direct control over the underlying transport is preferred.
+Peer-to-Peer communication starts with service discovery. For this purpose, the LP2PReceiver API allows an origin to advertise itself. The LP2PRequest API allows discovery of a peer on the local communication medium. The design of these APIs is inspired by the work of the Presentation API's PresentationRequest & PresentationReceiver. Data exchange itself is provided by two APIs: `LP2PDataChannel` & `LP2PQuicTransport`. The [LP2PDataChannel API](https://wicg.github.io/local-peer-to-peer/#lp2p-data-channel) is inspired by the RTCDataChannel API. This API caters to simple message passing use-cases and developers familiar with WebRTC. The API design augments that of the WebRTC RTCDataChannel API. The [LP2PQuicTransport API](https://wicg.github.io/local-peer-to-peer/#lp2p-quic-transport) design is inspired by the WebTransport API. This API is designed for use-cases where more direct control over the underlying transport is preferred.
 
 ## Shorthand APIs
 
