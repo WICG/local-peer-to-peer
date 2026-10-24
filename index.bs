@@ -123,6 +123,8 @@ When asked to <dfn>authenticate a local peer</dfn>, the user agent must [=establ
 
 A peer is said to be <dfn>authenticated</dfn> when its [=authentication state=] is true.
 
+Note: The trust anchor established by authentication may also be used to validate HTTPS servers on the [=local communication medium=], see the separate [Local HTTPS](https://wicg.github.io/local-peer-to-peer/local-https.html) draft.
+
 Peer grant {#peer-grant}
 ------------------------------------
 
@@ -184,11 +186,6 @@ A [=transport binding=] provides the following operations. Any of them can fail,
 :: Establish a session with the same peer that provides the capabilities of a WebTransport session as defined in [[!webtransport]], bound to the same [=peer/peer identity=]. The other side is notified of an incoming WebTransport session. A binding may not support this operation.
 
 Note: {{LP2PQuicTransport}} is not built on [=data channels=]: it needs unidirectional streams, datagrams and the session semantics of [[!webtransport]], so it has its own operation.
-
-Local HTTPS {#local-https}
-==========================
-
-Using the trust anchor established by [=authenticate a local peer|authentication=] to validate HTTPS servers on the [=local communication medium=] is specified separately, in [Local HTTPS](https://wicg.github.io/local-peer-to-peer/local-https.html).
 
 <section algorithm="LP2PReceiver">
 

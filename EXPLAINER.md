@@ -111,10 +111,9 @@ In summary, the following are the prerequisites:
 
 ## Solution Approach
 
-The Local Peer-to-Peer API uses the mutual authentication provided by the underlying transport, currently the Open Screen Network Protocol, to establish mutual TLS certificates between peers. These certificates serve as a trust anchor for secure [local communication](https://wicg.github.io/local-peer-to-peer/#local-communication). The Local Peer-to-Peer specification defines two uses of this new trust anchor:
+The Local Peer-to-Peer API uses the mutual authentication provided by the underlying transport, currently the Open Screen Network Protocol, to establish mutual TLS certificates between peers. These certificates serve as a trust anchor for secure [local communication](https://wicg.github.io/local-peer-to-peer/#local-communication) using the `DataChannel` and `WebTransport` APIs.
 
-1. Enabling HTTPS on the local communication medium.
-2. Enabling secure local communication using the `DataChannel` and `WebTransport` APIs.
+_Note_: These certificates may also serve as a trust anchor to validate HTTPS servers on the local communication medium, see the separate [Local HTTPS](https://wicg.github.io/local-peer-to-peer/local-https.html) draft.
 
 ### API Design
 
@@ -141,14 +140,6 @@ await transport.ready;
 ```
 
 _Note_: the shorthand APIs are a work in progress. They are illustrative and will change, see [#35](https://github.com/WICG/local-peer-to-peer/issues/35).
-
-## Local HTTPS
-
-The Local Peer-to-Peer API's authentication process establishes mutual TLS certificates between peers on a [local communication medium](https://wicg.github.io/local-peer-to-peer/#local-communication-medium). These certificates can serve as a trust anchor to validate certificates used by HTTPS servers on the local communication medium.
-
-Please refer to the separate [Local HTTPS](https://wicg.github.io/local-peer-to-peer/local-https.html) draft for more details.
-
-_Note_: Local HTTPS is a work in progress, see [#34](https://github.com/WICG/local-peer-to-peer/issues/34).
 
 ## Peer discovery
 
