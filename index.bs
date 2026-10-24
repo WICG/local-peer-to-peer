@@ -39,7 +39,7 @@ The API is designed to be backed by an authenticated, streams-based transport. A
 Terminology {#terminology}
 ======================================================
 
-The term <dfn>local communication medium</dfn> refers to a communication medium that provides a local, direct communication channel between the communicating devices. This is a purposefully broad term that covers any medium that can be used to establish a an authenticated, streams-based transport between the devices. Examples may include but are not limited to: a wired or wireless local area network, a Thread network, Bluetooth Low Energy or Wi-Fi Direct. This spec will not mandate which underlying technologies must be supported.
+The term <dfn>local communication medium</dfn> refers to a communication medium that provides a local, direct communication channel between the communicating devices. This is a purposefully broad term that covers any medium that can be used to establish an authenticated, streams-based transport between the devices. Examples may include but are not limited to: a wired or wireless local area network, a Thread network, Bluetooth Low Energy or Wi-Fi Direct. This spec will not mandate which underlying technologies must be supported.
 
 The term <dfn>local communication</dfn> refers to data communication over the [=local communication medium=].
 
@@ -96,7 +96,7 @@ The [=local peer-to-peer manager=] has an associated <dfn>known peers map</dfn>,
 
 Note: The [=peer grant state=] is origin-level while the [=authentication state=] is peer-level. The rationale is to not require the user to undergo authentication multiple times between the same peers. This design may change informed by security and privacy considerations.
 
-Issue(wicg/local-peer-to-peer#24): See also related
+Issue(WICG/local-peer-to-peer#24): Validate whether peer-level [=authentication state=] is appropriate.
 
 The user agent may persist known peers, their [=authentication states=] and/or [=peer grant states=]. If the user agent chooses to do so, it must do so in accordance with the [[!openscreen-network|Open Screen Network Protocol]] [Persistent State rules](https://www.w3.org/TR/openscreen-network/#persistent-state). Such a peer or its state is said to be <dfn>persisted</dfn>.
 
@@ -139,7 +139,9 @@ When asked to <dfn>acquire a local peer grant</dfn>, the user agent displays the
 Protocol concepts {#protocol-concepts}
 ======================================
 
-When asked to <dfn>establish local peer connection</dfn>, the user agent ...
+When asked to <dfn>establish local peer connection</dfn>, the user agent establishes a [=Local Peer-to-Peer session=] with the peer.
+
+Issue: Define the steps to establish local peer connection.
 
 A <dfn for="protocol">Local Peer-to-Peer session</dfn> represents an authenticated [[!RFC9000|QUIC]] connection as defined in [[!openscreen-network|Open Screen Network Protocol]] or OSP.
 
@@ -235,8 +237,6 @@ The capabilities of the Local WebTransport session are defined in [[!webtranspor
 
 Note: The WebTransport-over-QUIC protocol is yet to be defined. Potentially considering earlier work such as [draft-vvv-webtransport-quic](https://datatracker.ietf.org/doc/html/draft-vvv-webtransport-quic-02).
 
-<section algorithm="LP2PReceiver">
-
 Local HTTPS {#local-https}
 ==========================
 
@@ -247,6 +247,8 @@ Endpoint discovery {#local-https-discovery}
 If a peer is [=authenticated=], it may advertize one or more HTTPS endpoints it provides. A user agent may display these to the user to connect to servers on the [=local communication medium=] without knowledge of the corresponding hostname and/or IP address.
 
 Issue: define endpoint-info messages
+
+<section algorithm="LP2PReceiver">
 
 LP2PReceiver Interface {#lp2p-receiver}
 ================================================
@@ -266,7 +268,6 @@ LP2PReceiverOptions {#lp2p-receiver-options}
 ---------------------------------
 
 <pre class="idl">
-[Exposed=(Window,Worker), SecureContext]
 dictionary LP2PReceiverOptions {
     DOMString nickname;
 };
@@ -370,7 +371,6 @@ LP2PRequestOptions {#lp2p-request-options}
 ---------------------------------
 
 <pre class="idl">
-[Exposed=(Window,Worker), SecureContext]
 dictionary LP2PRequestOptions {
     DOMString nickname;
 };
@@ -491,7 +491,6 @@ LP2PDataChannelInit {#lp2p-data-channel-init}
 ----------------------------------------------
 
 <pre class="idl">
-[Exposed=(Window,Worker), SecureContext]
 dictionary LP2PDataChannelInit {
   USVString protocol = "";
   [EnforceRange] unsigned short id;
@@ -595,7 +594,7 @@ Issue: In general, when defining a new interface that inherits from Event please
 <pre class="idl">
 [Exposed=(Window,Worker), SecureContext]
 interface LP2PDataChannelEvent : Event {
-  constructor(DOMString type, LP2PDataChannelEventInit DataChannelEventInitDict);
+  constructor(DOMString type, LP2PDataChannelEventInit dataChannelEventInitDict);
   readonly attribute LP2PDataChannel channel;
 };
 
@@ -713,7 +712,6 @@ interface LP2PQuicTransport : WebTransport {
               optional LP2PQuicTransportInit quicTransportDict = {});
 };
 
-[Exposed=(Window,Worker), SecureContext]
 dictionary LP2PQuicTransportInit {
 };
 </pre>
@@ -723,11 +721,11 @@ Issue: Define LP2PQuicTransportInit as needed using WebTransportOptions as refer
 LP2PQuicTransportListener Interface {#lp2p-quic-transport-listener}
 -------------------------------------------------------------------
 
-The <dfn interface>LP2PQuicTransportListener</dfn> Interface allows listening for incoming [[!webtransport]] transports. If the LP2PRequest or LP2PReceiver is not yet started, it must be started when the LP2PQuicTransport is constructed.
+The <dfn interface>LP2PQuicTransportListener</dfn> Interface allows listening for incoming {{LP2PQuicTransport}} transports. If the LP2PRequest or LP2PReceiver is not yet started, it must be started when the LP2PQuicTransportListener is constructed.
 
 <pre class="idl">
 [Exposed=(Window,Worker), SecureContext]
-partial interface LP2PQuicTransportListener {
+interface LP2PQuicTransportListener {
   constructor((LP2PRequest or LP2PReceiver) source,
               optional LP2PQuicTransportListenerInit quicTransportListenerDict = {});
   readonly attribute Promise&lt;undefined&gt; ready;
@@ -735,7 +733,6 @@ partial interface LP2PQuicTransportListener {
   readonly attribute ReadableStream incomingTransports;
 };
 
-[Exposed=(Window,Worker), SecureContext]
 dictionary LP2PQuicTransportListenerInit {
 };
 </pre>
@@ -790,14 +787,14 @@ The peer attributes, such as the nickname and device model, are provided to give
 
 No information is exposed to the origin during service discovery. No IP information is exposed to an origin. This is fully managed by the user agent.
 
-Issue(WICG/local-peer-to-peer#15): Refine peer attributes, related:
+Issue(WICG/local-peer-to-peer#15): Refine the peer attributes exposed to origins.
 
 User interface guidelines {#security-ui}
 ----------------------------------------
 
 When the user is asked to grant permission to connect to a peer, the user agent should make it clear what origin the request is coming from.
 
-Issue(WICG/local-peer-to-peer#15): Define filtering to provide additional context, related:
+Issue(WICG/local-peer-to-peer#15): Define peer filtering to give the user additional context.
 
 Impact on same-origin policy {#security-same-origin}
 ----------------------------------------
