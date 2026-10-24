@@ -34,7 +34,7 @@ Examples of potential uses of this API include: Collaboration tools that work du
 
 This specification aims to strike a balance between creating a powerful new building block for developers and providing a seamless, secure and privacy preserving experience for browser users. As an example: while the API doesn't provide raw socket access, it does aim to give developers the flexibility to innovate on top by providing a persistent, two-way communication channel with little overhead.
 
-The API is designed to be backed by an authenticated, streams-based transport. As a commitment to an open standards-based implementation path, this specification describes how the API can be implemented on top of the [[!openscreen-network|Open Screen Network Protocol]]. While not described here, the API is expected to be implementable on top of other transports when technically feasible.
+The API is designed to be backed by an authenticated, streams-based transport. It is defined against the abstract operations of [[#transport-abstraction]], which a [=transport binding=] maps onto a concrete protocol. As a commitment to an open standards-based implementation path, this specification defines a binding to the [[!openscreen-network|Open Screen Network Protocol]] in [[#osp-binding]]. Other bindings are anticipated, for example WebTransport over QUIC with peers authenticated on the local network as explored by the IETF [SETTLE](https://datatracker.ietf.org/wg/settle/about/) working group.
 
 Terminology {#terminology}
 ======================================================
@@ -98,32 +98,28 @@ Note: The [=peer grant state=] is origin-level while the [=authentication state=
 
 Issue(WICG/local-peer-to-peer#24): Validate whether peer-level [=authentication state=] is appropriate.
 
-The user agent may persist known peers, their [=authentication states=] and/or [=peer grant states=]. If the user agent chooses to do so, it must do so in accordance with the [[!openscreen-network|Open Screen Network Protocol]] [Persistent State rules](https://www.w3.org/TR/openscreen-network/#persistent-state). Such a peer or its state is said to be <dfn>persisted</dfn>.
+The user agent may persist known peers, their [=authentication states=] and/or [=peer grant states=]. If the user agent chooses to do so, it must do so in accordance with the persistent state rules of the [=transport binding=] in use. Such a peer or its state is said to be <dfn>persisted</dfn>.
 
 Peer advertisement {#peer-advertisement}
 ----------------------------------------
 
-The user agent can make itself discoverable by advertising using the [=session/advertise agent=] capability.
+The user agent can make itself discoverable by advertising, using [=start advertising=].
 
 Note: The user agent must get the user's explicit consent in order to start advertising.
 
-When advertising, the user agent must listen for incoming peer connections. In case a connection is received, the peer is added to the [=known peers map=]. The user agent must not directly provide access to the incoming peer connection to any origin. Instead, the user agent must prompt to [grant peer](#peer-grant) access to the origin that initiated peer advertisement.
+When advertising, the user agent must listen for incoming peer connections. In case an [=incoming session=] is received, the peer is added to the [=known peers map=]. The user agent must not directly provide access to the incoming peer connection to any origin. Instead, the user agent must prompt to [grant peer](#peer-grant) access to the origin that initiated peer advertisement.
 
 Peer discovery {#peer-discovery}
 --------------------------------
 
-The user agent can discover local peers using the [=session/discover agents=] capability.
-
-When asked to <dfn>start local peer discovery</dfn>, the user agent discovers local peers using the [=session/discover agents=] capability.
+When asked to <dfn>start local peer discovery</dfn>, the user agent runs [=discover peers=].
 
 If a peer is discovered, the user agent should add it to the [=known peers map=]. The user agent must never expose the full result of peer discovery with an origin. Instead, the user agent must [=acquire a local peer grant=] to grant access to a peer for the origin that initiated the peer request.
 
 Peer authentication {#peer-authentication}
 ------------------------------------------
 
-The user agent can initiate authentication with a peer using the [=session/authenticate an agent=] capability.
-
-When asked to <dfn>authenticate a local peer</dfn>, the user agent must initiate authentication with a local peer using the [=session/authenticate an agent=] capability. The peer's [=authentication state=] must be set to true if authentication succeeds, otherwise false.
+When asked to <dfn>authenticate a local peer</dfn>, the user agent must [=establish local peer connection|establish a session=] with the peer, unless one exists, and run [=authenticate a session=] on it. The peer's [=authentication state=] must be set to true if authentication succeeds, otherwise false.
 
 A peer is said to be <dfn>authenticated</dfn> when its [=authentication state=] is true.
 
@@ -134,108 +130,56 @@ The user agent, with the user's consent, must [=acquire a local peer grant=] for
 
 Note: The user agent must get the user's explicit consent in order to grant an origin access to a peer. For enhanced privacy protection, the user agent must provide means to dismiss any related user interface and this action must not be detectable by script or have script-observable side-effects. The user interface may provide means to revoke the grant or to make the grant [=persisted=].
 
-When asked to <dfn>acquire a local peer grant</dfn>, the user agent displays the [=known peers=] to the user through its native user interface. When the user selects a peer from the user interface, the user agent must check the selected peer is [=authenticated=], and run the [=authenticate a local peer=] algorithm otherwise, and set the [=peer grant state=] according to the user's explicit selection.
+When asked to <dfn>acquire a local peer grant</dfn>, the user agent displays the [=known peers=] to the user through its native user interface. When the user selects a peer from the user interface, the user agent must check the selected peer is [=/authenticated=], and run the [=authenticate a local peer=] algorithm otherwise, and set the [=peer grant state=] according to the user's explicit selection.
 
-Protocol concepts {#protocol-concepts}
-======================================
+Transport abstraction {#transport-abstraction}
+==============================================
 
-When asked to <dfn>establish local peer connection</dfn>, the user agent establishes a [=Local Peer-to-Peer session=] with the peer.
+The API and its algorithms are defined against the abstract concepts and operations in this section. A <dfn>transport binding</dfn> defines how a concrete protocol implements them. This specification defines one [=transport binding=], in [[#osp-binding]]. Which bindings a user agent implements is [=implementation-defined=]. A [=peer=] is associated with the binding through which it was discovered or through which its session arrived, and all operations involving that peer use that binding.
 
-Issue: Define the steps to establish local peer connection.
+A [=transport binding=] must provide confidentiality and integrity for all communication with a peer.
 
-A <dfn for="protocol">Local Peer-to-Peer session</dfn> represents an authenticated [[!RFC9000|QUIC]] connection as defined in [[!openscreen-network|Open Screen Network Protocol]] or OSP.
+Peers and sessions {#transport-concepts}
+----------------------------------------
 
-A [=Local Peer-to-Peer session=] has the following capabilities:
+A [=peer=] has the following, provided by its [=transport binding=]. None of them is exposed to an origin.
 
-<table class="data" dfn-for="session">
- <thead>
-  <tr>
-   <th>capability
-   <th>definition
-  </tr>
- </thead>
- <tbody>
-  <tr>
-   <td><dfn>advertise agent</dfn>
-   <td>[[!openscreen-network|Open Screen Network Protocol]]
-   [discovery](https://www.w3.org/TR/openscreen-network/#discovery)
-  </tr>
-  <tr>
-   <td><dfn>discover agents</dfn>
-   <td>[[!openscreen-network|Open Screen Network Protocol]]
-   [discovery](https://www.w3.org/TR/openscreen-network/#discovery)
-  </tr>
-  <tr>
-   <td><dfn>discover metadata</dfn>
-   <td>[[!openscreen-network|Open Screen Network Protocol]]
-   [transport](https://www.w3.org/TR/openscreen-network/#transport)
-  </tr>
-  <tr>
-   <td><dfn>authenticate an agent</dfn>
-   <td>[[!openscreen-network|Open Screen Network Protocol]]
-   [authentication](https://www.w3.org/TR/openscreen-network/#authentication)
-  </tr>
-  <tr>
-   <td>[=open a data channel=]
-   <td>[[#data-channel-extension]]
-  </tr>
-  <tr>
-   <td>[=send data on a channel=]
-   <td>[[#data-channel-extension]]
-  </tr>
-  <tr>
-   <td>[=open a WebTransport session=]
-   <td>[[#webtransport-extension]]
-  </tr>
- </tbody>
-</table>
+: <dfn for="peer">peer identity</dfn>
+:: An opaque value that identifies the peer, stable across sessions, scoped to the [=transport binding=]. It is derived from the keys that authenticate a [=Local Peer-to-Peer session=], and is only trusted once verified by [=authenticate a session=]. [=Known peers=] and their [=peer grant states=] are keyed on it.
+: <dfn for="peer">display name</dfn>
+:: A name for the peer device, for display in user agent user interface, or null. It is asserted by the peer's user agent, not by script.
+: <dfn for="peer">nickname</dfn>
+:: The nickname given by the remote page when it started advertising, or null. It is chosen by script and never verified.
 
-Part of these capabilities are defined below as [protocol extensions](https://www.w3.org/TR/openscreen-application/#protocol-extensions) to the [[!openscreen-network|Open Screen Network Protocol]].
+A <dfn for="protocol">Local Peer-to-Peer session</dfn> is a confidential connection with one [=peer=]. It is <dfn for="protocol">authenticated</dfn> if the [=peer/peer identity=] of the peer has been verified for it, either by [=authenticate a session=] or because the binding matched it to a [=known peer=] that is [=/authenticated=].
 
-Data channel extension {#data-channel-extension}
-------------------------------------------------
+A <dfn>data channel</dfn> is a reliable, ordered, message-preserving, bidirectional channel on a [=Local Peer-to-Peer session=]. Either side can open one. It has an <dfn for="data channel">id</dfn>, an integer between 0 and 65,534 that is unique within the session, a <dfn for="data channel">label</dfn> and a <dfn for="data channel">protocol</dfn>. A message on a [=data channel=] is a sequence of bytes, marked as either text or binary.
 
-In order to signal support for this protocol extension, the agent should include the [=data-channels=] [agent-capability](https://www.w3.org/TR/openscreen-application/#appendix-a) as part of the [agent-info-response](https://www.w3.org/TR/openscreen-application/#agent-info-response) message exchanged during [=discover metadata=].
+Operations {#transport-operations}
+----------------------------------
 
-To <dfn>open a data channel</dfn> an agent may send a [=data-channel-open-request=] message on a new [[!RFC9000|QUIC]] stream. The [=Local Peer-to-Peer session=] must be authenticated. The message must contain the following values:
+A [=transport binding=] provides the following operations. Any of them can fail, including because the peer does not support it.
 
-: channel-id
-:: An ID number between 0 and 65,534 which uniquely identifies the data channel. The value 65,535 is reserved, as for {{RTCDataChannel}}; {{LP2PDataChannel/id}} is an `unsigned short` for parity with {{RTCDataChannel/id}}, but cannot take that value.
+: To <dfn>start advertising</dfn> given a nickname
+:: Make the user agent discoverable through [=discover peers=] on other user agents, with the given [=peer/nickname=] if the binding can carry it, and accept sessions from peers. This returns an <dfn>advertisement</dfn>. Each [=Local Peer-to-Peer session=] a peer establishes with it is reported as an <dfn>incoming session</dfn> for that [=advertisement=]. To <dfn>stop advertising</dfn> given an [=advertisement=] ends both.
+: To <dfn>discover peers</dfn>
+:: Report the [=peers=] advertising on the [=local communication medium=], as they appear and disappear, until asked to <dfn>stop discovering peers</dfn>. A discovered [=peer/peer identity=] is not verified.
+: To <dfn>establish local peer connection</dfn> with a [=peer=]
+:: Establish a [=Local Peer-to-Peer session=] with the peer. On the peer, the session is reported as an [=incoming session=].
+: To <dfn>authenticate a session</dfn>
+:: Mutually authenticate the two sides of a [=Local Peer-to-Peer session=] and verify the [=peer/peer identity=] of the peer, so that the session is [=protocol/authenticated=]. This may require user interaction on one or both devices, such as entering a PIN or scanning a QR code. Either side can initiate it.
+: To <dfn>open a data channel</dfn> on an [=protocol/authenticated=] [=Local Peer-to-Peer session=] given a label, a protocol and an optional id
+:: Open a [=data channel=] with that [=data channel/label=] and [=data channel/protocol=], and with the given [=data channel/id=] or, if none is given, one chosen by the binding. The other side is notified of an <dfn>incoming data channel</dfn>, which its user agent accepts or refuses. The operation succeeds if it is accepted.
+: To <dfn>send data on a channel</dfn> given a [=data channel=] and a message
+:: Queue the message for delivery on the [=data channel=]. The other side is notified of a <dfn>received message</dfn>.
+: To <dfn>close a data channel</dfn>
+:: Close the [=data channel=] in both directions. The other side is notified that it was closed.
+: To <dfn>close a session</dfn>
+:: Close the [=Local Peer-to-Peer session=], all of its [=data channels=] and any WebTransport session opened over it. The other side is notified that it was closed. The binding also reports a session as closed when the underlying transport fails.
+: To <dfn>open a WebTransport session</dfn> over an [=protocol/authenticated=] [=Local Peer-to-Peer session=]
+:: Establish a session with the same peer that provides the capabilities of a WebTransport session as defined in [[!webtransport]], bound to the same [=peer/peer identity=]. The other side is notified of an incoming WebTransport session. A binding may not support this operation.
 
-: label
-:: a string that contains a name describing the data channel. These labels are not required to be unique.
-
-: protocol
-:: a string containing the name of the subprotocol in use. If no protocol was specified when the data channel was created, then this property's value is the empty string ("").
-
-When the receiver receives the [=data-channel-open-request=], it should send back a [=data-channel-open-response=] message. The response must include the following:
-
-: result
-:: a code indicating success or failure, and the reason for the failure.
-
-If the [=data-channel-open-response=] message indicates success, the data channel is considered open. Agents can now <dfn>send data on a channel</dfn> by sending [data-frame](https://www.w3.org/TR/openscreen-application/#data-frame) messages (type key 24) on the same [[!RFC9000|QUIC]] stream the data channel was opened. The message must include the following keys; the other keys of [data-frame](https://www.w3.org/TR/openscreen-application/#data-frame) (1, 2, 3 and 5) are unused, should not be sent, and must be ignored by the receiving agent:
-
-: encoding-id
-:: Determines the encoding of the data being sent. The values are specified as [=data-channel-encoding-id=], instead of referencing a data encoding offer:
-    0: [=encoding-id-blob|Blob=];
-    1: [=encoding-id-string|String=];
-    2: [=encoding-id-array-buffer|ArrayBuffer=].
-
-: payload
-:: The binary representation of the data being sent.
-
-WebTransport extension {#webtransport-extension}
-------------------------------------------------
-
-The protocol extension to [=send data on a channel=] provides an ergonomic way to send simple messages. An agent can [=open a WebTransport session=] for communication that requires low overhead and more granular streams control.
-
-In order to signal support for this protocol extension, the agent should include the [=quic-transport=] [agent-capability](https://www.w3.org/TR/openscreen-application/#appendix-a) as part of the [agent-info-response](https://www.w3.org/TR/openscreen-application/#agent-info-response) message exchanged during [=discover metadata=].
-
-An agent can <dfn>open a WebTransport session</dfn> by dialing a new [[!RFC9000|QUIC]] connection using the agent certificates established during [=authenticate an agent=]. During connection establishment, the ALPN token "q2q" must be used in the TLS handshake.
-
-The capabilities of the Local WebTransport session are defined in [[!webtransport]].
-
-Note: The WebTransport-over-QUIC protocol is yet to be defined. Potentially considering earlier work such as [draft-vvv-webtransport-quic](https://datatracker.ietf.org/doc/html/draft-vvv-webtransport-quic-02).
+Note: {{LP2PQuicTransport}} is not built on [=data channels=]: it needs unidirectional streams, datagrams and the session semantics of [[!webtransport]], so it has its own operation.
 
 Local HTTPS {#local-https}
 ==========================
@@ -458,7 +402,7 @@ await transport.ready;
 The LP2PDataChannel Interface {#lp2p-data-channel}
 ==========================================
 
-The LP2PDataChannel interface represents a bi-directional data channel between two peers. An LP2PDataChannel is created via a [factory method](#lp2p-connection-data-channel-extensions) on a LP2PConnection object.
+The LP2PDataChannel interface represents a bi-directional data channel between two peers. An LP2PDataChannel is created via a [factory method](#lp2p-connection-data-channel-extensions) on a LP2PConnection object. It is backed by a [=data channel=] on the connection's [=Local Peer-to-Peer session=].
 
 Note: The LP2PDataChannel interface is purposefully kept as close as possible to the [RTCDataChannel](https://www.w3.org/TR/webrtc/#rtcdatachannel) interface defined in [[!webrtc]]. The aim is to allow seamless transition of developers that are familiar with WebRTC as well as allowing libraries to easily work with both the [[!webrtc]] and LP2P API.
 
@@ -697,7 +641,7 @@ channel.onopen = e => {
 The LP2PQuicTransport Interface {#lp2p-quic-transport}
 ======================================================
 
-The <dfn interface>LP2PQuicTransport</dfn> Interface allows opening a [[!webtransport]] between peers. If the LP2PRequest or LP2PReceiver is not yet started, it must be started when the LP2PQuicTransport is constructed.
+The <dfn interface>LP2PQuicTransport</dfn> Interface allows opening a [[!webtransport]] between peers. If the LP2PRequest or LP2PReceiver is not yet started, it must be started when the LP2PQuicTransport is constructed. It is backed by a session obtained with [=open a WebTransport session=].
 
 <pre class="idl">
 [Exposed=(Window,Worker), SecureContext]
@@ -771,9 +715,9 @@ Refer to the [WebTransport examples](https://www.w3.org/TR/webtransport/#example
 Security and privacy considerations {#security-and-privacy-considerations}
 =========================================================================
 
-Open Screen Network Protocol {#security-osp}
+Transport bindings {#security-osp}
 ------------------------------------
-The Local Peer-to-Peer API is meant to be implementable on the [[!openscreen-network|Open Screen Network Protocol]]. The Security and Privacy considerations of the Open Screen Network Protocol must therefore be considered when implementing this API.
+The security and privacy considerations of the protocol underlying the [=transport binding=] in use must be considered when implementing this API. For [[#osp-binding]], these are the Security and Privacy considerations of the [[!openscreen-network|Open Screen Network Protocol]].
 
 Personally identifiable information {#security-pii}
 ---------------------------------------------------
@@ -804,11 +748,117 @@ The Local Peer-to-Peer API requires user permission for a page to access any pee
 
 Persistent State {#security-persistent-state}
 ---------------------------------------------
-The persisted state considerations of the  [[!openscreen-network|Open Screen Network Protocol]] [Persistent State rules](https://www.w3.org/TR/openscreen-network/#persistent-state) must be followed when implementing this API.
+The persistent state rules of the [=transport binding=] in use must be followed when implementing this API. For [[#osp-binding]], these are the [[!openscreen-network|Open Screen Network Protocol]] [Persistent State rules](https://www.w3.org/TR/openscreen-network/#persistent-state).
 
 Secure Contexts {#security-secure-context}
 ------------------------------------------
 The Local Peer-to-Peer API must only be provided in a secure context.
+
+Binding to the Open Screen Network Protocol {#osp-binding}
+==========================================================
+
+This section defines a [=transport binding=] to the [[!openscreen-network|Open Screen Network Protocol]] (OSP). In this binding, a [=peer=] is an OSP agent and a [=Local Peer-to-Peer session=] is an authenticated [[!RFC9000|QUIC]] connection between two agents.
+
+To <dfn>discover metadata</dfn> of an agent, the user agent follows [[!openscreen-network|Open Screen Network Protocol]] [transport and metadata discovery](https://www.w3.org/TR/openscreen-network/#transport).
+
+The concepts and operations of [[#transport-abstraction]] map onto OSP as follows:
+
+<table class="data">
+ <thead>
+  <tr>
+   <th>concept or operation
+   <th>OSP binding
+  </tr>
+ </thead>
+ <tbody>
+  <tr>
+   <td>[=start advertising=], [=stop advertising=], [=discover peers=], [=stop discovering peers=]
+   <td>[[!openscreen-network|Open Screen Network Protocol]]
+   [discovery](https://www.w3.org/TR/openscreen-network/#discovery)
+  </tr>
+  <tr>
+   <td>[=peer/peer identity=]
+   <td>The [agent fingerprint](https://www.w3.org/TR/openscreen-network/#computing-agent-fingerprint)
+  </tr>
+  <tr>
+   <td>[=peer/display name=]
+   <td>The display name from the [agent-info-response](https://www.w3.org/TR/openscreen-application/#agent-info-response) message, obtained by [=discover metadata=]
+  </tr>
+  <tr>
+   <td>[=peer/nickname=]
+   <td>Not yet carried.
+  </tr>
+  <tr>
+   <td>[=authenticate a session=]
+   <td>[[!openscreen-network|Open Screen Network Protocol]]
+   [authentication](https://www.w3.org/TR/openscreen-network/#authentication)
+  </tr>
+  <tr>
+   <td>[=establish local peer connection=], [=close a session=]
+   <td>[[!openscreen-network|Open Screen Network Protocol]]
+   [transport](https://www.w3.org/TR/openscreen-network/#transport)
+  </tr>
+  <tr>
+   <td>[=open a data channel=], [=incoming data channel=], [=send data on a channel=], [=received message=], [=close a data channel=]
+   <td>[[#data-channel-extension]]
+  </tr>
+  <tr>
+   <td>[=open a WebTransport session=]
+   <td>[[#webtransport-extension]]
+  </tr>
+ </tbody>
+</table>
+
+Issue: Define how the [=peer/nickname=] is carried, and how a [=data channel=] is closed.
+
+Part of these operations are defined below as [protocol extensions](https://www.w3.org/TR/openscreen-application/#protocol-extensions) to the [[!openscreen-network|Open Screen Network Protocol]].
+
+Data channel extension {#data-channel-extension}
+------------------------------------------------
+
+In order to signal support for this protocol extension, the agent should include the [=data-channels=] [agent-capability](https://www.w3.org/TR/openscreen-application/#appendix-a) as part of the [agent-info-response](https://www.w3.org/TR/openscreen-application/#agent-info-response) message exchanged during [=discover metadata=].
+
+To [=open a data channel=], an agent may send a [=data-channel-open-request=] message on a new [[!RFC9000|QUIC]] stream. The [=Local Peer-to-Peer session=] must be authenticated. The message must contain the following values:
+
+: channel-id
+:: An ID number between 0 and 65,534 which uniquely identifies the data channel. The value 65,535 is reserved, as for {{RTCDataChannel}}; {{LP2PDataChannel/id}} is an `unsigned short` for parity with {{RTCDataChannel/id}}, but cannot take that value.
+
+: label
+:: a string that contains a name describing the data channel. These labels are not required to be unique.
+
+: protocol
+:: a string containing the name of the subprotocol in use. If no protocol was specified when the data channel was created, then this property's value is the empty string ("").
+
+The receiving agent reports the [=data-channel-open-request=] as an [=incoming data channel=]. When the receiver receives the [=data-channel-open-request=], it should send back a [=data-channel-open-response=] message. The response must include the following:
+
+: result
+:: a code indicating success or failure, and the reason for the failure. If the user agent refuses the [=incoming data channel=], the result indicates failure.
+
+If the [=data-channel-open-response=] message indicates success, the data channel is considered open. Agents can now [=send data on a channel=] by sending [data-frame](https://www.w3.org/TR/openscreen-application/#data-frame) messages (type key 24) on the same [[!RFC9000|QUIC]] stream the data channel was opened. The message must include the following keys; the other keys of [data-frame](https://www.w3.org/TR/openscreen-application/#data-frame) (1, 2, 3 and 5) are unused, should not be sent, and must be ignored by the receiving agent:
+
+: encoding-id
+:: Determines the encoding of the data being sent. The values are specified as [=data-channel-encoding-id=], instead of referencing a data encoding offer:
+    0: [=encoding-id-blob|Blob=];
+    1: [=encoding-id-string|String=];
+    2: [=encoding-id-array-buffer|ArrayBuffer=].
+
+: payload
+:: The binary representation of the data being sent.
+
+A text message is sent with [=encoding-id-string|String=]; a binary message with [=encoding-id-blob|Blob=] or [=encoding-id-array-buffer|ArrayBuffer=]. The receiving agent reports each [data-frame](https://www.w3.org/TR/openscreen-application/#data-frame) as a [=received message=], which is text if its encoding-id is [=encoding-id-string|String=] and binary otherwise.
+
+WebTransport extension {#webtransport-extension}
+------------------------------------------------
+
+The protocol extension to [=send data on a channel=] provides an ergonomic way to send simple messages. An agent can [=open a WebTransport session=] for communication that requires low overhead and more granular streams control.
+
+In order to signal support for this protocol extension, the agent should include the [=quic-transport=] [agent-capability](https://www.w3.org/TR/openscreen-application/#appendix-a) as part of the [agent-info-response](https://www.w3.org/TR/openscreen-application/#agent-info-response) message exchanged during [=discover metadata=].
+
+An agent can [=open a WebTransport session=] by dialing a new [[!RFC9000|QUIC]] connection using the agent certificates established during [=authenticate a session=]. During connection establishment, the ALPN token "q2q" must be used in the TLS handshake.
+
+The capabilities of the Local WebTransport session are defined in [[!webtransport]].
+
+Note: The WebTransport-over-QUIC protocol is yet to be defined. Potentially considering earlier work such as [draft-vvv-webtransport-quic](https://datatracker.ietf.org/doc/html/draft-vvv-webtransport-quic-02).
 
 Appendix A: OSP Extension Messages {#appendix-a}
 ================================================
