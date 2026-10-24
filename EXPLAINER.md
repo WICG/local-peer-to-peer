@@ -28,7 +28,7 @@ Build a generic Local Peer-to-Peer API and provide an arbitrary bidirectional co
 - Means to send and receive data after connection to a peer device has been established
 - Means to enable secure HTTPS connections on the local communication medium
 
-As a commitment to an open standards-based implementation path, this specification describes how the API can be implemented on top of the [Open Screen Network Protocol](https://www.w3.org/TR/openscreen-network/). While not described here, the API is expected to be implementable on top of other transports when technically feasible.
+The API is transport-agnostic: the specification defines it against a small set of abstract operations (discover, authenticate, connect, open channels), and describes how they map onto a concrete protocol in a separate binding. As a commitment to an open standards-based implementation path, the specification includes a binding to the [Open Screen Network Protocol](https://www.w3.org/TR/openscreen-network/). Other bindings are anticipated, for example WebTransport over QUIC with authentication on the local network as explored by the IETF [SETTLE](https://datatracker.ietf.org/wg/settle/about/) working group.
 
 ### Non-goals
 
@@ -111,7 +111,7 @@ In summary, the following are the prerequisites:
 
 ## Solution Approach
 
-The Local Peer-to-Peer API uses the mutual authentication provided by the Open Screen Network Protocol to establish mutual TLS certificates between peers. These certificates serve as a trust anchor for secure [local communication](https://wicg.github.io/local-peer-to-peer/#local-communication). The Local Peer-to-Peer specification defines two uses of this new trust anchor:
+The Local Peer-to-Peer API uses the mutual authentication provided by the underlying transport, currently the Open Screen Network Protocol, to establish mutual TLS certificates between peers. These certificates serve as a trust anchor for secure [local communication](https://wicg.github.io/local-peer-to-peer/#local-communication). The Local Peer-to-Peer specification defines two uses of this new trust anchor:
 
 1. Enabling HTTPS on the local communication medium.
 2. Enabling secure local communication using the `DataChannel` and `WebTransport` APIs.
