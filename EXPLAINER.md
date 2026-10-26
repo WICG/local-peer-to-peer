@@ -28,7 +28,7 @@ Build a generic Local Peer-to-Peer API and provide an arbitrary bidirectional co
 - Means to send and receive data after connection to a peer device has been established
 - Means to enable secure HTTPS connections on the local communication medium
 
-The API is transport-agnostic: the specification defines it against a small set of abstract operations (discover, authenticate, connect, open channels), and describes how they map onto a concrete protocol in a separate binding. As a commitment to an open standards-based implementation path, the specification includes a binding to the [Open Screen Network Protocol](https://www.w3.org/TR/openscreen-network/). Other bindings are anticipated, for example WebTransport over QUIC with authentication on the local network as explored by the IETF [SETTLE](https://datatracker.ietf.org/wg/settle/about/) working group.
+The API is transport-agnostic. It is designed to be backed by an authenticated, streams-based transport, and the specification defines it against a small set of abstract operations (discover, authenticate, connect, open channels). A transport binding maps these onto a concrete protocol. As a commitment to an open standards-based implementation path, the specification defines one binding, to the [Open Screen Network Protocol](https://www.w3.org/TR/openscreen-network/). Other bindings are anticipated, for example WebTransport over QUIC with peers authenticated on the local network as explored by the IETF [SETTLE](https://datatracker.ietf.org/wg/settle/about/) working group.
 
 ### Non-goals
 
@@ -94,7 +94,7 @@ The following are the high-level requirements derived from the use cases:
 
 ### Prerequisites
 
-What is a prerequisite for all these use cases is that the participating devices can be connected via a [local communication medium](https://wicg.github.io/local-peer-to-peer/#local-communication-medium) because they are physically nearby to each other and as such able to establish a direct connection using either a wireless connectivity technology such as Wi-Fi Direct, Wi-Fi via access point, or a wired computer networking technology such as Ethernet. This connection technology and its details are abstracted out by both the Web API exposed to web developers as well as the UI/UX visible to the user.
+What is a prerequisite for all these use cases is that the participating devices can be connected via a [local communication medium](https://wicg.github.io/local-peer-to-peer/#local-communication-medium) because they are physically nearby. Connections need an IP link between the devices, direct or through the local network, for example Wi-Fi via an access point, Wi-Fi Direct or Ethernet. Discovery and the trust ceremony may also use other channels, such as Bluetooth Low Energy, NFC or a QR code. This connection technology and its details are abstracted out by both the Web API exposed to web developers as well as the UI/UX visible to the user.
 
 In summary, the following are the prerequisites:
 
@@ -111,9 +111,22 @@ In summary, the following are the prerequisites:
 
 ## Solution Approach
 
-The Local Peer-to-Peer API uses the mutual authentication provided by the underlying transport, currently the Open Screen Network Protocol, to establish mutual TLS certificates between peers. These certificates serve as a trust anchor for secure [local communication](https://wicg.github.io/local-peer-to-peer/#local-communication) using the `DataChannel` and `WebTransport` APIs.
+The Local Peer-to-Peer API lets a page connect directly to a nearby device or browser. The user agent discovers peers and mutually authenticates them, for example with a PIN the user enters once. The user then grants the page access to a specific peer, and the page gets an authenticated connection carrying data channels or WebTransport sessions. Discovery and authentication are defined by a transport binding, such as the Open Screen Network Protocol.
 
-_Note_: These certificates may also serve as a trust anchor to validate HTTPS servers on the local communication medium, see the separate [Local HTTPS](https://wicg.github.io/local-peer-to-peer/local-https.html) draft.
+_Note_: The same trust anchors can also validate HTTPS servers on the local communication medium, see the separate [Local HTTPS](https://wicg.github.io/local-peer-to-peer/local-https.html) draft.
+
+### Architecture
+
+The main concepts:
+
+- **Peer:** a device or browser on the local communication medium, or a service running on one.
+- **Advertising and discovery:** a page can make its user agent discoverable, or look for peers, possibly over channels other than the IP link. Discovery results are untrusted hints, and are never exposed to pages.
+- **Trust ceremony:** a one-time step the user confirms, such as entering a PIN, scanning a QR code or an NFC tap. It mutually authenticates two peers and adds a trust anchor.
+- **Local trust store:** the trust anchors the user added, kept separate from the Web PKI root store. A peer is trusted if its credentials chain to an anchor. Anchors can also be parties that vouch for devices, such as a hub.
+- **Peer grant:** the user's consent, given in a picker, for one origin to use a peer. A grant for a device covers its services by default.
+- **Session:** an authenticated connection with a peer for one origin. The side that starts it is the client, and the side that accepts it is the server. The requesting origin is asserted by the peer's user agent.
+- **Channels:** data channels and WebTransport sessions, carried over a session.
+- **Transport binding:** maps all of the above onto a concrete protocol over IP, such as the Open Screen Network Protocol.
 
 ### API Design
 
@@ -255,15 +268,26 @@ Figure 5: Proposed Web Local Peer-to-Peer along with other existing options
 
 While the Web Share API partially satisfies the requirement R2 set forth above, the Web Share API by its design defines a minimal API surface that is likely not amenable to extensions required to support additional use cases and requirements outlined in this explainer. Notably, the Web Share API is a "push-based" API where content is pushed from one device to another device while the Local Peer-to-Peer API is catering to both the "push-based" as well as "pull-based" use cases as illustrated by "drop files here and share" and "import file nearby" concepts respectively. From the UX perspective, the Local Peer-to-Peer API allows for a more seamless in-web app experience in use cases where a system-provided share facility would disrupt the user flow.
 
-Certain use cases can benefit from an internet-based P2P fallback if local communications is not available. To minimize conceptual weight for web developers, this API attempts to align with the established conventions and API semantics of other communication APIs such as WebTransport API, WebRTC, Fetch, and Presentation API, where applicable.
+Applications may still choose to use an internet-based connection, such as WebRTC, when no local link is available. To make that easy and to minimize conceptual weight for web developers, this API attempts to align with the established conventions and API semantics of other communication APIs such as WebTransport API, WebRTC, Fetch, and Presentation API, where applicable.
 
-### Previous work
+### Previous and related work
 
-A number of efforts exist in this area including the [TCP and UDP Socket API](https://www.w3.org/TR/tcp-udp-sockets/), [Discovery API](https://www.w3.org/TR/discovery-api/) and [FlyWeb](https://flyweb.github.io/).
+The Local Peer-to-Peer approach differs from earlier efforts by putting the user-agent in control during device discovery and mutual authentication. This approach allows exposing bare minimal information about the device to an origin. The list of discovered devices is never shared with the origin and individual peer descriptors such as nickname are only shared with the origin after authentication and user consent. No [communication medium topology](https://wicg.github.io/local-peer-to-peer/#communication-medium-topology) information such as IP addresses is ever shared with an origin.
 
-The Local Peer-to-Peer approach differs from previous work by putting the user-agent in control during device discovery and mutual authentication. This approach allows exposing bare minimal information about the device to an origin. The list of discovered devices is never shared with the origin and individual peer descriptors such as nickname are only shared with the origin after authentication and user consent. No [communication medium topology](https://wicg.github.io/local-peer-to-peer/#communication-medium-topology) information such as IP addresses is ever shared with an origin.
+#### Active
 
-The following works are seen as precedent and guide the design of the Local Peer-to-Peer API: [Open Screen Network Protocol](https://www.w3.org/TR/openscreen-network/), [Presentation API](https://www.w3.org/TR/presentation-api/), [Remote Playback API](https://www.w3.org/TR/remote-playback/) [WebRTC](https://www.w3.org/TR/webrtc/), [ORTC (draft)](https://draft.ortc.org/), [WebTransport](https://www.w3.org/TR/webtransport/), [P2P WebTransport (draft)](https://w3c.github.io/p2p-webtransport/).
+- **Precedents.** The following works guide the design of the Local Peer-to-Peer API: [Open Screen Network Protocol](https://www.w3.org/TR/openscreen-network/), [Presentation API](https://www.w3.org/TR/presentation-api/), [Remote Playback API](https://www.w3.org/TR/remote-playback/), [WebRTC](https://www.w3.org/TR/webrtc/), [ORTC (draft)](https://draft.ortc.org/) and [WebTransport](https://www.w3.org/TR/webtransport/).
+- **P2P WebTransport.** The W3C WebTransport Working Group's [2026 charter](https://www.w3.org/2026/07/webtransport-wg-charter.html) says the group "is also considering incubating mechanisms for peer-to-peer capability", tracked in [w3c/webtransport#590](https://github.com/w3c/webtransport/issues/590). The WebTransport Community Group's [P2P WebTransport draft](https://w3c.github.io/p2p-webtransport/) defines a QUIC API for peer-to-peer connections. A WebTransport-based binding could align Local Peer-to-Peer with that work.
+- **IETF SETTLE.** The [SETTLE](https://datatracker.ietf.org/wg/settle/about/) working group works on TLS access to local resources. See its [problem statement and requirements](https://datatracker.ietf.org/doc/draft-sweet-settle-requirements/) and [Public Key Hash for Local Domains](https://datatracker.ietf.org/doc/draft-wing-settle-public-key-hash/). Local HTTPS aims to meet these requirements, including the referee model.
+- **"Expanding what HTTPS means".** Martin Thomson's [post](https://lowentropy.net/posts/local-https/) explores giving names such as `printer.local` a unique cryptographic identity. Local HTTPS takes a different route to the same goal: name-constrained trust anchors instead of extending the origin with the server's key.
+- **Web Bluetooth.** [Web Bluetooth](https://webbluetoothcg.github.io/web-bluetooth/) gives pages access to the services of nearby Bluetooth Low Energy devices. The Local Peer-to-Peer API instead provides authenticated connections between peers; Bluetooth can still help with discovery or the trust ceremony.
+- **Local Network Access.** [Local Network Access](https://wicg.github.io/local-network-access/) gates requests from public pages to the local network behind a permission. It solves reachability but not device identity. In Local HTTPS, a peer grant satisfies that permission for the granted device only.
+
+#### Archived
+
+- [TCP and UDP Socket API](https://www.w3.org/TR/tcp-udp-sockets/)
+- [Discovery API](https://www.w3.org/TR/discovery-api/)
+- [FlyWeb](https://flyweb.github.io/)
 
 ## References & Acknowledgements
 
