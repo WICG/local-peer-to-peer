@@ -6,7 +6,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version 49e9fdd4f, updated Tue Oct 13 14:27:53 2026 -0700" name="generator">
   <link href="https://WICG.github.io/local-peer-to-peer/" rel="canonical">
-  <meta content="06c188af9cd3c7ebbf0093d7e17d1aab944cf315" name="revision">
+  <meta content="f036941d13829c411c278921e6f78ab86a9bb488" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>/* Boilerplate: style-autolinks */
@@ -725,7 +725,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <h1 class="no-ref p-name" id="title">Local Peer-to-Peer API</h1>
    <p id="w3c-state"><a href="https://www.w3.org/standards/types/#CG-DRAFT">Draft Community Group Report</a>,
-    <time class="dt-updated" datetime="2026-10-25">25 October 2026</time></p>
+    <time class="dt-updated" datetime="2026-10-26">26 October 2026</time></p>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -877,7 +877,7 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
    <p>This specification aims to strike a balance between creating a powerful new building block for developers and providing a seamless, secure and privacy preserving experience for browser users. As an example: while the API doesn’t provide raw socket access, it does aim to give developers the flexibility to innovate on top by providing a persistent, two-way communication channel with little overhead.</p>
    <p>The API is designed to be backed by an authenticated, streams-based transport. It is defined against the abstract operations of <a href="#transport-abstraction">§ 5 Transport abstraction</a>, which a <a data-link-type="dfn" href="#transport-binding" id="ref-for-transport-binding">transport binding</a> maps onto a concrete protocol. As a commitment to an open standards-based implementation path, this specification defines a binding to the <a data-link-type="biblio" href="#biblio-openscreen-network" title="Open Screen Network Protocol">Open Screen Network Protocol</a> in <a href="#osp-binding">§ 12 Binding to the Open Screen Network Protocol</a>. Other bindings are anticipated, for example WebTransport over QUIC with peers authenticated on the local network as explored by the IETF <a href="https://datatracker.ietf.org/wg/settle/about/">SETTLE</a> working group.</p>
    <h2 class="heading settled" data-level="2" id="terminology"><span class="secno">2. </span><span class="content">Terminology</span><a class="self-link" href="#terminology"></a></h2>
-   <p>The term <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="local-communication-medium">local communication medium</dfn> refers to a communication medium that provides a local, direct communication channel between the communicating devices. This is a purposefully broad term that covers any medium that can be used to establish an authenticated, streams-based transport between the devices. Examples may include but are not limited to: a wired or wireless local area network, a Thread network, Bluetooth Low Energy or Wi-Fi Direct. This spec will not mandate which underlying technologies must be supported.</p>
+   <p>The term <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="local-communication-medium">local communication medium</dfn> refers to a communication medium that provides a local, direct communication channel between the communicating devices. It carries IP between the devices, directly or through a local network, for example a wired or wireless local area network or Wi-Fi Direct. Discovery and authentication may also use other channels, such as Bluetooth Low Energy, NFC or a QR code. This spec will not mandate which underlying technologies must be supported.</p>
    <p>The term <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="local-communication">local communication</dfn> refers to data communication over the <a data-link-type="dfn" href="#local-communication-medium" id="ref-for-local-communication-medium①">local communication medium</a>.</p>
    <p>The term <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="communication-medium-topology">communication medium topology</dfn> refers to the composition of the <a data-link-type="dfn" href="#local-communication-medium" id="ref-for-local-communication-medium②">local communication medium</a> which may include sensitive information such as IP or other address information or the number of devices connected to the medium.</p>
    <h2 class="heading settled" data-level="3" id="permission-policy-integration"><span class="secno">3. </span><span class="content">Permission Policy Integration</span><a class="self-link" href="#permission-policy-integration"></a></h2>
