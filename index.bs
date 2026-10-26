@@ -39,7 +39,7 @@ The API is designed to be backed by an authenticated, streams-based transport. I
 Terminology {#terminology}
 ======================================================
 
-The term <dfn>local communication medium</dfn> refers to a communication medium that provides a local, direct communication channel between the communicating devices. This is a purposefully broad term that covers any medium that can be used to establish an authenticated, streams-based transport between the devices. Examples may include but are not limited to: a wired or wireless local area network, a Thread network, Bluetooth Low Energy or Wi-Fi Direct. This spec will not mandate which underlying technologies must be supported.
+The term <dfn>local communication medium</dfn> refers to a communication medium that provides a local, direct communication channel between the communicating devices. It carries IP between the devices, directly or through a local network, for example a wired or wireless local area network or Wi-Fi Direct. Discovery and authentication may also use other channels, such as Bluetooth Low Energy, NFC or a QR code. This spec will not mandate which underlying technologies must be supported.
 
 The term <dfn>local communication</dfn> refers to data communication over the [=local communication medium=].
 

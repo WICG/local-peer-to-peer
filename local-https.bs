@@ -10,23 +10,130 @@ Editor: Anssi Kostiainen, Intel https://intel.com, anssi.kostiainen@intel.com
 Editor: Belem Zhang, Intel https://intel.com, belem.zhang@intel.com
 Editor: Michiel De Backker, Twintag https://twintag.com, mail@backkem.me
 Editor: Wei Wang, Intel https://intel.com, wei4.wang@intel.com
-Abstract: Local HTTPS lets user agents validate HTTPS servers on a local communication medium using the trust anchor established by Local Peer-to-Peer authentication.
+Abstract: Local HTTPS lets user agents validate HTTPS servers under `.local` against name-constrained trust anchors that the user added through a Local Peer-to-Peer trust ceremony, using ordinary certificate path validation.
 Markup Shorthands: markdown yes, dfn yes, idl yes, markup yes
 </pre>
 
-Note: This document was split out of the [Local Peer-to-Peer API](https://wicg.github.io/local-peer-to-peer/) specification. It is an early, unofficial draft.
+Note: This document was split out of the [Local Peer-to-Peer API](https://wicg.github.io/local-peer-to-peer/) specification. It is an early, unofficial draft that sets a direction. Open questions are marked as issues.
 
 Issue(34): Local HTTPS is a work in progress.
 
-Local HTTPS {#local-https}
-==========================
+Introduction {#intro}
+=====================
 
-Authentication establishes a mutual trust anchor between peers on the [local communication medium](https://wicg.github.io/local-peer-to-peer/#local-communication-medium). This trust anchor can also be used to validate certificates used by HTTP servers on the [local communication medium](https://wicg.github.io/local-peer-to-peer/#local-communication-medium). An Open Screen Network Protocol agent certificate can be identified by the common name of its subject ending in "._openscreen._udp". When a user agent loads a webpage and finds an agent certificate in the certificate chain, it can use it as a trust anchor for authentication of the server. If the corresponding agent is not [authenticated](https://wicg.github.io/local-peer-to-peer/#authenticated), the user agent should prompt the user to authenticate the agent before proceeding with certificate validation.
+*This section is non-normative.*
 
-Issue: Browsers match the server name against the certificate's subjectAltName only ([[RFC9525]]), but [[openscreen-network|Open Screen Network Protocol]] agent certificates only carry a common name, so they would fail validation. The subject common name is also the agent hostname, which no longer ends in "._openscreen._udp". Finally, an authenticated agent certificate would be an unscoped trust anchor: nothing limits which names or origins it may vouch for. Define how names are bound and how the trust anchor is scoped.
+Browsers can't reach a NAS, printer or TV on the local network over HTTPS without a public name, a certificate authority and an internet connection. Local HTTPS uses ordinary X.509 certificate path validation [[RFC5280]] instead, with two differences from the Web PKI:
 
-Endpoint discovery {#local-https-discovery}
--------------------------------------------
-If a peer is [authenticated](https://wicg.github.io/local-peer-to-peer/#authenticated), it may advertize one or more HTTPS endpoints it provides. A user agent may display these to the user to connect to servers on the [local communication medium](https://wicg.github.io/local-peer-to-peer/#local-communication-medium) without knowledge of the corresponding hostname and/or IP address.
+1. **Trust anchors are added by the user** through a trust ceremony, such as Local Peer-to-Peer [authentication](https://wicg.github.io/local-peer-to-peer/#authenticate-a-local-peer), instead of a root program. Each anchor is limited to a namespace under `.local`.
+2. **Requests from a page are scoped** to the anchors for devices that the page was granted.
 
-Issue: define endpoint-info messages
+The origin model, CORS, the `Origin` header and [[LOCAL-NETWORK-ACCESS|Local Network Access]] are unchanged.
+
+Local trust anchors {#trust-anchors}
+====================================
+
+A user agent has a <dfn>local trust store</dfn> for each user profile, separate from the Web PKI root store. It holds <dfn>local trust anchors</dfn>. Each is a public key with a <dfn>namespace</dfn>: name constraints kept in the trust store entry, as in [[RFC5914]].
+
+A [=local trust anchor=] MUST only be added through a <dfn>trust ceremony</dfn> that authenticates its key and in which the user accepts its [=namespace=]. Local Peer-to-Peer [authentication](https://wicg.github.io/local-peer-to-peer/#authenticate-a-local-peer) is one such ceremony.
+
+<div class="example">
+- A device that advertises its services under `nas` is an anchor for `nas.local` and `*.nas.local`.
+- A referee, such as a home hub that vouches for other devices, is an anchor for `*.home.local`.
+
+</div>
+
+The namespace comes from the name the device advertises, and is trusted only once the ceremony has authenticated the device. Namespaces in a [=local trust store=] MUST be disjoint: if a new anchor's namespace would clash with an existing one, the user agent doesn't add it. The user can rename the device on the device itself and try again. So at most one anchor can certify a given host.
+
+Issue: Define how the ceremony conveys and confirms the namespace, for devices and for referees.
+
+Issue: Rotating an anchor key needs a proof of continuity, which is out of scope.
+
+Local origins {#local-origins}
+==============================
+
+A <dfn>local host</dfn> is a [=/host=] that is a domain under `local.`, which is resolved by Multicast DNS and never by global DNS [[RFC6762]].
+
+A URL targets a <dfn>local origin</dfn> if its host is a [=local host=] within the [=namespace=] of one of the request's [=applicable anchors=]. If its scheme is `http`, the user agent upgrades it to `https`, as for a known HSTS host. For any other URL, behaviour is unchanged.
+
+Issue: Should other special-use local domains, such as `home.arpa` [[RFC8375]], be included?
+
+Validation {#validation}
+------------------------
+
+The user agent finds the address of a [=local origin=] through discovery, which is untrusted, as DNS is. It sends the host in SNI and validates the certificate path [[RFC5280]] with:
+
+- the anchor whose [=namespace=] contains the host as the trust anchor;
+- that [=namespace=] and, for a request from a page, its [=peer grant=] as initial name constraints;
+- the host as the reference identifier, matched against the subjectAltName [[RFC9525]].
+
+Certificate errors for a [=local origin=] MUST NOT be overridable. Leaves and intermediates can be short-lived and rotate freely.
+
+Issue: Should the user agent also authenticate as a client? The requesting origin would still only be asserted.
+
+Upgrade signal {#upgrade-signal}
+--------------------------------
+
+A device might signal that it supports Local HTTPS, and which anchor it chains to, so that the user agent can try the upgrade or offer the matching trust ceremony. Such a signal would only be a hint and MUST NOT add an anchor or affect validation.
+
+Issue: Define whether and how a device signals support. Candidates are tied to HTTP or TLS, for example a response header on `http:` in the spirit of HSTS and Alt-Svc, or the certificate chain presented when an `https:` connection is attempted. The IETF [SETTLE](https://datatracker.ietf.org/wg/settle/about/) working group may define one.
+
+Scopes {#scopes}
+================
+
+The <dfn>applicable anchors</dfn> for a request are:
+
+- for a navigation the user initiated, such as from the address bar or a bookmark, every anchor in the [=local trust store=];
+- for a request from an [=/origin=], only the anchors that origin holds a <dfn>peer grant</dfn> for, through [acquire a local peer grant](https://wicg.github.io/local-peer-to-peer/#acquire-a-local-peer-grant).
+
+A [=peer grant=] covers part of a [=namespace=], by default one device and its services, such as `nas.local` and `*.nas.local`. It acts as an extra name constraint, so a page granted one device can't reach another device under the same referee.
+
+The user agent MUST NOT resolve, connect to or probe a [=local host=] for a page outside its [=applicable anchors=].
+
+Issue: Which scope applies to navigations that a page starts?
+
+Issue: Is a peer grant keyed by origin or by top-level site?
+
+Origins, Fetch and Local Network Access {#origins}
+==================================================
+
+A [=local origin=] has the usual tuple, for example (`https`, `nas.local`, 443), and is a secure context. Because namespaces are disjoint, the tuple is unambiguous within a profile. A different `nas` device fails validation, and an unpaired `http://nas.local` is a different origin.
+
+When a [=local trust anchor=] is removed, the user agent MUST clear site data for all hosts in its [=namespace=].
+
+Requests to [=local origins=] are ordinary requests [[FETCH]]: servers apply CORS based on the `Origin` header, and WebTransport servers check `Origin` [[WEBTRANSPORT]]. A [=peer grant=] satisfies the [[LOCAL-NETWORK-ACCESS|Local Network Access]] permission for the hosts it covers only. CSP is not extended: `connect-src https://*.local` works.
+
+Note: Unlike ["Expanding what HTTPS means"](https://lowentropy.net/posts/local-https/), this doesn't add the server's key to the origin tuple; disjoint namespaces already make names unambiguous.
+
+User interface {#ui}
+====================
+
+For a top-level [=local origin=], the user agent SHOULD show a "paired device" indicator with the host, and the referee if any (for example "via Home"), outside the content area.
+
+The user agent MUST NOT show a name supplied by the device unless it obtained the name after the [=trust ceremony=] authenticated the device.
+
+Examples {#examples}
+====================
+
+*This section is non-normative.*
+
+<div class="example" id="example-services">
+A device with several services: a daemon on the NAS holds the anchor key and acts as a local intermediate, issuing leaves to `print.nas.local` and `media.nas.local`. A page granted the NAS can use both.
+</div>
+
+<div class="example" id="example-referee">
+A referee, as in REQ-ARCH-02 of the [SETTLE requirements](https://datatracker.ietf.org/doc/draft-sweet-settle-requirements/): the user pairs once with a home hub for `*.home.local`. The hub issues a device intermediate for `*.nas.home.local`, which issues service leaves. New devices work without pairing each one.
+</div>
+
+<div class="example" id="example-matter">
+A Matter fabric: a browser that joins a fabric as an ordinary node, as any Matter node does, trusts that fabric's root. That root could act as an anchor for a namespace for the fabric, such as `*.matter.local`.
+</div>
+
+Security and privacy considerations {#security-and-privacy-considerations}
+==========================================================================
+
+- **Only the key is verified.** A valid path proves that the server holds a certificate chaining to an anchor the user accepted for that namespace, and nothing more.
+- **URLs are per user.** `https://nas.local` may mean a different device, or nothing, for another user.
+- **No probing.** Pages can't reach or detect devices outside their [=applicable anchors=].
+- **Key theft.** A stolen anchor key compromises its namespace until the user removes the anchor. A compromised referee controls every name under it, hence explicit consent and a visible indicator. A referee never widens a page's grants.
+- **Linkability.** A paired device can recognize the same browser across sites. That is inherent to pairing.
