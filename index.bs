@@ -87,18 +87,29 @@ A <dfn>peer</dfn> is an equal participant in the [=local communication=]. These 
 
 A user agent has an associated <dfn>local peer-to-peer manager</dfn> in charge of managing [=peers=]. Its responsibility is to [=start local peer discovery=], [=establish local peer connections=] and [=acquire a local peer grant=] on a per-origin basis. This is done to avoid exposing information about the [=communication medium topology=].
 
-Known peers {#known-peers}
+Local state {#known-peers}
 --------------------------
 
-The user agent should maintain a list of peers that it has knowledge of.
+The [=local peer-to-peer manager=] has:
 
-The [=local peer-to-peer manager=] has an associated <dfn>known peers map</dfn>, an [=/ordered map=] of [=known peers=]. Each <dfn>known peer</dfn> is a [=peer=] that has an associated <dfn>authentication state</dfn> and <dfn>peer grant state</dfn>. The user agent keeps track of the [=authentication state=] per peer and the [=peer grant state=] per peer, per origin. Unless [=persisted=], both the states are initially false.
+: <dfn>local trust store</dfn>
+:: A [=/set=] of [=trust anchors=], see [[#peer-authentication]].
+: <dfn>known peers map</dfn>
+:: An [=/ordered map=] from [=peer/peer identity=] to <dfn>known peer</dfn>: a [=peer=] the user agent has discovered or had a session with. Whether a known peer is [=/authenticated=] is not stored; it follows from the [=local trust store=].
+: <dfn>peer grants</dfn>
+:: An [=/ordered map=] from [=/origin=] to the [=/set=] of [=peer/peer identities=] that the origin may use.
 
-Note: The [=peer grant state=] is origin-level while the [=authentication state=] is peer-level. The rationale is to not require the user to undergo authentication multiple times between the same peers. This design may change informed by security and privacy considerations.
+These are kept consistent:
 
-Issue(WICG/local-peer-to-peer#24): Validate whether peer-level [=authentication state=] is appropriate.
+* Removing a [=trust anchor=] removes the [=peer grants=] of peers that are no longer [=/authenticated=].
+* Removing a [=known peer=] removes it from all [=peer grants=].
+* Clearing an origin's site data or permissions removes its [=peer grants=].
 
-The user agent may persist known peers, their [=authentication states=] and/or [=peer grant states=]. If the user agent chooses to do so, it must do so in accordance with the persistent state rules of the [=transport binding=] in use. Such a peer or its state is said to be <dfn>persisted</dfn>.
+Note: [=Peer grants=] are origin-level while the [=local trust store=] is shared by all origins, so that the user doesn't need to authenticate the same peer again for every origin. Origins are kept apart by the [=peer grants=] and by the [=protocol/requesting origin=] of each session. [=Peer grants=] could be stored as the origin's permission data in the [=permission store=], as Web Bluetooth does for its allowed devices.
+
+Issue(WICG/local-peer-to-peer#24): Validate that a [=local trust store=] shared by all origins is appropriate, or whether [=trust anchors=] should be partitioned, for example per top-level site.
+
+The user agent may persist its [=local trust store=], [=known peers=] and/or [=peer grants=]. If the user agent chooses to do so, it must do so in accordance with the persistent state rules of the [=transport binding=] in use. Such state is said to be <dfn>persisted</dfn>. Results of [=discover peers=], such as addresses, are not part of this state. The user agent should let the user view and remove [=trust anchors=], [=known peers=] and [=peer grants=].
 
 Peer advertisement {#peer-advertisement}
 ----------------------------------------
@@ -108,6 +119,8 @@ The user agent can make itself discoverable by advertising, using [=start advert
 Note: The user agent must get the user's explicit consent in order to start advertising.
 
 When advertising, the user agent must listen for incoming peer connections. In case an [=incoming session=] is received, the peer is added to the [=known peers map=]. The user agent must not directly provide access to the incoming peer connection to any origin. Instead, the user agent must prompt to [grant peer](#peer-grant) access to the origin that initiated peer advertisement.
+
+The user agent must deliver an [=incoming session=] only to a started {{LP2PReceiver}} that <dfn lt="allows an origin">allows</dfn> the session's [=protocol/requesting origin=], and close the session if there is none. An {{LP2PReceiver}} [=allows an origin=] if that origin is [=same origin=] with the receiver's [=relevant settings object=]'s [=environment settings object/origin=], or with the [=url/origin=] of an entry of its {{LP2PReceiverOptions/allowedOrigins}}.
 
 Peer discovery {#peer-discovery}
 --------------------------------
@@ -119,11 +132,32 @@ If a peer is discovered, the user agent should add it to the [=known peers map=]
 Peer authentication {#peer-authentication}
 ------------------------------------------
 
-When asked to <dfn>authenticate a local peer</dfn>, the user agent must [=establish local peer connection|establish a session=] with the peer, unless one exists, and run [=authenticate a session=] on it. The peer's [=authentication state=] must be set to true if authentication succeeds, otherwise false.
+A <dfn>trust anchor</dfn> is a key that the user agent trusts to authenticate [=peers=]. It has:
 
-A peer is said to be <dfn>authenticated</dfn> when its [=authentication state=] is true.
+: <dfn for="trust anchor">key</dfn>
+:: The key that peers' credentials chain to. What the credentials are, and how they chain to a key, is defined by the [=transport binding=].
+: <dfn for="trust anchor">scope</dfn>
+:: Either <dfn for="trust anchor/scope">one peer</dfn>, a single peer that the anchor vouches for, or <dfn for="trust anchor/scope">vouching</dfn>, any peer the anchor vouches for, within limits defined by the [=transport binding=].
 
-Note: The trust anchor established by authentication may also be used to validate HTTPS servers on the [=local communication medium=], see the separate [Local HTTPS](https://wicg.github.io/local-peer-to-peer/local-https.html) draft.
+Adding a [=trust anchor/scope/vouching=] [=trust anchor=] removes the [=trust anchor/scope/one peer=] [=trust anchors=] with the same [=trust anchor/key=], which it covers.
+
+A [=trust anchor=] is added to the [=local trust store=] only by a <dfn>trust ceremony</dfn>: a run of [=authenticate a session=] in which the user takes part, for example by entering a PIN or scanning a QR code. A [=trust ceremony=] with a peer adds a [=trust anchor=] scoped to [=trust anchor/scope/one peer=]: that peer. A [=trust anchor/scope/vouching=] [=trust anchor=] is only added by a [=trust ceremony=] with the vouching party itself.
+
+A [=peer=] is said to be <dfn>authenticated</dfn> when its credentials chain to the [=trust anchor/key=] of a [=trust anchor=] in the [=local trust store=], and the peer is within that anchor's [=trust anchor/scope=].
+
+A peer's credentials may change over time without changing its [=peer/peer identity=], as long as they chain to the same [=trust anchor/key=]. Whether a [=trust anchor/key=] can be replaced with continuity is defined by the [=transport binding=]; if so, the new key replaces the old one in every [=trust anchor=] that has it. Otherwise, a new key needs a new [=trust ceremony=].
+
+Issue: Define how a peer can move to another [=trust anchor=]'s [=trust anchor/key=] while keeping its [=peer/peer identity=] and [=peer grants=], for example by proving that it holds both keys.
+
+When asked to <dfn>authenticate a local peer</dfn>, the user agent must [=establish local peer connection|establish a session=] with the peer, unless one exists, and run [=authenticate a session=] on it. The peer is [=/authenticated=] if this succeeds.
+
+<div class="example" id="example-trust-anchors">
+    * A device paired directly that uses its own key, which makes it <dfn>self-anchored</dfn>: its key, scoped to [=trust anchor/scope/one peer=], that device.
+    * A device paired directly whose credentials are issued by a hub: the hub's key, scoped to [=trust anchor/scope/one peer=], that device. The device's credentials can rotate freely, and other devices of the hub are not trusted.
+    * A hub the user chose to trust for its devices, through a [=trust ceremony=] with the hub: the hub's key, scoped to [=trust anchor/scope/vouching=]. It replaces the [=trust anchor/scope/one peer=] anchors for that hub's devices, which keep the same [=peer/peer identity=]. Removing it removes trust in all of the hub's devices.
+</div>
+
+Note: [=Trust anchors=] may also be used to validate HTTPS servers on the [=local communication medium=], each constrained to a namespace of local names; see the separate [Local HTTPS](https://wicg.github.io/local-peer-to-peer/local-https.html) draft.
 
 Peer grant {#peer-grant}
 ------------------------------------
@@ -132,7 +166,7 @@ The user agent, with the user's consent, must [=acquire a local peer grant=] for
 
 Note: The user agent must get the user's explicit consent in order to grant an origin access to a peer. For enhanced privacy protection, the user agent must provide means to dismiss any related user interface and this action must not be detectable by script or have script-observable side-effects. The user interface may provide means to revoke the grant or to make the grant [=persisted=].
 
-When asked to <dfn>acquire a local peer grant</dfn>, the user agent displays the [=known peers=] to the user through its native user interface. When the user selects a peer from the user interface, the user agent must check the selected peer is [=/authenticated=], and run the [=authenticate a local peer=] algorithm otherwise, and set the [=peer grant state=] according to the user's explicit selection.
+When asked to <dfn>acquire a local peer grant</dfn>, the user agent displays the [=known peers=] to the user through its native user interface. When the user selects a peer from the user interface, the user agent must check the selected peer is [=/authenticated=], and run the [=authenticate a local peer=] algorithm otherwise, and, if the user grants access, add the selected peer's [=peer/peer identity=] to the origin's [=peer grants=].
 
 Transport abstraction {#transport-abstraction}
 ==============================================
@@ -147,17 +181,29 @@ Peers and sessions {#transport-concepts}
 A [=peer=] has the following, provided by its [=transport binding=]. None of them is exposed to an origin.
 
 : <dfn for="peer">peer identity</dfn>
-:: An opaque value that identifies the peer, stable across sessions, scoped to the [=transport binding=]. It is derived from the credentials that authenticate a [=Local Peer-to-Peer session=], and is only trusted once verified by [=authenticate a session=]. [=Known peers=] and their [=peer grant states=] are keyed on it.
+:: An opaque value that identifies the peer, stable across sessions, scoped to the [=transport binding=]. It is derived from the [=trust anchor/key=] that the peer's credentials chain to and the peer's subject under it; for a [=self-anchored=] peer, the subject is its own key. It is only trusted once the peer is [=/authenticated=]. The [=known peers map=] and [=peer grants=] are keyed on it.
 : <dfn for="peer">display name</dfn>
-:: A name for the peer device, for display in user agent user interface, or null. It is asserted by the peer's user agent, not by script.
+:: A name for the peer device, for display in user agent user interface, or null. It is asserted by the peer's user agent, not by script. Trusted only if obtained after the peer is [=/authenticated=], or by other means the user agent considers trustworthy; otherwise, such as during [=discover peers=], it is a display hint.
 : <dfn for="peer">nickname</dfn>
 :: The nickname given by the remote page when it started advertising, or null. It is chosen by script and never verified.
 
-A <dfn for="protocol">Local Peer-to-Peer session</dfn> is a confidential connection with one [=peer=]. It is <dfn for="protocol">authenticated</dfn> if the [=peer/peer identity=] of the peer has been verified for it, either by [=authenticate a session=] or because the binding matched it to a [=known peer=] that is [=/authenticated=].
+A <dfn for="protocol">Local Peer-to-Peer session</dfn> is a confidential connection with one [=peer=]. It is <dfn for="protocol">authenticated</dfn> if the credentials the peer presented in it chain to a [=trust anchor=] in the [=local trust store=], which verifies the [=peer/peer identity=] of the peer for it.
 
 A [=Local Peer-to-Peer session=] that is exposed to an origin is not shared with other origins. A binding may carry several sessions with the same peer over one underlying connection, or use a separate connection for each.
 
-Note: Authentication is device-level, while sessions exposed to pages are origin-level. A future binding could give each such session its own credential derived from the device's authenticated key, for example a per-origin child certificate, so that each side can tell the sessions of different origins apart.
+For each [=Local Peer-to-Peer session=], the side that established it with [=establish local peer connection=] is the <dfn for="protocol">client</dfn>, and the side that reported it as an [=incoming session=] is the <dfn for="protocol">server</dfn>. Once established, the session is symmetric: either side can use any operation on it, except that:
+
+* the [=protocol/server=] validates the [=protocol/requesting origin=];
+* where the binding needs it to avoid collisions, identifiers such as [=data channel/id=]s and streams follow the role;
+* only the [=protocol/client=] opens any additional underlying connection for the session.
+
+A [=Local Peer-to-Peer session=] that is exposed to an origin has a <dfn for="protocol">requesting origin</dfn>: the [=/origin=] on whose behalf the [=protocol/client=] established it. The [=protocol/client=] conveys it inside the [=protocol/authenticated=] session, bound to that session (for example by a per-origin credential or the exporter context; defined by the [=transport binding=]). The [=protocol/server=] checks it as described in [[#peer-advertisement]].
+
+The [=protocol/requesting origin=] is asserted by the peer's user agent. The binding guarantees that it is consistent for the session, not that it is authentic: it does not prove that the remote page was served by that origin. User agents must not grant anything that belongs to the [=protocol/requesting origin=], such as its permissions, storage or credentials, on the strength of it. This is the same model as the `Origin` header in [[FETCH]].
+
+Device keys, credentials and anything else that would let an origin authenticate as the user agent must not be exposed to origins. User agents should instead expose per-session keying material exporters, like those of [WebTransport over HTTP/3](https://datatracker.ietf.org/doc/draft-ietf-webtrans-http3/), so that applications can prove their origins with credentials their own origin issued.
+
+Issue: Define the keying material exporter API, for example an `exportKeyingMaterial()` method as considered for WebTransport, and whether its context includes the [=protocol/requesting origin=].
 
 A <dfn>data channel</dfn> is a reliable, ordered, message-preserving, bidirectional channel on a [=Local Peer-to-Peer session=]. Either side can open one. It has an <dfn for="data channel">id</dfn>, an integer between 0 and 65,534 that is unique within the session, a <dfn for="data channel">label</dfn> and a <dfn for="data channel">protocol</dfn>. A message on a [=data channel=] is a sequence of bytes, marked as either text or binary.
 
@@ -173,7 +219,7 @@ A [=transport binding=] provides the following operations. Any of them can fail,
 : To <dfn>establish local peer connection</dfn> with a [=peer=]
 :: Establish a [=Local Peer-to-Peer session=] with the peer. On the peer, the session is reported as an [=incoming session=].
 : To <dfn>authenticate a session</dfn>
-:: Mutually authenticate the two sides of a [=Local Peer-to-Peer session=] and verify the [=peer/peer identity=] of the peer, so that the session is [=protocol/authenticated=]. This may require user interaction on one or both devices, such as entering a PIN or scanning a QR code, or rely on trust established earlier, possibly on another device or through another party. Either side can initiate it.
+:: Mutually authenticate the two sides of a [=Local Peer-to-Peer session=] and verify the [=peer/peer identity=] of the peer, so that the session is [=protocol/authenticated=]. If the peer's credentials do not chain to a [=trust anchor=] in the [=local trust store=], this is a [=trust ceremony=], which requires user interaction on one or both devices and adds a [=trust anchor=] scoped to that peer. Either side can initiate it.
 : To <dfn>open a data channel</dfn> on an [=protocol/authenticated=] [=Local Peer-to-Peer session=] given a label, a protocol and an optional id
 :: Open a [=data channel=] with that [=data channel/label=] and [=data channel/protocol=], and with the given [=data channel/id=] or, if none is given, one chosen by the binding. The other side is notified of an <dfn>incoming data channel</dfn>, which its user agent accepts or refuses. The operation succeeds if it is accepted.
 : To <dfn>send data on a channel</dfn> given a [=data channel=] and a message
@@ -211,8 +257,14 @@ LP2PReceiverOptions {#lp2p-receiver-options}
 <pre class="idl">
 dictionary LP2PReceiverOptions {
     DOMString nickname;
+    sequence&lt;USVString&gt; allowedOrigins = [];
 };
 </pre>
+
+: <dfn dict-member for="LP2PReceiverOptions">allowedOrigins</dfn>
+:: A list of URLs whose [=url/origins=], in addition to the receiver's own origin, the receiver [=allows an origin|allows=] as the [=protocol/requesting origin=] of an [=incoming session=]. By default, only same-origin sessions are delivered.
+
+Issue: Decide the granularity of {{LP2PReceiverOptions/allowedOrigins}}, the [=protocol/requesting origin=] and [=peer grants=]: per origin or per site, and whether to allow wildcards or any origin.
 
 LP2PConnectionEvent {#lp2p-receiver-connection-event}
 ----------------------------------------------------
@@ -744,6 +796,8 @@ This document extends the Web platform with the ability to set up real-time, dir
 
 This means that data and media can be shared between applications running in different browsers, or between an application running in the browser and another user agent that is not a browser such as a headless service provided by a smart TV or smart fridge. This extends the usual barriers in the Web's security model that prevents sending data between entities with different origins.
 
+To limit this, a session is only delivered to an {{LP2PReceiver}} of the same origin as its [=protocol/requesting origin=], unless the receiver opts in to other origins with {{LP2PReceiverOptions/allowedOrigins}}. The [=protocol/requesting origin=] is asserted by the peer's user agent, so a peer can claim any origin; but a lying peer can only be one the user already [=/authenticated=] and trusts with what they send it.
+
 Device Access {#security-device-access}
 ---------------------------------------
 
@@ -784,11 +838,23 @@ The concepts and operations of [[#transport-abstraction]] map onto OSP as follow
    <td>The [agent fingerprint](https://www.w3.org/TR/openscreen-network/#computing-agent-fingerprint)
   </tr>
   <tr>
+   <td>[=trust anchor=]
+   <td>The key of the peer's agent certificate, scoped to [=trust anchor/scope/one peer=]: the peer is [=self-anchored=]. An agent certificate with a new fingerprint needs a new [=trust ceremony=].
+  </tr>
+  <tr>
    <td>[=peer/display name=]
    <td>The display name from the [agent-info-response](https://www.w3.org/TR/openscreen-application/#agent-info-response) message, obtained by [=discover metadata=]
   </tr>
   <tr>
    <td>[=peer/nickname=]
+   <td>Not yet carried.
+  </tr>
+  <tr>
+   <td>[=protocol/client=], [=protocol/server=]
+   <td>The [[!RFC9000|QUIC]] client and the [[!RFC9000|QUIC]] server of the connection
+  </tr>
+  <tr>
+   <td>[=protocol/requesting origin=]
    <td>Not yet carried.
   </tr>
   <tr>
@@ -812,7 +878,7 @@ The concepts and operations of [[#transport-abstraction]] map onto OSP as follow
  </tbody>
 </table>
 
-Issue: Define how the [=peer/nickname=] is carried, and how a [=data channel=] is closed.
+Issue: Define how the [=peer/nickname=] and the [=protocol/requesting origin=] are carried, how a [=data channel=] is closed, and how the [=protocol/server=] asks the [=protocol/client=] to open a WebTransport session.
 
 Part of these operations are defined below as [protocol extensions](https://www.w3.org/TR/openscreen-application/#protocol-extensions) to the [[!openscreen-network|Open Screen Network Protocol]].
 
@@ -824,7 +890,7 @@ In order to signal support for this protocol extension, the agent should include
 To [=open a data channel=], an agent may send a [=data-channel-open-request=] message on a new [[!RFC9000|QUIC]] stream. The [=Local Peer-to-Peer session=] must be authenticated. The message must contain the following values:
 
 : channel-id
-:: An ID number between 0 and 65,534 which uniquely identifies the data channel. The value 65,535 is reserved, as for {{RTCDataChannel}}; {{LP2PDataChannel/id}} is an `unsigned short` for parity with {{RTCDataChannel/id}}, but cannot take that value.
+:: An ID number between 0 and 65,534 which uniquely identifies the data channel. When the binding chooses the id, the [=protocol/client=] uses an even number and the [=protocol/server=] an odd number. The value 65,535 is reserved, as for {{RTCDataChannel}}; {{LP2PDataChannel/id}} is an `unsigned short` for parity with {{RTCDataChannel/id}}, but cannot take that value.
 
 : label
 :: a string that contains a name describing the data channel. These labels are not required to be unique.
@@ -857,7 +923,7 @@ The protocol extension to [=send data on a channel=] provides an ergonomic way t
 
 In order to signal support for this protocol extension, the agent should include the [=quic-transport=] [agent-capability](https://www.w3.org/TR/openscreen-application/#appendix-a) as part of the [agent-info-response](https://www.w3.org/TR/openscreen-application/#agent-info-response) message exchanged during [=discover metadata=].
 
-An agent can [=open a WebTransport session=] by dialing a new [[!RFC9000|QUIC]] connection using the agent certificates established during [=authenticate a session=]. During connection establishment, the ALPN token "q2q" must be used in the TLS handshake.
+To [=open a WebTransport session=], the [=protocol/client=] of the [=Local Peer-to-Peer session=] dials a new [[!RFC9000|QUIC]] connection using the agent certificates established during [=authenticate a session=]. During connection establishment, the ALPN token "q2q" must be used in the TLS handshake.
 
 The capabilities of the Local WebTransport session are defined in [[!webtransport]].
 
