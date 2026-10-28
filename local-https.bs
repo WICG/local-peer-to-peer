@@ -27,6 +27,7 @@ urlPrefix: https://wicg.github.io/local-peer-to-peer/; type: dfn; spec: LP2P
     text: peer grants; url: #peer-grants
     text: acquire a local peer grant; url: #acquire-a-local-peer-grant
     text: known peer; url: #known-peer
+    text: unconfirmed; url: #unconfirmed
     text: anchor key; for: known peer; url: #known-peer-anchor-key
     text: peer identity; for: peer; url: #peer-peer-identity
 </pre>
@@ -83,6 +84,7 @@ The user agent finds the address of a [=local origin=] through discovery, which 
 
 - the anchor with the most specific [=namespace=] that contains the host as the trust anchor;
 - that [=namespace=] and, for a request from a page, its [=grant constraint=] as initial name constraints;
+- for a [=trust anchor/scope/one peer=] anchor, the peer it is for: a path that certifies another peer under the same key fails;
 - the host as the reference identifier, matched against the subjectAltName [[RFC9525]].
 
 Certificate errors for a [=local origin=] MUST NOT be overridable. Leaves and intermediates can be short-lived and rotate freely.
@@ -101,10 +103,10 @@ Scopes {#scopes}
 
 The <dfn>applicable anchors</dfn> for a request are:
 
-- for a navigation the user initiated, such as from the address bar or a bookmark, every anchor in the [=local trust store=];
-- for a request from an [=/origin=], only the anchors that the peers in its [=peer grants=], granted through [=acquire a local peer grant=], chain to: the anchors with their recorded [=known peer/anchor key=].
+- for a navigation the user initiated, such as from the address bar or a bookmark, every [=trust anchor/scope/one peer=] anchor in the [=local trust store=], and every [=trust anchor/scope/vouching=] anchor for the hosts of [=known peers=] that chain to it. For another host in the [=namespace=] of a [=trust anchor/scope/vouching=] anchor, whose device is [=unconfirmed=], the user agent first asks the user to confirm the device, naming the referee, and adds it as a [=known peer=] if they do;
+- for a request from an [=/origin=], only the anchors that the peers it was granted through [=acquire a local peer grant=] chain to: the anchors with their recorded [=known peer/anchor key=]. A [=peer grants|peer grant=] made by accepting an incoming session, which has a requesting origin, does not count.
 
-The <dfn>grant constraint</dfn> of a request from an [=/origin=] is derived from the [=peer/peer identities=] in its [=peer grants=]: for each granted peer, the name it advertises and the names under it, such as `nas.local` and `*.nas.local`. It acts as an extra name constraint, so a page granted one device can't reach another device under the same referee.
+The <dfn>grant constraint</dfn> of a request from an [=/origin=] is derived from the same peers: for each, the name it advertises and the names under it, such as `nas.local` and `*.nas.local`. It acts as an extra name constraint, so a page granted one device can't reach another device under the same referee.
 
 The user agent MUST NOT resolve, connect to or probe a [=local host=] for a page outside its [=applicable anchors=].
 
@@ -140,7 +142,7 @@ A device with several services: a daemon on the NAS holds the anchor key and act
 </div>
 
 <div class="example" id="example-referee">
-A referee, as in REQ-ARCH-02 of the [SETTLE requirements](https://datatracker.ietf.org/doc/draft-sweet-settle-requirements/): the user pairs once with a home hub for `*.home.local`. The hub issues a device intermediate for `*.nas.home.local`, which issues service leaves. New devices work without pairing each one.
+A referee, as in REQ-ARCH-02 of the [SETTLE requirements](https://datatracker.ietf.org/doc/draft-sweet-settle-requirements/): the user pairs once with a home hub for `*.home.local`. The hub issues a device intermediate for `*.nas.home.local`, which issues service leaves. New devices work without pairing each one; the user confirms each on first use.
 </div>
 
 <div class="example" id="example-matter">
@@ -153,5 +155,5 @@ Security and privacy considerations {#security-and-privacy-considerations}
 - **Only the key is verified.** A valid path proves that the server holds a certificate chaining to an anchor the user accepted for that namespace, and nothing more.
 - **URLs are per user.** `https://nas.local` may mean a different device, or nothing, for another user.
 - **No probing.** Pages can't reach or detect devices outside their [=applicable anchors=].
-- **Key theft.** A stolen anchor key compromises its namespace until the user removes the anchor. A compromised referee controls every name under it, hence explicit consent and a visible indicator. A referee never widens a page's grants.
+- **Key theft.** A stolen anchor key compromises its namespace until the user removes the anchor. A compromised referee controls every name under it, hence explicit consent, confirmation of each device on first use, and a visible indicator. A referee never widens a page's grants.
 - **Linkability.** A paired device can recognize the same browser across sites. That is inherent to pairing.

@@ -40,7 +40,7 @@ The API is designed to be backed by an authenticated, streams-based transport. I
 Terminology {#terminology}
 ======================================================
 
-The term <dfn>local communication medium</dfn> refers to a communication medium that provides a local, direct communication channel between the communicating devices. It carries IP between the devices, directly or through a local network, for example a wired or wireless local area network or Wi-Fi Direct. Discovery and authentication may also use other channels, such as Bluetooth Low Energy, NFC or a QR code. This spec will not mandate which underlying technologies must be supported.
+The term <dfn>local communication medium</dfn> refers to a communication medium that provides a local, direct communication channel between the communicating devices. It carries IP between the devices, directly or through a local network, for example a wired or wireless local area network or Wi-Fi Direct. Discovery and authentication may also use other channels, such as Bluetooth Low Energy, NFC or a QR code. This spec will not mandate which underlying technologies must be supported. Being on it is not a security property; see [[#security-locality]].
 
 The term <dfn>local communication</dfn> refers to data communication over the [=local communication medium=].
 
@@ -62,6 +62,10 @@ Workers (dedicated and shared) adhere to the permission policy set by their owni
 </ul>
 
 Note: There has been discussion on allowing setting permission policy directly on a worker on creation, in which case that would have to be consulted as well.
+
+The user interface that a [=global object=] |global| needs, such as the picker or a prompt, is shown for its <dfn>user interface document</dfn>, and the user's consent there is consent for |global|'s [=relevant settings object=]'s [=environment settings object/origin=]. For a {{Window}}, it is its [=associated Document=]. For a dedicated worker, it is that of its owner, up the owner chain. For a shared worker, it is one of its owning documents that is [=fully active=] and whose [=Document/visibility state=] is "`visible`", chosen by the user agent. If there is none, or it is not [=fully active=], the user agent treats the user interface as dismissed: {{LP2PRequest/start()}} and {{LP2PReceiver/start()}} reject with a "{{NotAllowedError}}" {{DOMException}}, and an [=incoming session=] that needs a prompt is [=refused=].
+
+Issue: Decide whether to expose this API in service workers, which have no document to show user interface or to own consent.
  
 The [=policy-controlled feature/default allowlist=] of `"self"` allows usage in same-origin nested frames but prevents third-party content from using the feature. Third-party content usage can be selectively enabled by adding `allow="local-peer-to-peer"` attribute to the frame container element:
 
@@ -96,9 +100,9 @@ The [=local peer-to-peer manager=] has:
 : <dfn>local trust store</dfn>
 :: A [=/set=] of [=trust anchors=], see [[#peer-authentication]].
 : <dfn>known peers map</dfn>
-:: An [=/ordered map=] from [=peer/peer identity=] to <dfn>known peer</dfn>: a [=peer=] the user agent has had an [=protocol/authenticated=] session with.
+:: An [=/ordered map=] from [=peer/peer identity=] to <dfn>known peer</dfn>: a [=peer=] the user agent has had an [=protocol/authenticated=] session with, which the user selected or accepted.
 : <dfn>peer grants</dfn>
-:: An [=/ordered map=] from [=/origin=] to the [=/set=] of [=peer/peer identities=] that the origin may use.
+:: A [=/set=] of [=tuples=] of an [=/origin=], a [=peer/peer identity=] that the origin may use, and a <dfn for="peer grants">requesting origin</dfn>. The [=peer grants/requesting origin=] is null for a peer the user selected in [=acquire a local peer grant=]. For a peer whose [=incoming session=] the user accepted, it is the session's [=protocol/requesting origin=], so the grant covers only sessions requested on behalf of that origin. An origin <dfn>has a peer grant</dfn> for a [=peer/peer identity=] if the [=peer grants=] contain a [=tuple=] with both.
 
 A [=known peer=] records the <dfn for="known peer">anchor key</dfn> and <dfn for="known peer">subject</dfn> it last chained to on an [=protocol/authenticated=] session, or null. Whether it is [=/authenticated=] is not stored: without a live session, it is evaluated on these, against the [=local trust store=]. So removing a [=trust anchor=] can tell which peers are no longer [=/authenticated=].
 
@@ -121,9 +125,7 @@ To <dfn>add a trust anchor</dfn> given a [=trust anchor/key=] |key|, a [=trust a
 To <dfn>remove a trust anchor</dfn> |anchor|:
 
 1. [=set/Remove=] |anchor| from the [=local trust store=].
-1. [=map/For each=] |identity| → |peer| of the [=known peers map=], if |peer| is no longer [=/authenticated=]:
-    1. [=map/For each=] |origin| → |identities| of the [=peer grants=], if |identities| [=set/contains=] |identity|, [=revoke a peer grant=] given |origin| and |identity|.
-    1. [=Close the sessions with a peer=] given |identity|.
+1. [=map/For each=] |identity| → |peer| of a [=map/clone=] of the [=known peers map=], if |peer| is no longer [=/authenticated=], [=forget a known peer=] given |identity|. This revokes its [=peer grants=] and closes its sessions.
 
 </div>
 
@@ -136,7 +138,7 @@ To <dfn>replace a trust anchor key</dfn> |old| with |new|:
 </div>
 
 <div algorithm>
-To <dfn>add a known peer</dfn> |peer|, which is on an [=protocol/authenticated=] session:
+To <dfn>add a known peer</dfn> |peer|, which is on an [=protocol/authenticated=] session and, if it is [=unconfirmed=], was just confirmed by the user:
 
 1. Set the [=known peers map=][|peer|'s [=peer/peer identity=]] to |peer|, recording as its [=known peer/anchor key=] and [=known peer/subject=] the ones it chains to on that session.
 
@@ -145,34 +147,34 @@ To <dfn>add a known peer</dfn> |peer|, which is on an [=protocol/authenticated=]
 <div algorithm>
 To <dfn>forget a known peer</dfn> given a [=peer/peer identity=] |identity|:
 
-1. [=map/For each=] |origin| → |identities| of the [=peer grants=], if |identities| [=set/contains=] |identity|, [=revoke a peer grant=] given |origin| and |identity|.
+1. [=set/For each=] |origin| that [=has a peer grant=] for |identity|, [=revoke a peer grant=] given |origin| and |identity|.
 1. [=Close the sessions with a peer=] given |identity|.
 1. [=map/Remove=] the [=known peers map=][|identity|].
 
 </div>
 
 <div algorithm>
-To <dfn>grant a peer</dfn> given an [=/origin=] |origin| and a [=peer/peer identity=] |identity|:
+To <dfn>grant a peer</dfn> given an [=/origin=] |origin|, a [=peer/peer identity=] |identity| and a [=peer grants/requesting origin=] |requester|, an [=/origin=] or null:
 
-1. If the [=peer grants=][|origin|] does not [=map/exist=], set it to an empty [=/set=].
-1. [=set/Append=] |identity| to the [=peer grants=][|origin|].
+1. [=set/Append=] (|origin|, |identity|, |requester|) to the [=peer grants=].
 
 </div>
 
 <div algorithm>
 To <dfn>revoke a peer grant</dfn> given an [=/origin=] |origin| and a [=peer/peer identity=] |identity|:
 
-1. [=set/Remove=] |identity| from the [=peer grants=][|origin|], and [=map/remove=] the [=peer grants=][|origin|] if it is then empty.
+1. [=set/Remove=] from the [=peer grants=] each [=tuple=] with |origin| and |identity|.
 1. [=Close the sessions with a peer=] given |identity| and |origin|.
 
 </div>
 
-When an origin's site data or permissions are cleared, the user agent runs [=revoke a peer grant=] given that origin and each [=peer/peer identity=] in its [=peer grants=].
+When an origin's site data or permissions are cleared, the user agent runs [=revoke a peer grant=] given that origin and each [=peer/peer identity=] it [=has a peer grant=] for.
 
 <div algorithm>
 To <dfn>close the sessions with a peer</dfn> given a [=peer/peer identity=] |identity| and an optional [=/origin=] |origin|:
 
 1. For each {{LP2PConnection}} |connection| whose {{LP2PConnection/[[Session]]}} is with the peer with |identity|, and, if |origin| is given, whose [=relevant settings object=]'s [=environment settings object/origin=] is |origin|: [=close a session|close=] |connection|.{{LP2PConnection/[[Session]]}}, and [=queue a global task=] on the [=networking task source=] given |connection|'s [=relevant global object=] to run [=LP2PConnection/finalize=] given |connection|, which fires {{LP2PConnection/close}}.
+1. If |origin| is not given, [=close a session|close=] each [=Local Peer-to-Peer session=] with the peer with |identity| that is not yet exposed to script: an [=incoming session=], or one being established by [=start an LP2PRequest=]. The steps waiting on it then abort without granting, adding or delivering anything.
 
 </div>
 
@@ -182,7 +184,16 @@ Issue: Decide whether to back [=peer grants=] with the [=permission store=], as 
 
 Issue(WICG/local-peer-to-peer#24): Validate that a [=local trust store=] shared by all origins is appropriate, or whether [=trust anchors=] should be partitioned, for example per top-level site.
 
-The user agent may persist its [=local trust store=], [=known peers=] and/or [=peer grants=]. If the user agent chooses to do so, it must do so in accordance with the persistent state rules of the [=transport binding=] in use. Such state is said to be <dfn>persisted</dfn>. Results of [=discover peers=], such as addresses, are not part of this state. The user agent should let the user view [=trust anchors=], [=known peers=] and [=peer grants=], and remove them with [=remove a trust anchor=], [=forget a known peer=] and [=revoke a peer grant=].
+The user agent may persist its [=local trust store=], [=known peers=] and/or [=peer grants=]. If the user agent chooses to do so, it must do so in accordance with the persistent state rules of the [=transport binding=] in use. Such state is said to be <dfn>persisted</dfn>. Results of [=discover peers=], such as addresses, are not part of this state.
+
+When the user clears all browsing data, the user agent clears its [=local trust store=], [=known peers map=] and [=peer grants=], and replaces its own credentials. Each user profile and each private browsing session has its own.
+
+Trust lifecycle {#trust-lifecycle}
+----------------------------------
+
+Trust relationships are visible, reviewable and removable: the user agent must let the user view the [=trust anchors=], [=known peers=] and [=peer grants=], and remove them, with [=remove a trust anchor=], [=forget a known peer=] and [=revoke a peer grant=]. Removal revokes: it closes the sessions that relied on what was removed, including sessions still being set up. Removing a peer in the user interface runs [=forget a known peer=] and also [=remove a trust anchor|removes=] the [=trust anchor/scope/one peer=] [=trust anchor=] for it, so that it is no longer [=/authenticated=]. User agents should bound trust over time, for example by letting [=trust anchors=] or [=peer grants=] expire, or by asking the user to review those not used for a long period.
+
+Note: No online authority can revoke a peer. Removal by the user, and trust bounded in time, take its place. A [=vouching party=] also bounds the validity of the credentials it vouches for, see [[#vouching]].
 
 Peer advertisement {#peer-advertisement}
 ----------------------------------------
@@ -191,16 +202,16 @@ The user agent can make itself discoverable by advertising, using [=start advert
 
 Note: The user agent must get the user's explicit consent in order to start advertising.
 
-When advertising, the user agent must listen for [=incoming sessions=]. Once an [=incoming session=] is [=protocol/authenticated=], the user agent runs [=add a known peer=] with the peer. The user agent must not directly provide access to an [=incoming session=] to any origin. Instead, unless the peer is already in the [=peer grants=] of the origin that initiated peer advertisement, the user agent must prompt to [grant peer](#peer-grant) access to that origin. Accepting the [=incoming session=] runs [=grant a peer=] for that origin, so later sessions from the peer do not prompt again. See [[#lp2p-receiver-incoming-session]].
+When advertising, the user agent must listen for [=incoming sessions=]. The user agent must not directly provide access to an [=incoming session=] to any origin. Instead, unless the origin that initiated peer advertisement already has a [=peer grants|peer grant=] for the peer and the session's [=protocol/requesting origin=], the user agent must prompt to [grant peer](#peer-grant) access to that origin. Accepting the [=incoming session=] runs [=grant a peer=] for both, so later sessions from the peer on behalf of the same [=protocol/requesting origin=] do not prompt again; only then does the user agent run [=add a known peer=] with the peer. See [[#lp2p-receiver-incoming-session]].
 
-The user agent must deliver an [=incoming session=] only to a started {{LP2PReceiver}} that <dfn lt="allows an origin">allows</dfn> the session's [=protocol/requesting origin=], and [=refuse=] the session if there is none. An {{LP2PReceiver}} [=allows an origin=] |origin| if |origin| is not an [=opaque origin=], and is [=same origin=] with the receiver's [=relevant settings object=]'s [=environment settings object/origin=] or with an [=list/item=] of its {{LP2PReceiver/[[AllowedOrigins]]}}.
+The user agent must deliver an [=incoming session=] only to the {{LP2PReceiver}} whose [=advertisement=] it was reported for, if that receiver is started and <dfn lt="allows an origin">allows</dfn> the session's [=protocol/requesting origin=], and [=refuse=] the session otherwise. It never delivers the session to another receiver instead. A refusal is indistinguishable, to the [=protocol/client=], from the user declining. An {{LP2PReceiver}} [=allows an origin=] |origin| if |origin| is not an [=opaque origin=], and is [=same origin=] with the receiver's [=relevant settings object=]'s [=environment settings object/origin=] or with an [=list/item=] of its {{LP2PReceiver/[[AllowedOrigins]]}}.
 
 Peer discovery {#peer-discovery}
 --------------------------------
 
 When asked to <dfn>start local peer discovery</dfn>, the user agent runs [=discover peers=].
 
-Discovered peers are only shown in the picker, see [=acquire a local peer grant=]; they are not [=known peers=], whose entries are added or updated only from [=protocol/authenticated=] sessions, by [=add a known peer=]. The user agent must never expose the full result of peer discovery with an origin. Instead, the user agent must [=acquire a local peer grant=] to grant access to a peer for the origin that initiated the peer request.
+Discovered peers and their [=advertisements=] are only shown in the picker, see [=acquire a local peer grant=]; they are not [=known peers=], whose entries are added or updated only from [=protocol/authenticated=] sessions, by [=add a known peer=]. The user agent must never expose the full result of peer discovery with an origin. Instead, the user agent must [=acquire a local peer grant=] to grant access to a peer for the origin that initiated the peer request.
 
 Peer authentication {#peer-authentication}
 ------------------------------------------
@@ -210,23 +221,21 @@ A <dfn>trust anchor</dfn> is a key that the user agent trusts to authenticate [=
 : <dfn for="trust anchor">key</dfn>
 :: The key that peers' credentials chain to. What the credentials are, and how they chain to a key, is defined by the [=transport binding=].
 : <dfn for="trust anchor">scope</dfn>
-:: Either <dfn for="trust anchor/scope">one peer</dfn>, a single peer that the anchor vouches for, or <dfn for="trust anchor/scope">vouching</dfn>, any peer the anchor vouches for, within limits defined by the [=transport binding=].
+:: Either <dfn for="trust anchor/scope">one peer</dfn>, a single peer that the anchor vouches for, or <dfn for="trust anchor/scope">vouching</dfn>, any peer the anchor vouches for, within the limits of [[#vouching]].
 
-Adding a [=trust anchor/scope/vouching=] [=trust anchor=] removes the [=trust anchor/scope/one peer=] [=trust anchors=] with the same [=trust anchor/key=], which it covers; see [=add a trust anchor=].
+A [=trust anchor=] is added to the [=local trust store=] only by a <dfn>trust ceremony</dfn>: a run of [=authenticate a session=] in which the user takes part, for example by entering a PIN or scanning a QR code. A [=trust ceremony=] with a peer runs [=add a trust anchor=] scoped to [=trust anchor/scope/one peer=]: that peer, unless the user chooses to trust a [=vouching party=] for its devices, see [[#vouching]]. If [=add a trust anchor=] returns failure, the ceremony fails.
 
-A [=trust anchor=] is added to the [=local trust store=] only by a <dfn>trust ceremony</dfn>: a run of [=authenticate a session=] in which the user takes part, for example by entering a PIN or scanning a QR code. A [=trust ceremony=] with a peer runs [=add a trust anchor=] scoped to [=trust anchor/scope/one peer=]: that peer. If the peer is a party that vouches for others, as the [=transport binding=] defines, and the user chooses to trust it for its devices, the ceremony instead runs [=add a trust anchor=] with the peer's key scoped to [=trust anchor/scope/vouching=]. So a [=trust anchor/scope/vouching=] [=trust anchor=] is only added by a [=trust ceremony=] with the vouching party itself. If [=add a trust anchor=] returns failure, the ceremony fails.
+A peer that uses its own key is <dfn>self-anchored</dfn>: its [=trust anchor=] is its key, scoped to [=trust anchor/scope/one peer=], that peer.
+
+On the [=protocol/server=], a [=trust anchor=] that a [=trust ceremony=] added is kept only if the user accepts the session; otherwise it is removed, see [[#lp2p-receiver-incoming-session]]. On the [=protocol/client=], it is kept even if the [=protocol/server=] then [=refuses=] the session: the user chose to pair with the device, and a refusal concerns the [=protocol/requesting origin=], not trust.
 
 A [=peer=] is said to be <dfn>authenticated</dfn> when its credentials chain to the [=trust anchor/key=] of a [=trust anchor=] in the [=local trust store=], and the peer is within that anchor's [=trust anchor/scope=].
+
+A peer whose claimed [=peer/peer identity=] is that of a [=known peer=], but whose credentials do not chain to that peer's [=known peer/anchor key=], is not that [=known peer=]. The user agent must not mark it as known, and must warn the user that it may not be the device they know before running a [=trust ceremony=] with it.
 
 A peer's credentials may change over time without changing its [=peer/peer identity=], as long as they chain to the same [=trust anchor/key=]. Whether a [=trust anchor/key=] can be replaced with continuity is defined by the [=transport binding=]; if so, the user agent runs [=replace a trust anchor key=]. Otherwise, a new key needs a new [=trust ceremony=].
 
 Issue: Define how a peer can move to another [=trust anchor=]'s [=trust anchor/key=] while keeping its [=peer/peer identity=] and [=peer grants=], for example by proving that it holds both keys.
-
-<div class="example" id="example-trust-anchors">
-    * A device paired directly that uses its own key, which makes it <dfn>self-anchored</dfn>: its key, scoped to [=trust anchor/scope/one peer=], that device.
-    * A device paired directly whose credentials are issued by a hub: the hub's key, scoped to [=trust anchor/scope/one peer=], that device. The device's credentials can rotate freely, and other devices of the hub are not trusted.
-    * A hub the user chose to trust for its devices, through a [=trust ceremony=] with the hub: the hub's key, scoped to [=trust anchor/scope/vouching=]. It replaces the [=trust anchor/scope/one peer=] anchors for that hub's devices, which keep the same [=peer/peer identity=]. Removing it removes trust in all of the hub's devices.
-</div>
 
 Note: [=Trust anchors=] may also be used to validate HTTPS servers on the [=local communication medium=], each constrained to a namespace of local names; see the separate [Local HTTPS](https://wicg.github.io/local-peer-to-peer/local-https.html) draft.
 
@@ -237,7 +246,33 @@ The user agent, with the user's consent, must [=acquire a local peer grant=] for
 
 Note: The user agent must get the user's explicit consent in order to grant an origin access to a peer. For enhanced privacy protection, the user agent must provide means to dismiss any related user interface and this action must not be detectable by script or have script-observable side-effects. The user interface may provide means to revoke the grant or to make the grant [=persisted=].
 
-When asked to <dfn>acquire a local peer grant</dfn> for an origin, the user agent displays the peers that [=discover peers=] reports to the user through its native user interface, marking those that are [=known peers=], and returns the peer the user selects, or null if the user dismisses the user interface. The user agent may leave out peers whose [=peer/capabilities=] lack the features the page needs. Selecting a peer is the user's consent. Once a session with the selected peer is [=protocol/authenticated=] and [=accepted=], the user agent runs [=grant a peer=] for the origin. See {{LP2PRequest/start()}}.
+When asked to <dfn>acquire a local peer grant</dfn> for an origin, the user agent displays the [=advertisements=] that [=discover peers=] reports to the user through its native user interface, each with its [=advertisement/nickname=] and its peer, and returns the [=advertisement=] the user selects, or null if the user dismisses the user interface. It marks a peer as known if it claims the [=peer/peer identity=] of a [=known peer=], and a peer that claims to be vouched for as new, with the name of the [=vouching party=]; these claims are only verified once a session with the peer is [=protocol/authenticated=]. The user agent may leave out peers whose [=peer/capabilities=] lack the features the page needs. Selecting an [=advertisement=] is the user's consent. Once a session with its peer is [=protocol/authenticated=] as the peer the user selected and [=accepted=], the user agent runs [=grant a peer=] for the origin. See {{LP2PRequest/start()}}.
+
+Vouching and delegated trust {#vouching}
+========================================
+
+A <dfn>vouching party</dfn>, such as a home hub, issues credentials to other peers, so that the user does not need a [=trust ceremony=] with each of them. Whether a peer is a [=vouching party=] is defined by the [=transport binding=].
+
+The user trusts a [=vouching party=] for its devices only in a [=trust ceremony=] with the [=vouching party=] itself, as a separate choice from pairing with it as one device. The ceremony then runs [=add a trust anchor=] with the party's key scoped to [=trust anchor/scope/vouching=], which removes the [=trust anchor/scope/one peer=] [=trust anchors=] with that key; their peers keep their [=peer/peer identities=]. Its user interface says which devices the choice covers, including those already paired, and that removing it removes trust in all of them.
+
+A peer whose credentials chain to a [=trust anchor/scope/vouching=] [=trust anchor=] is [=/authenticated=]: its [=peer/peer identity=] and the [=peer/display name=] that the [=vouching party=] attests are trusted. Until the user confirms it, it is <dfn>unconfirmed</dfn>: the user agent must not run [=add a known peer=] with it, and Local HTTPS does not trust its hosts for navigations the user initiates. The user confirms a peer by selecting it in [=acquire a local peer grant=], or by accepting its [=incoming session=] in [[#lp2p-receiver-incoming-session]]; for an [=unconfirmed=] peer, both name the [=vouching party=]. This is a single choice, such as "Connect to printer.home.local? Vouched for by Home.", not a [=trust ceremony=].
+
+Note: Confirmation is not verification: a [=vouching party=] can attest a misleading name. Confirmation makes each of its devices visible to the user once, so a compromised [=vouching party=] cannot silently add trusted devices; it still authenticates whatever it vouches for until the user removes it.
+
+A [=transport binding=] that supports [=vouching parties=] must ensure that:
+
+* a [=vouching party=] is recognized from its credentials, not from a claim, such as one made in discovery;
+* each credential it vouches for names a subject, stable and unique under the [=vouching party=], and a [=peer/display name=] it attests;
+* limits on what it may vouch for can be expressed and are enforced, at least a namespace of names;
+* the credentials it vouches for have a bounded validity, so that a compromise ages out without a revocation service;
+* the user agent can tell, during [=authenticate a session=], a peer vouched for from one anchored directly.
+
+<div class="example" id="example-trust-anchors">
+    * A device paired directly whose credentials are issued by a hub: the hub's key, scoped to [=trust anchor/scope/one peer=], that device. The device's credentials can rotate freely, and other devices of the hub are not trusted.
+    * A hub the user chose to trust for its devices, through a [=trust ceremony=] with the hub: the hub's key, scoped to [=trust anchor/scope/vouching=]. It replaces the [=trust anchor/scope/one peer=] anchors for that hub's devices. A new device of the hub needs no ceremony, only the user's confirmation on first use. Removing the anchor removes trust in all of the hub's devices.
+</div>
+
+Note: A [=vouching party=] corresponds to the referee of REQ-ARCH-02 in the IETF SETTLE [requirements](https://datatracker.ietf.org/doc/draft-sweet-settle-requirements/): a name-constrained certificate authority for local names. The requirements above are input to that work.
 
 Transport abstraction {#transport-abstraction}
 ==============================================
@@ -255,8 +290,6 @@ A [=peer=] has the following, provided by its [=transport binding=]. None of the
 :: An opaque value that identifies the peer, stable across sessions, scoped to the [=transport binding=]. It is derived from the [=trust anchor/key=] that the peer's credentials chain to and the peer's subject under it; for a [=self-anchored=] peer, the subject is its own key. It is only trusted once the peer is [=/authenticated=]. The [=known peers map=] and [=peer grants=] are keyed on it.
 : <dfn for="peer">display name</dfn>
 :: A name for the peer device, for display in user agent user interface, or null. It is asserted by the peer's user agent, not by script. Trusted only if obtained on a session that is or becomes [=protocol/authenticated=], or by other means the user agent considers trustworthy; otherwise, such as during [=discover peers=], it is a display hint.
-: <dfn for="peer">nickname</dfn>
-:: The nickname given by the remote page when it started advertising, or null. It is chosen by script and never verified.
 : <dfn for="peer">capabilities</dfn>
 :: The [=/set=] of features the peer supports: <dfn for="peer/capabilities">data channels</dfn> and <dfn for="peer/capabilities">WebTransport</dfn>. Like the [=peer/display name=], it is asserted by the peer's user agent and is only a hint until the peer is [=/authenticated=].
 
@@ -278,7 +311,7 @@ The [=protocol/requesting origin=] reveals which sites the user is using, and th
 
 Issue: Follow up on REQ-NAME-05, "Privacy-Preserving Discovery", of the IETF SETTLE [requirements](https://datatracker.ietf.org/doc/draft-sweet-settle-requirements/), for a mechanism that lets a [=protocol/server=] decide earlier without exposing either side's origins.
 
-The [=protocol/requesting origin=] is asserted by the peer's user agent. The binding guarantees that it is consistent for the session, not that it is authentic: it does not prove that the remote page was served by that origin. User agents must not grant anything that belongs to the [=protocol/requesting origin=], such as its permissions, storage or credentials, on the strength of it. This is the same model as the `Origin` header in [[FETCH]].
+The [=protocol/requesting origin=] is asserted by the peer's user agent. The binding guarantees that it is consistent for the session, not that it is authentic: it does not prove that the remote page was served by that origin. User agents must not grant anything that belongs to the [=protocol/requesting origin=], such as its permissions, storage or credentials, on the strength of it, and neither must any other implementation of a peer, such as device logic; see [[#security-locality]]. This is the same model as the `Origin` header in [[FETCH]].
 
 Device keys, credentials and anything else that would let an origin authenticate as the user agent must not be exposed to origins. Instead, each [=WebTransport session=] has its own keying material exporter, see [=export keying material=], so that applications can prove their origins with credentials their own origin issued.
 
@@ -290,11 +323,11 @@ Operations {#transport-operations}
 A [=transport binding=] provides the following operations. Any of them can fail, including because the peer does not support it.
 
 : To <dfn>start advertising</dfn> given a nickname
-:: Make the user agent discoverable through [=discover peers=] on other user agents, with the given [=peer/nickname=] if the binding can carry it, and accept sessions from peers. This returns an <dfn>advertisement</dfn>. Each [=Local Peer-to-Peer session=] a peer establishes with it is reported as an <dfn>incoming session</dfn> for that [=advertisement=]. To <dfn>stop advertising</dfn> given an [=advertisement=] ends both.
+:: Make the user agent discoverable through [=discover peers=] on other user agents and accept sessions from peers. This returns a new <dfn>advertisement</dfn>, which has the given <dfn for="advertisement">nickname</dfn>, chosen by script and never verified, if the binding can carry it, and an <dfn for="advertisement">advertisement ID</dfn>: a random value, new for each [=advertisement=], that names it to peers. Each [=Local Peer-to-Peer session=] a peer establishes with it is reported as an <dfn>incoming session</dfn> for that [=advertisement=]. To <dfn>stop advertising</dfn> given an [=advertisement=] ends both.
 : To <dfn>discover peers</dfn>
-:: Report the [=peers=] advertising on the [=local communication medium=], each with its [=peer/display name=] and [=peer/capabilities=] as far as the binding knows them, as they appear and disappear, until asked to <dfn>stop discovering peers</dfn>. A discovered [=peer/peer identity=] is not verified.
-: To <dfn>establish a session</dfn> with a [=peer=] given an [=/origin=]
-:: Establish a [=Local Peer-to-Peer session=] with the peer, with that origin as its [=protocol/requesting origin=]. On the peer, the session is reported as an [=incoming session=], which the peer's user agent later <dfn lt="accept|accepted">accepts</dfn> or <dfn lt="refuse|refused">refuses</dfn>. The [=protocol/client=] is notified of either. Refusing closes the session.
+:: Report the [=advertisements=] on the [=local communication medium=], each with its [=advertisement/nickname=] and its [=peer=], with the peer's [=peer/display name=] and [=peer/capabilities=] as far as the binding knows them, as they appear and disappear, until asked to <dfn>stop discovering peers</dfn>. A discovered [=peer/peer identity=] is not verified.
+: To <dfn>establish a session</dfn> with an [=advertisement=] given an [=/origin=]
+:: Establish a [=Local Peer-to-Peer session=] with the advertisement's peer, with that origin as its [=protocol/requesting origin=]. On the peer, the session is reported as an [=incoming session=] for that [=advertisement=], which the peer's user agent later <dfn lt="accept|accepted">accepts</dfn> or <dfn lt="refuse|refused">refuses</dfn>. The [=protocol/client=] is notified of either. Refusing closes the session. The binding names the [=advertisement=] inside the session, covered by authentication, so that the session cannot be reported for another [=advertisement=] of the same peer.
 : To <dfn>authenticate a session</dfn>
 :: Mutually authenticate the two sides of a [=Local Peer-to-Peer session=] and verify the [=peer/peer identity=] of the peer, so that the session is [=protocol/authenticated=]. If the peer's credentials do not chain to a [=trust anchor=] in the [=local trust store=], this is a [=trust ceremony=], which requires user interaction on one or both devices and runs [=add a trust anchor=] as described in [[#peer-authentication]]. Only the [=protocol/client=] initiates it; the [=protocol/server=] only responds.
 : To <dfn>open a data channel</dfn> on an [=protocol/authenticated=] [=Local Peer-to-Peer session=] given a label, a protocol and an optional id
@@ -326,7 +359,7 @@ LP2PReceiver Interface {#lp2p-receiver}
 The <dfn interface>LP2PReceiver</dfn> interface allows advertising on the [=local communication medium=], enabling other peers to discover and connect.
 
 <pre class="idl">
-[Exposed=(Window,Worker), SecureContext]
+[Exposed=(Window,DedicatedWorker,SharedWorker), SecureContext]
 interface LP2PReceiver : EventTarget {
   constructor(optional LP2PReceiverOptions options = {});
   attribute EventHandler onconnection;
@@ -382,6 +415,7 @@ To <dfn>start an LP2PReceiver</dfn> |receiver|:
 1. If |receiver|.{{LP2PReceiver/[[StartPromise]]}} is not null, return it.
 1. Let |global| be |receiver|'s [=relevant global object=].
 1. If |global| is not permitted to use the "local-peer-to-peer" [=policy-controlled feature=], as described in [[#permission-policy-integration]], or |receiver|'s [=relevant settings object=]'s [=environment settings object/origin=] is an [=opaque origin=], return [=a promise rejected with=] a "{{NotAllowedError}}" {{DOMException}}.
+1. Let |window| be the [=relevant global object=] of the [=user interface document=] of |global|, or null if there is none. If |window| is null or does not have [=transient activation=], return [=a promise rejected with=] a "{{NotAllowedError}}" {{DOMException}}. Otherwise, [=consume user activation=] of |window|.
 1. Let |promise| be [=a new promise=].
 1. Set |receiver|.{{LP2PReceiver/[[StartPromise]]}} to |promise|.
 1. Run these steps [=in parallel=]:
@@ -397,6 +431,8 @@ To <dfn>start an LP2PReceiver</dfn> |receiver|:
 
 </div>
 
+An [=incoming session=] reported for an [=advertisement=] that [=start an LP2PReceiver=] started, before it set the receiver's {{LP2PReceiver/[[Advertisement]]}}, is held until then, and [=refused=] if the receiver is stopped first.
+
 Note: Whether the user declined to advertise or dismissed the user interface, the user agent takes the same steps, so that script cannot tell the two apart. See [[#peer-grant]].
 
 <div algorithm="LP2PReceiver stop">
@@ -410,6 +446,7 @@ To <dfn>stop an LP2PReceiver</dfn> |receiver|:
 1. If |receiver|.{{LP2PReceiver/[[State]]}} is "`stopped`", return.
 1. Set |receiver|.{{LP2PReceiver/[[State]]}} to "`stopped`".
 1. If |receiver|.{{LP2PReceiver/[[StartPromise]]}} is not null and is pending, [=reject=] it with an "{{AbortError}}" {{DOMException}}.
+1. If the user is being asked for permission to advertise on behalf of |receiver|, take down that user interface.
 1. If |receiver|.{{LP2PReceiver/[[Advertisement]]}} is not null, [=stop advertising=] given it and set |receiver|.{{LP2PReceiver/[[Advertisement]]}} to null.
 
 </div>
@@ -422,14 +459,21 @@ Incoming sessions {#lp2p-receiver-incoming-session}
 <div algorithm="LP2PReceiver incoming session">
 When an [=incoming session=] |session| is reported, the user agent must run these steps [=in parallel=]:
 
-1. If |session| is not [=protocol/authenticated=], wait for the [=protocol/client=] to run [=authenticate a session=] on it, and respond. This may be a [=trust ceremony=]. If it fails, [=close a session|close=] |session| and abort these steps.
-1. Let |receiver| be the {{LP2PReceiver}} whose {{LP2PReceiver/[[Advertisement]]}} is the [=advertisement=] |session| was reported for, that is, the one the [=protocol/client=] picked, if its {{LP2PReceiver/[[State]]}} is "`advertising`" and it [=allows an origin|allows=] the [=protocol/requesting origin=]. Otherwise, let |receiver| be another {{LP2PReceiver}} for which this holds, chosen by the user agent, for example by asking the user. If there is none, [=refuse=] |session| and abort these steps.
+1. Let |added| be null.
+1. If |session| is not [=protocol/authenticated=], wait for the [=protocol/client=] to run [=authenticate a session=] on it, and respond. This may be a [=trust ceremony=]; if it adds a [=trust anchor=], set |added| to it. If authentication fails, [=close a session|close=] |session| and abort these steps.
+1. Let |decline| be these steps: if |added| is not null, [=remove a trust anchor|remove=] |added|; then [=refuse=] |session|.
+1. Let |receiver| be the {{LP2PReceiver}} whose {{LP2PReceiver/[[Advertisement]]}} is the [=advertisement=] |session| was reported for, that is, the one the [=protocol/client=] picked. If there is none, its {{LP2PReceiver/[[State]]}} is not "`advertising`", or it does not [=allows an origin|allow=] the [=protocol/requesting origin=], run |decline| and abort these steps.
 1. Let |origin| be |receiver|'s [=relevant settings object=]'s [=environment settings object/origin=].
+1. Let |identity| be the peer's [=peer/peer identity=].
+1. If the [=peer grants=] do not [=set/contain=] (|origin|, |identity|, the [=protocol/requesting origin=]):
+    1. Ask the user to grant the peer access to |origin| for sessions requested on behalf of the [=protocol/requesting origin=]. The prompt shows the peer's [=peer/display name=], |origin|, and the [=protocol/requesting origin=] as asserted by the peer; for an [=unconfirmed=] peer, it also names the [=vouching party=], and accepting confirms the peer.
+    1. If the user declines or dismisses the prompt, or |session| was closed meanwhile, run |decline| and abort these steps.
+    1. [=Grant a peer=] given |origin|, |identity| and the [=protocol/requesting origin=].
+1. If |session| was closed, abort these steps.
 1. [=Add a known peer=] with the peer.
-1. If the peer's [=peer/peer identity=] is not in the [=peer grants=] of |origin|, ask the user to grant the peer access to |origin|. If the user declines or dismisses the prompt, [=refuse=] |session| and abort these steps. Otherwise, [=grant a peer=] given |origin| and the [=peer/peer identity=].
 1. [=Accept=] |session|.
 1. [=Queue a global task=] on the [=networking task source=] given |receiver|'s [=relevant global object=] to run these steps:
-    1. If |receiver|.{{LP2PReceiver/[[State]]}} is not "`advertising`", [=close a session|close=] |session| and abort these steps.
+    1. If |receiver|.{{LP2PReceiver/[[State]]}} is not "`advertising`" or |session| was closed, [=close a session|close=] |session| and abort these steps.
     1. Let |connection| be the result of [=creating an LP2PConnection=] given |session| and |receiver|'s [=relevant global object=].
     1. If |receiver|.{{LP2PReceiver/[[ConnectionSteps]]}} is not null, run them given |connection| and abort these steps.
     1. [=Fire an event=] named {{LP2PReceiver/connection}} at |receiver| using {{LP2PConnectionEvent}} with its {{LP2PConnectionEvent/connection}} attribute initialized to |connection|.
@@ -457,7 +501,7 @@ LP2PConnectionEvent {#lp2p-receiver-connection-event}
 Issue: In general, when defining a new interface that inherits from Event please always ask feedback from the WHATWG or the W3C WebApps WG community. See [defining event interfaces](https://dom.spec.whatwg.org/#defining-event-interfaces).
 
 <pre class="idl">
-[Exposed=(Window,Worker), SecureContext]
+[Exposed=(Window,DedicatedWorker,SharedWorker), SecureContext]
 interface LP2PConnectionEvent : Event {
     constructor(DOMString type, LP2PConnectionEventInit connectionEventInitDict);
     readonly attribute LP2PConnection connection;
@@ -544,14 +588,14 @@ The LP2PRequest Interface {#lp2p-request}
 The <dfn interface>LP2PRequest</dfn> interface represents a request for a connection to another local peer.
 
 <pre class="idl">
-[Exposed=(Window,Worker), SecureContext]
+[Exposed=(Window,DedicatedWorker,SharedWorker), SecureContext]
 interface LP2PRequest {
     constructor(optional LP2PRequestOptions options = {});
     Promise&lt;LP2PConnection&gt; start(optional LP2PRequestStartOptions options = {});
 };
 </pre>
 
-An {{LP2PRequest}} has a <dfn attribute for="LP2PRequest">\[[StartPromise]]</dfn>, a {{Promise}} or null, initially null, and a <dfn attribute for="LP2PRequest">\[[Nickname]]</dfn>, a string.
+An {{LP2PRequest}} has a <dfn attribute for="LP2PRequest">\[[StartPromise]]</dfn>, a {{Promise}} or null, initially null; an <dfn attribute for="LP2PRequest">\[[Abort]]</dfn>, steps that take a reason, or null, initially null; and a <dfn attribute for="LP2PRequest">\[[Nickname]]</dfn>, a string.
 
 <div algorithm="LP2PRequest constructor">
 The <dfn constructor for="LP2PRequest">LP2PRequest(|options|)</dfn> constructor steps are:
@@ -573,25 +617,30 @@ To <dfn>start an LP2PRequest</dfn> |request| given an {{AbortSignal}} or null |s
 1. Let |global| be |request|'s [=relevant global object=].
 1. Let |origin| be |request|'s [=relevant settings object=]'s [=environment settings object/origin=].
 1. If |global| is not permitted to use the "local-peer-to-peer" [=policy-controlled feature=], as described in [[#permission-policy-integration]], or |origin| is an [=opaque origin=], return [=a promise rejected with=] a "{{NotAllowedError}}" {{DOMException}}.
+1. Let |window| be the [=relevant global object=] of the [=user interface document=] of |global|, or null if there is none. If |window| is null or does not have [=transient activation=], return [=a promise rejected with=] a "{{NotAllowedError}}" {{DOMException}}. Otherwise, [=consume user activation=] of |window|.
 1. Let |promise| be [=a new promise=].
 1. Set |request|.{{LP2PRequest/[[StartPromise]]}} to |promise|.
 1. Let |aborted| be false.
 1. Let |fail| be these steps: [=queue a global task=] on the [=networking task source=] given |global| to run these steps: if |aborted| is false, set |request|.{{LP2PRequest/[[StartPromise]]}} to null and [=reject=] |promise| with a "{{NotAllowedError}}" {{DOMException}}.
-1. If |signal| is not null, [=AbortSignal/add=] the following abort steps to |signal|:
+1. Set |request|.{{LP2PRequest/[[Abort]]}} to these steps given a |reason|:
     1. If |promise| is settled, abort these steps.
     1. Set |aborted| to true.
     1. Set |request|.{{LP2PRequest/[[StartPromise]]}} to null.
-    1. [=Reject=] |promise| with |signal|'s [=AbortSignal/abort reason=].
+    1. [=Reject=] |promise| with |reason|.
+1. If |signal| is not null, [=AbortSignal/add=] the following abort steps to |signal|: run |request|.{{LP2PRequest/[[Abort]]}} given |signal|'s [=AbortSignal/abort reason=].
 1. Run these steps [=in parallel=]. Whenever |aborted| becomes true, take down any user interface they show, [=stop discovering peers=], [=close a session|close=] |session| if it was established, and abort these steps:
     1. [=Start local peer discovery=].
-    1. Let |peer| be the result of [=acquire a local peer grant=] for |origin|, presenting |request|.{{LP2PRequest/[[Nickname]]}} to the user.
+    1. Let |advertisement| be the result of [=acquire a local peer grant=] for |origin|, presenting |request|.{{LP2PRequest/[[Nickname]]}} to the user.
     1. [=Stop discovering peers=].
-    1. If |peer| is null, run |fail| and abort these steps.
-    1. Let |session| be the result of [=establish a session=] with |peer| given |origin|. If this fails, run |fail| and abort these steps.
-    1. Wait until |session| is [=protocol/authenticated=] and the [=protocol/server=] has [=accepted=] it. Meanwhile, run [=authenticate a session=] on |session| when the [=transport binding=] calls for it. This may be a [=trust ceremony=]. If authentication fails, the [=protocol/server=] [=refuses=] |session|, or |session| is closed, [=close a session|close=] |session|, run |fail| and abort these steps.
-    1. [=Add a known peer=] with |peer|, and [=grant a peer=] given |origin| and |peer|'s [=peer/peer identity=].
+    1. If |advertisement| is null, run |fail| and abort these steps.
+    1. Let |peer| be the [=peer=] of |advertisement|.
+    1. Let |session| be the result of [=establish a session=] with |advertisement| given |origin|. If this fails, run |fail| and abort these steps.
+    1. Wait until |session| is [=protocol/authenticated=] and the [=protocol/server=] has [=accepted=] it. Meanwhile, run [=authenticate a session=] on |session| when the [=transport binding=] calls for it. This may be a [=trust ceremony=]. If authentication fails, |session| is [=protocol/authenticated=] with a [=peer/peer identity=] other than the one |peer| claimed, the [=protocol/server=] [=refuses=] |session|, or |session| is closed, [=close a session|close=] |session|, run |fail| and abort these steps.
+    1. If |session| was closed, run |fail| and abort these steps.
+    1. [=Add a known peer=] with |peer|, and [=grant a peer=] given |origin|, |peer|'s [=peer/peer identity=] and null.
     1. [=Queue a global task=] on the [=networking task source=] given |global| to run these steps:
         1. If |aborted| is true, [=close a session|close=] |session| and abort these steps.
+        1. If |session| was closed, set |request|.{{LP2PRequest/[[StartPromise]]}} to null, [=reject=] |promise| with a "{{NotAllowedError}}" {{DOMException}}, and abort these steps.
         1. Let |connection| be the result of [=creating an LP2PConnection=] given |session| and |global|.
         1. [=Resolve=] |promise| with |connection|.
 1. Return |promise|.
@@ -650,7 +699,7 @@ The LP2PConnection Interface {#lp2p-connection}
 The <dfn interface>LP2PConnection</dfn> interface represents a connection with another local peer.
 
 <pre class="idl">
-[Exposed=(Window,Worker), SecureContext]
+[Exposed=(Window,DedicatedWorker,SharedWorker), SecureContext]
 interface LP2PConnection : EventTarget {
   undefined close();
   attribute EventHandler onclose;
@@ -735,7 +784,7 @@ The LP2PDataChannel interface represents a bi-directional data channel between t
 Note: The LP2PDataChannel interface is purposefully kept as close as possible to the [RTCDataChannel](https://www.w3.org/TR/webrtc/#rtcdatachannel) interface defined in [[!webrtc]]. The aim is to allow seamless transition of developers that are familiar with WebRTC as well as allowing libraries to easily work with both the [[!webrtc]] and LP2P API.
 
 <pre class="idl">
-[Exposed=(Window,Worker), SecureContext]
+[Exposed=(Window,DedicatedWorker,SharedWorker), SecureContext]
 interface LP2PDataChannel : EventTarget {
   constructor(USVString label,
               optional LP2PDataChannelInit dataChannelDict = {});
@@ -844,7 +893,7 @@ LP2PConnection Interface Extensions {#lp2p-connection-data-channel-extensions}
 -------------------------------------------------------------------
 
 <pre class="idl">
-[Exposed=(Window,Worker), SecureContext]
+[Exposed=(Window,DedicatedWorker,SharedWorker), SecureContext]
 partial interface LP2PConnection {
   LP2PDataChannel createDataChannel(USVString label,
                                     optional LP2PDataChannelInit dataChannelDict = {});
@@ -860,7 +909,7 @@ LP2PDataChannelEvent {#lp2p-data-channel-event}
 Issue: In general, when defining a new interface that inherits from Event please always ask feedback from the WHATWG or the W3C WebApps WG community. See [defining event interfaces](https://dom.spec.whatwg.org/#defining-event-interfaces).
 
 <pre class="idl">
-[Exposed=(Window,Worker), SecureContext]
+[Exposed=(Window,DedicatedWorker,SharedWorker), SecureContext]
 interface LP2PDataChannelEvent : Event {
   constructor(DOMString type, LP2PDataChannelEventInit dataChannelEventInitDict);
   readonly attribute LP2PDataChannel channel;
@@ -976,7 +1025,7 @@ The LP2PQuicTransport Interface {#lp2p-quic-transport}
 The <dfn interface>LP2PQuicTransport</dfn> interface is a [[!webtransport]] {{WebTransport}} over an {{LP2PConnection}}. It is backed by a <dfn>WebTransport session</dfn>: a session obtained with [=open a WebTransport session=] on the connection's {{LP2PConnection/[[Session]]}}, or an [=incoming WebTransport session=] on it.
 
 <pre class="idl">
-[Exposed=(Window,Worker), SecureContext]
+[Exposed=(Window,DedicatedWorker,SharedWorker), SecureContext]
 interface LP2PQuicTransport : WebTransport {
   constructor(LP2PConnection connection,
               optional LP2PQuicTransportInit options = {});
@@ -1050,7 +1099,7 @@ LP2PQuicTransportListener Interface {#lp2p-quic-transport-listener}
 The <dfn interface>LP2PQuicTransportListener</dfn> interface receives the [=incoming WebTransport sessions=] of an {{LP2PConnection}}.
 
 <pre class="idl">
-[Exposed=(Window,Worker), SecureContext]
+[Exposed=(Window,DedicatedWorker,SharedWorker), SecureContext]
 interface LP2PQuicTransportListener {
   constructor(LP2PConnection connection,
               optional LP2PQuicTransportListenerInit options = {});
@@ -1160,7 +1209,7 @@ Shorthand APIs {#lp2p-namespace}
 The <dfn namespace>lp2p</dfn> namespace provides shorthands for the common case of one side making itself discoverable and the other connecting, with WebTransport. They are composed from the APIs above, as if script used them, and add no capability. They cover {{LP2PQuicTransport}} only: a connection over which the peer only opens [=data channels=] never shows up in {{lp2p/makeDiscoverable()}}. On both sides, {{LP2PQuicTransport/connection}} gives access to the {{LP2PConnection}}, for example to open [=data channels=] or close it.
 
 <pre class="idl">
-[Exposed=(Window,Worker), SecureContext]
+[Exposed=(Window,DedicatedWorker,SharedWorker), SecureContext]
 namespace lp2p {
   ReadableStream makeDiscoverable(optional LP2PMakeDiscoverableOptions options = {});
   Promise&lt;LP2PQuicTransport&gt; connect(optional LP2PConnectOptions options = {});
@@ -1262,6 +1311,17 @@ const channel = transport.connection.createDataChannel("chat");
 
 </section>
 
+Document and worker lifecycle {#lifecycle}
+==========================================
+
+When a {{Window}}'s [=associated Document=] stops being [=fully active=], for example because it is unloaded or its frame is removed, or when a {{WorkerGlobalScope}}'s [=WorkerGlobalScope/closing=] flag is set, the user agent must run these steps given that [=global object=] |global|:
+
+1. For each {{LP2PReceiver}} whose [=relevant global object=] is |global|, [=stop an LP2PReceiver|stop=] it.
+1. For each {{LP2PRequest}} whose [=relevant global object=] is |global| and whose {{LP2PRequest/[[StartPromise]]}} is pending, run its {{LP2PRequest/[[Abort]]}} given an "{{AbortError}}" {{DOMException}}. This takes down its user interface and closes the session being set up.
+1. For each {{LP2PConnection}} whose [=relevant global object=] is |global|, [=close an LP2PConnection|close=] it.
+
+Issue: Decide whether a document with receivers or connections may enter the back/forward cache instead, and what happens to them there.
+
 Security and privacy considerations {#security-and-privacy-considerations}
 =========================================================================
 
@@ -1271,7 +1331,7 @@ The security and privacy considerations of the protocol underlying the [=transpo
 
 Personally identifiable information {#security-pii}
 ---------------------------------------------------
-No peer attributes reach origins: the [=peer/peer identity=], [=peer/display name=], [=peer/nickname=] and [=peer/capabilities=] are only used by the user agent. Its user interface shows the [=peer/display name=] and [=peer/nickname=] to the user, to pick or accept a peer.
+No peer attributes reach origins: the [=peer/peer identity=], [=peer/display name=], [=peer/capabilities=] and the [=advertisement/nickname=] and [=advertisement/advertisement ID=] of its [=advertisements=] are only used by the user agent. Its user interface shows the [=peer/display name=] and [=advertisement/nickname=] to the user, to pick or accept a peer.
 
 No information is exposed to the origin during service discovery. No IP information is exposed to an origin. This is fully managed by the user agent.
 
@@ -1284,6 +1344,27 @@ When the user is asked to grant permission to connect to a peer, the user agent 
 
 Issue(WICG/local-peer-to-peer#15): Define peer filtering to give the user additional context.
 
+Authentication and locality {#security-locality}
+------------------------------------------------
+
+Peers authenticate each other out of band, usually by a [=trust ceremony=] in which the user takes part on one or both devices. Other means, such as a key provisioned in advance, could be defined later.
+
+This specification does not require or rely on physical proximity. "Local" describes the envisioned use cases and the [=local communication medium=], not a security guarantee: a peer can be further away than the user expects, for example on a large or misconfigured network or behind an intermediary, and a [=transport binding=] need not verify where it is.
+
+So a peer, including a headless device, must not authorize anything because a request arrives over the [=local communication medium=], or because of the [=protocol/requesting origin=] it asserts. It authorizes only peers it [=/authenticated=], and an application only with credentials that its origin issued, bound to the session with [=export keying material=]. This differs from protocols such as UPnP, where being on the network is the authorization.
+
+Protecting users {#security-protecting-users}
+---------------------------------------------
+
+The user is asked only what they can judge: which device to use, and which site may use it. The user agent does not hand the user security decisions it can make itself. In particular:
+
+* {{LP2PRequest/start()}} and {{LP2PReceiver/start()}} require [=transient activation=], so that a page cannot prompt without a user action.
+* Trusted user interface clearly distinguishes strings chosen by script or asserted by a peer, such as an [=advertisement/nickname=] or an unverified [=peer/display name=], from those the user agent verified, such as an origin or a [=peer/display name=] obtained on an [=protocol/authenticated=] session. It bounds their length and never presents them as instructions.
+* User agents limit repeated prompts, for example by rate-limiting grant prompts per peer and per origin, remembering a decline for a while, and timing out [=incoming sessions=] that wait for a prompt.
+* The user agent shows an indicator while it advertises and while a session is open. The prompt to advertise says that every device on the [=local communication medium=] can see the [=advertisement/nickname=].
+
+Note: These are principles. How the user interface meets them is not specified further.
+
 Impact on same-origin policy {#security-same-origin}
 ----------------------------------------
 
@@ -1291,7 +1372,7 @@ This document extends the Web platform with the ability to set up real-time, dir
 
 This means that data and media can be shared between applications running in different browsers, or between an application running in the browser and another user agent that is not a browser such as a headless service provided by a smart TV or smart fridge. This extends the usual barriers in the Web's security model that prevents sending data between entities with different origins.
 
-To limit this, a session is only delivered to an {{LP2PReceiver}} of the same origin as its [=protocol/requesting origin=], unless the receiver opts in to other origins with {{LP2PReceiverOptions/allowedOrigins}}. The [=protocol/requesting origin=] is asserted by the peer's user agent, so a peer can claim any origin; but a lying peer can only be one the user already [=/authenticated=] and trusts with what they send it.
+To limit this, a session is only delivered to an {{LP2PReceiver}} of the same origin as its [=protocol/requesting origin=], unless the receiver opts in to other origins with {{LP2PReceiverOptions/allowedOrigins}}. The [=protocol/requesting origin=] is asserted by the peer's user agent, so a peer can claim any origin. Such a peer is [=/authenticated=]: the user paired with it in a [=trust ceremony=], or a [=vouching party=] they trust vouches for it and they confirmed it, although they may never have paired with it. Authentication identifies the device, not its intent or the origin of the page using it.
 
 Device Access {#security-device-access}
 ---------------------------------------
@@ -1341,8 +1422,8 @@ The concepts and operations of [[#transport-abstraction]] map onto OSP as follow
    <td>The display name from the [agent-info-response](https://www.w3.org/TR/openscreen-application/#agent-info-response) message, obtained by [=discover metadata=]
   </tr>
   <tr>
-   <td>[=peer/nickname=]
-   <td>Not yet carried.
+   <td>[=advertisement=], [=advertisement/advertisement ID=], [=advertisement/nickname=]
+   <td>[[#advertisement-extension]]
   </tr>
   <tr>
    <td>[=peer/capabilities=]
@@ -1377,9 +1458,20 @@ The concepts and operations of [[#transport-abstraction]] map onto OSP as follow
  </tbody>
 </table>
 
-Issue: Define how the [=peer/nickname=] is carried and how a [=data channel=] is closed.
+Issue: Define how a [=data channel=] is closed.
 
 Part of these operations are defined below as [protocol extensions](https://www.w3.org/TR/openscreen-application/#protocol-extensions) to the [[!openscreen-network|Open Screen Network Protocol]].
+
+Advertisement extension {#advertisement-extension}
+--------------------------------------------------
+
+An agent advertises one DNS-SD service instance, however many [=advertisements=] it has. [=Start advertising=] adds an [=advertisement=] with an [=advertisement/advertisement ID=] of 16 bytes from a cryptographically secure random number generator, and starts advertising the service instance if it is the first. [=Stop advertising=] removes the [=advertisement=], and stops advertising the service instance after the last one. Whenever its set of [=advertisements=] changes, the agent increases its metadata version (`mv`).
+
+During [=discover metadata=], after the agent-info-response, the listening agent sends an [=lp2p-advertisements-request=] message on a new bidirectional QUIC stream. The advertising agent answers on the same stream with an [=lp2p-advertisements-response=] message that lists, for each of its [=advertisements=], its [=advertisement/advertisement ID=] and [=advertisement/nickname=]. [=Discover peers=] reports each of them as an [=advertisement=] of that agent.
+
+Like agent-info, the listing is sent before authentication, to any agent that can reach the advertising agent. It reveals the number of [=advertisements=], their [=advertisement/nicknames=] and their [=advertisement/advertisement IDs=]; it does not reveal origins. The [=advertisement/advertisement IDs=] do not link one [=advertisement=] to another, but the agent fingerprint links them all.
+
+Issue: The agent fingerprint in the mDNS TXT record, and the agent certificate that OSP presents on every QUIC connection, including metadata connections, identify the agent before authentication, across [=advertisements=] and networks. The [=advertisement/nicknames=] in the listing are also sent before authentication. This binding does not fix either.
 
 Session extension {#session-extension}
 --------------------------------------
@@ -1392,19 +1484,22 @@ This binding conveys the [=protocol/requesting origin=] only after authenticatio
 
 * Once it has received the agent's agent-info-response, by [=discover metadata=] on that connection, the [=protocol/client=] starts authentication if it has not verified the [=protocol/server=]'s agent certificate.
 * Once it has verified it, the [=protocol/client=] sends an [=lp2p-session-request=] message on a new bidirectional QUIC stream.
-* A [=protocol/server=] that has not verified the [=protocol/client=]'s agent certificate answers with a provisional [=lp2p-session-response=] with the result `authentication-required`, without looking at the requesting-origin, and the [=protocol/client=] then starts authentication. The [=protocol/server=] sends no authentication message other than auth-capabilities before the [=protocol/client=] does.
-* Once it has verified the [=protocol/client=]'s agent certificate, the [=protocol/server=] reports the connection as an [=incoming session=], with the requesting-origin as its [=protocol/requesting origin=].
+* A [=protocol/server=] that has not verified the [=protocol/client=]'s agent certificate answers with a provisional [=lp2p-session-response=] with the result `authentication-required`, without looking at the requesting-origin or the advertisement-id, and the [=protocol/client=] then starts authentication. The [=protocol/server=] sends no authentication message other than auth-capabilities before the [=protocol/client=] does.
+* Once it has verified the [=protocol/client=]'s agent certificate, the [=protocol/server=] reports the connection as an [=incoming session=] for the [=advertisement=] whose [=advertisement/advertisement ID=] is the advertisement-id, with the requesting-origin as its [=protocol/requesting origin=]. If it has no such [=advertisement=], it [=refuses=] the session.
 
-So the requesting-origin is only sent to a verified [=protocol/server=], and the [=protocol/server=]'s answer about it only reaches a verified [=protocol/client=]. Agents that have verified each other run no [=trust ceremony=].
+So the requesting-origin and advertisement-id are only sent to a verified [=protocol/server=], and the [=protocol/server=]'s answer about it only reaches a verified [=protocol/client=]. Agents that have verified each other run no [=trust ceremony=].
 
 The [=lp2p-session-request=] contains:
 
 : requesting-origin
 :: The [=ASCII serialization of an origin|ASCII serialization=] of the origin. The [=protocol/server=] uses the [=url/origin=] of the result of running the [=URL parser=] on this value, or an [=opaque origin=] if parsing fails.
 
+: advertisement-id
+:: The [=advertisement/advertisement ID=] of the [=advertisement=] the [=protocol/client=] [=establish a session|establishes the session with=].
+
 A [=protocol/client=] sends [=lp2p-session-request=] only to an agent whose [=peer/capabilities=] are not empty, and only once per QUIC connection. A [=protocol/server=] that receives a second one closes the connection.
 
-Authentication verifies the agent certificate that each agent presented in the TLS handshake of the QUIC connection that carries the [=lp2p-session-request=]: SPAKE2 uses the fingerprints of those certificates, and a certificate verified earlier is bound by the handshake itself. So the requesting-origin is bound to the [=Local Peer-to-Peer session=].
+Authentication verifies the agent certificate that each agent presented in the TLS handshake of the QUIC connection that carries the [=lp2p-session-request=]: SPAKE2 uses the fingerprints of those certificates, and a certificate verified earlier is bound by the handshake itself. So the requesting-origin and advertisement-id are bound to the [=Local Peer-to-Peer session=].
 
 The [=protocol/server=] answers on the same stream with an [=lp2p-session-response=] message, containing:
 
@@ -1535,6 +1630,7 @@ agent-capability /= &(
 <dfn>lp2p-session-request</dfn> = {
   request
   1: text ; requesting-origin
+  2: advertisement-id ; advertisement-id
 }
 
 ; type key 1111
@@ -1547,6 +1643,24 @@ lp2p-session-result = &amp;(
   result,
   authentication-required: 1110
 )
+
+; type key 1112
+<dfn>lp2p-advertisements-request</dfn> = {
+  request
+}
+
+; type key 1113
+<dfn>lp2p-advertisements-response</dfn> = {
+  response
+  1: [* lp2p-advertisement] ; advertisements
+}
+
+lp2p-advertisement = {
+  0: advertisement-id ; advertisement-id
+  1: text ; nickname
+}
+
+advertisement-id = bytes .size 16
 
 ; type key 1101
 <dfn>data-channel-open-request</dfn> = {
