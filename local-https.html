@@ -8,7 +8,7 @@
   <meta content="Bikeshed version 49e9fdd4f, updated Tue Oct 13 14:27:53 2026 -0700" name="generator">
   <link href="https://WICG.github.io/local-peer-to-peer/local-https.html" rel="canonical">
   <link href="https://www.w3.org/2008/site/images/favicon.ico" rel="icon">
-  <meta content="9e8e4bebd1a3d7d180de8d8e2134d5829b7ca0e0" name="revision">
+  <meta content="649ddea929d56a4948881fb03afd9e7f767d5362" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>/* Boilerplate: style-autolinks */
@@ -581,7 +581,7 @@ dfn > a.self-link::before      { content: "#"; }
 </p>
    <h1 class="no-ref p-name" id="title">Local HTTPS</h1>
    <p id="w3c-state"><a href="https://www.w3.org/standards/types/#UD">Unofficial Proposal Draft</a>,
-    <time class="dt-updated" datetime="2026-10-27">27 October 2026</time></p>
+    <time class="dt-updated" datetime="2026-10-28">28 October 2026</time></p>
    <details open>
     <summary>More details about this document</summary>
     <div data-fill-with="spec-metadata">
@@ -617,7 +617,7 @@ dfn > a.self-link::before      { content: "#"; }
    <h2 class="no-num no-ref no-toc" id="contents">Table of Contents</h2>
    <ol class="toc">
     <li><a href="#intro"><span class="secno">1</span> <span class="content">Introduction</span></a>
-    <li><a href="#trust-anchors"><span class="secno">2</span> <span class="content">Local trust anchors</span></a>
+    <li><a href="#trust-anchors"><span class="secno">2</span> <span class="content">Trust anchors</span></a>
     <li>
      <a href="#local-origins"><span class="secno">3</span> <span class="content">Local origins</span></a>
      <ol class="toc">
@@ -657,18 +657,18 @@ dfn > a.self-link::before      { content: "#"; }
    <p>Browsers can’t reach a NAS, printer or TV on the local network over HTTPS without a public name, a certificate authority and an internet connection. Local HTTPS uses ordinary X.509 certificate path validation <a data-link-type="biblio" href="#biblio-rfc5280" title="Internet X.509 Public Key Infrastructure Certificate and Certificate Revocation List (CRL) Profile">[RFC5280]</a> instead, with two differences from the Web PKI:</p>
    <ol>
     <li data-md>
-     <p><strong>Trust anchors are added by the user</strong> through a trust ceremony, such as Local Peer-to-Peer <a href="https://wicg.github.io/local-peer-to-peer/#authenticate-a-local-peer">authentication</a>, instead of a root program. Each anchor is limited to a namespace under <code>.local</code>.</p>
+     <p><strong>Trust anchors are added by the user</strong> through a Local Peer-to-Peer <a data-link-type="dfn" href="https://wicg.github.io/local-peer-to-peer/#trust-ceremony" id="ref-for-trust-ceremony">trust ceremony</a>, instead of a root program. Each anchor is limited to a namespace under <code>.local</code>.</p>
     <li data-md>
      <p><strong>Requests from a page are scoped</strong> to the anchors for devices that the page was granted.</p>
    </ol>
    <p>The origin model, CORS, the <code>Origin</code> header and <a data-link-type="biblio" href="#biblio-local-network-access" title="Local Network Access">Local Network Access</a> are unchanged.</p>
-   <h2 class="heading settled" data-level="2" id="trust-anchors"><span class="secno">2. </span><span class="content">Local trust anchors</span><a class="self-link" href="#trust-anchors"></a></h2>
-   <p>Local HTTPS uses the <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="local-trust-store">local trust store</dfn> of <a href="https://wicg.github.io/local-peer-to-peer/#local-trust-store">Local Peer-to-Peer</a>, one per user profile, separate from the Web PKI root store. Its <a href="https://wicg.github.io/local-peer-to-peer/#trust-anchor">trust anchors</a>, here called <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="local-trust-anchors">local trust anchors</dfn>, are added through a <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="trust-ceremony">trust ceremony</dfn> as defined there. For Local HTTPS, each anchor’s <a href="https://wicg.github.io/local-peer-to-peer/#trust-anchor-scope">scope</a> is a <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="namespace">namespace</dfn>, kept as name constraints in the trust store entry, as in <a data-link-type="biblio" href="#biblio-rfc5914" title="Trust Anchor Format">[RFC5914]</a>:</p>
+   <h2 class="heading settled" data-level="2" id="trust-anchors"><span class="secno">2. </span><span class="content">Trust anchors</span><a class="self-link" href="#trust-anchors"></a></h2>
+   <p>Local HTTPS uses the Local Peer-to-Peer <a data-link-type="dfn" href="https://wicg.github.io/local-peer-to-peer/#local-trust-store" id="ref-for-local-trust-store">local trust store</a>, one per user profile, separate from the Web PKI root store. Its <a data-link-type="dfn" href="https://wicg.github.io/local-peer-to-peer/#trust-anchor" id="ref-for-trust-anchor">trust anchors</a> are added through a <a data-link-type="dfn" href="https://wicg.github.io/local-peer-to-peer/#trust-ceremony" id="ref-for-trust-ceremony①">trust ceremony</a>. For Local HTTPS, each <a data-link-type="dfn" href="https://wicg.github.io/local-peer-to-peer/#trust-anchor" id="ref-for-trust-anchor①">trust anchor</a> has a <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="namespace">namespace</dfn>, derived from its <a data-link-type="dfn" href="https://wicg.github.io/local-peer-to-peer/#trust-anchor-scope" id="ref-for-trust-anchor-scope">scope</a> and kept as name constraints in the trust store entry, as in <a data-link-type="biblio" href="#biblio-rfc5914" title="Trust Anchor Format">[RFC5914]</a>:</p>
    <ul>
     <li data-md>
-     <p>for a single peer, the name it advertises and the names under it;</p>
+     <p>for <a data-link-type="dfn" href="https://wicg.github.io/local-peer-to-peer/#trust-anchor-scope-one-peer" id="ref-for-trust-anchor-scope-one-peer">one peer</a>, the name that peer advertises and the names under it;</p>
     <li data-md>
-     <p>for a vouching party, the namespace the user accepted in the <a data-link-type="dfn" href="#trust-ceremony" id="ref-for-trust-ceremony">trust ceremony</a>.</p>
+     <p>for <a data-link-type="dfn" href="https://wicg.github.io/local-peer-to-peer/#trust-anchor-scope-vouching" id="ref-for-trust-anchor-scope-vouching">vouching</a>, the namespace the user accepted in the <a data-link-type="dfn" href="https://wicg.github.io/local-peer-to-peer/#trust-ceremony" id="ref-for-trust-ceremony②">trust ceremony</a>.</p>
    </ul>
    <div class="example" id="example-4f3d1484">
     <a class="self-link" href="#example-4f3d1484"></a>
@@ -680,7 +680,7 @@ dfn > a.self-link::before      { content: "#"; }
       <p>A referee, such as a home hub that vouches for other devices, is an anchor for <code>*.home.local</code>.</p>
     </ul>
    </div>
-   <p>The namespace comes from the name the device advertises, and is trusted only once the ceremony has authenticated the device. Anchors with the same key merge, as defined by Local Peer-to-Peer. Anchors with different keys MUST NOT both be able to certify a host: the most specific <a data-link-type="dfn" href="#namespace" id="ref-for-namespace">namespace</a> that contains a host decides which anchor may certify it, as with DNS delegation, and a trust ceremony MUST NOT add an anchor that would change which key certifies a host already in use, such as a known peer or a host with site data. So at most one key can certify a given host.</p>
+   <p>The namespace comes from the name the device advertises, and is trusted only once the ceremony has authenticated the device. Anchors with the same key merge as <a data-link-type="dfn" href="https://wicg.github.io/local-peer-to-peer/#add-a-trust-anchor" id="ref-for-add-a-trust-anchor">add a trust anchor</a> does: a <a data-link-type="dfn" href="https://wicg.github.io/local-peer-to-peer/#trust-anchor-scope-vouching" id="ref-for-trust-anchor-scope-vouching①">vouching</a> anchor replaces the <a data-link-type="dfn" href="https://wicg.github.io/local-peer-to-peer/#trust-anchor-scope-one-peer" id="ref-for-trust-anchor-scope-one-peer①">one peer</a> anchors with the same key. Anchors with different keys MUST NOT both be able to certify a host: the most specific <a data-link-type="dfn" href="#namespace" id="ref-for-namespace">namespace</a> that contains a host decides which anchor may certify it, as with DNS delegation. Local HTTPS defines a <a data-link-type="dfn" href="https://wicg.github.io/local-peer-to-peer/#trust-anchor-checks" id="ref-for-trust-anchor-checks">trust anchor check</a> that returns false for an anchor that would change which key certifies a host already in use, such as that of a <a data-link-type="dfn" href="https://wicg.github.io/local-peer-to-peer/#known-peer" id="ref-for-known-peer">known peer</a> or a host with site data, so the <a data-link-type="dfn" href="https://wicg.github.io/local-peer-to-peer/#trust-ceremony" id="ref-for-trust-ceremony③">trust ceremony</a> fails. So at most one key can certify a given host.</p>
    <p class="issue" id="issue-af127a0d"><a class="self-link" href="#issue-af127a0d"></a> Define how the ceremony conveys and confirms the namespace, for devices and for referees.</p>
    <p class="issue" id="issue-5802a2ea"><a class="self-link" href="#issue-5802a2ea"></a> Rotating an anchor key needs a proof of continuity, which is out of scope.</p>
    <h2 class="heading settled" data-level="3" id="local-origins"><span class="secno">3. </span><span class="content">Local origins</span><a class="self-link" href="#local-origins"></a></h2>
@@ -693,7 +693,7 @@ dfn > a.self-link::before      { content: "#"; }
     <li data-md>
      <p>the anchor with the most specific <a data-link-type="dfn" href="#namespace" id="ref-for-namespace②">namespace</a> that contains the host as the trust anchor;</p>
     <li data-md>
-     <p>that <a data-link-type="dfn" href="#namespace" id="ref-for-namespace③">namespace</a> and, for a request from a page, its <a data-link-type="dfn" href="#peer-grant" id="ref-for-peer-grant">peer grant</a> as initial name constraints;</p>
+     <p>that <a data-link-type="dfn" href="#namespace" id="ref-for-namespace③">namespace</a> and, for a request from a page, its <a data-link-type="dfn" href="#grant-constraint" id="ref-for-grant-constraint">grant constraint</a> as initial name constraints;</p>
     <li data-md>
      <p>the host as the reference identifier, matched against the subjectAltName <a data-link-type="biblio" href="#biblio-rfc9525" title="Service Identity in TLS">[RFC9525]</a>.</p>
    </ul>
@@ -706,22 +706,22 @@ dfn > a.self-link::before      { content: "#"; }
    <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="applicable-anchors">applicable anchors</dfn> for a request are:</p>
    <ul>
     <li data-md>
-     <p>for a navigation the user initiated, such as from the address bar or a bookmark, every anchor in the <a data-link-type="dfn" href="#local-trust-store" id="ref-for-local-trust-store">local trust store</a>;</p>
+     <p>for a navigation the user initiated, such as from the address bar or a bookmark, every anchor in the <a data-link-type="dfn" href="https://wicg.github.io/local-peer-to-peer/#local-trust-store" id="ref-for-local-trust-store①">local trust store</a>;</p>
     <li data-md>
-     <p>for a request from an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-origin" id="ref-for-concept-origin">origin</a>, only the anchors that origin holds a <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="peer-grant">peer grant</dfn> for, through <a href="https://wicg.github.io/local-peer-to-peer/#acquire-a-local-peer-grant">acquire a local peer grant</a>.</p>
+     <p>for a request from an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-origin" id="ref-for-concept-origin">origin</a>, only the anchors that the peers in its <a data-link-type="dfn" href="https://wicg.github.io/local-peer-to-peer/#peer-grants" id="ref-for-peer-grants">peer grants</a>, granted through <a data-link-type="dfn" href="https://wicg.github.io/local-peer-to-peer/#acquire-a-local-peer-grant" id="ref-for-acquire-a-local-peer-grant">acquire a local peer grant</a>, chain to: the anchors with their recorded <a data-link-type="dfn" href="https://wicg.github.io/local-peer-to-peer/#known-peer-anchor-key" id="ref-for-known-peer-anchor-key">anchor key</a>.</p>
    </ul>
-   <p>A <a data-link-type="dfn" href="#peer-grant" id="ref-for-peer-grant①">peer grant</a> covers part of a <a data-link-type="dfn" href="#namespace" id="ref-for-namespace④">namespace</a>, by default one device and its services, such as <code>nas.local</code> and <code>*.nas.local</code>. It acts as an extra name constraint, so a page granted one device can’t reach another device under the same referee.</p>
+   <p>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="grant-constraint">grant constraint</dfn> of a request from an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-origin" id="ref-for-concept-origin①">origin</a> is derived from the <a data-link-type="dfn" href="https://wicg.github.io/local-peer-to-peer/#peer-peer-identity" id="ref-for-peer-peer-identity">peer identities</a> in its <a data-link-type="dfn" href="https://wicg.github.io/local-peer-to-peer/#peer-grants" id="ref-for-peer-grants①">peer grants</a>: for each granted peer, the name it advertises and the names under it, such as <code>nas.local</code> and <code>*.nas.local</code>. It acts as an extra name constraint, so a page granted one device can’t reach another device under the same referee.</p>
    <p>The user agent MUST NOT resolve, connect to or probe a <a data-link-type="dfn" href="#local-host" id="ref-for-local-host①">local host</a> for a page outside its <a data-link-type="dfn" href="#applicable-anchors" id="ref-for-applicable-anchors①">applicable anchors</a>.</p>
    <p class="issue" id="issue-58608d2d"><a class="self-link" href="#issue-58608d2d"></a> Which scope applies to navigations that a page starts?</p>
    <p class="issue" id="issue-dafa67aa"><a class="self-link" href="#issue-dafa67aa"></a> Is a peer grant keyed by origin or by top-level site?</p>
    <h2 class="heading settled" data-level="5" id="origins"><span class="secno">5. </span><span class="content">Origins, Fetch and Local Network Access</span><a class="self-link" href="#origins"></a></h2>
    <p>A <a data-link-type="dfn" href="#local-origin" id="ref-for-local-origin②">local origin</a> has the usual tuple, for example (<code>https</code>, <code>nas.local</code>, 443), and is a secure context. Because at most one key can certify a host, the tuple is unambiguous within a profile. A different <code>nas</code> device fails validation, and an unpaired <code>http://nas.local</code> is a different origin.</p>
-   <p>When a <a data-link-type="dfn" href="#local-trust-anchors" id="ref-for-local-trust-anchors">local trust anchor</a> is removed, the user agent MUST clear site data for all hosts in its <a data-link-type="dfn" href="#namespace" id="ref-for-namespace⑤">namespace</a>.</p>
-   <p>Requests to <a data-link-type="dfn" href="#local-origin" id="ref-for-local-origin③">local origins</a> are ordinary requests <a data-link-type="biblio" href="#biblio-fetch" title="Fetch Standard">[FETCH]</a>: servers apply CORS based on the <code>Origin</code> header, and WebTransport servers check <code>Origin</code> <a data-link-type="biblio" href="#biblio-webtransport" title="WebTransport">[WEBTRANSPORT]</a>. A <a data-link-type="dfn" href="#peer-grant" id="ref-for-peer-grant②">peer grant</a> satisfies the <a data-link-type="biblio" href="#biblio-local-network-access" title="Local Network Access">Local Network Access</a> permission for the hosts it covers only. CSP is not extended: <code>connect-src https://*.local</code> works.</p>
+   <p>When a <a data-link-type="dfn" href="https://wicg.github.io/local-peer-to-peer/#trust-anchor" id="ref-for-trust-anchor②">trust anchor</a> is removed, the user agent MUST clear site data for all hosts in its <a data-link-type="dfn" href="#namespace" id="ref-for-namespace④">namespace</a>.</p>
+   <p>Requests to <a data-link-type="dfn" href="#local-origin" id="ref-for-local-origin③">local origins</a> are ordinary requests <a data-link-type="biblio" href="#biblio-fetch" title="Fetch Standard">[FETCH]</a>: servers apply CORS based on the <code>Origin</code> header, and WebTransport servers check <code>Origin</code> <a data-link-type="biblio" href="#biblio-webtransport" title="WebTransport">[WEBTRANSPORT]</a>. The <a data-link-type="dfn" href="https://wicg.github.io/local-peer-to-peer/#peer-grants" id="ref-for-peer-grants②">peer grants</a> satisfy the <a data-link-type="biblio" href="#biblio-local-network-access" title="Local Network Access">Local Network Access</a> permission only for the hosts within the <a data-link-type="dfn" href="#grant-constraint" id="ref-for-grant-constraint①">grant constraint</a>. CSP is not extended: <code>connect-src https://*.local</code> works.</p>
    <p class="note" role="note"><span class="marker">Note:</span> Unlike <a href="https://lowentropy.net/posts/local-https/">"Expanding what HTTPS means"</a>, this doesn’t add the server’s key to the origin tuple; allowing at most one key per host already makes names unambiguous.</p>
    <h2 class="heading settled" data-level="6" id="ui"><span class="secno">6. </span><span class="content">User interface</span><a class="self-link" href="#ui"></a></h2>
    <p>For a top-level <a data-link-type="dfn" href="#local-origin" id="ref-for-local-origin④">local origin</a>, the user agent SHOULD show a "paired device" indicator with the host, and the referee if any (for example "via Home"), outside the content area.</p>
-   <p>The user agent MUST NOT show a name supplied by the device unless it obtained the name after the <a data-link-type="dfn" href="#trust-ceremony" id="ref-for-trust-ceremony①">trust ceremony</a> authenticated the device.</p>
+   <p>The user agent MUST NOT show a name supplied by the device unless it obtained the name after the <a data-link-type="dfn" href="https://wicg.github.io/local-peer-to-peer/#trust-ceremony" id="ref-for-trust-ceremony④">trust ceremony</a> authenticated the device.</p>
    <h2 class="heading settled" data-level="7" id="examples"><span class="secno">7. </span><span class="content">Examples</span><a class="self-link" href="#examples"></a></h2>
    <p><em>This section is non-normative.</em></p>
    <div class="example" id="example-services"><a class="self-link" href="#example-services"></a>
@@ -789,13 +789,10 @@ A Matter fabric: a browser that joins a fabric as an ordinary node, as any Matte
   <h3 class="heading no-num no-ref settled" id="index-defined-here"><span class="content">Terms defined by this specification</span><a class="self-link" href="#index-defined-here"></a></h3>
   <ul class="index">
    <li><a href="#applicable-anchors">applicable anchors</a><span>, in § 4</span>
+   <li><a href="#grant-constraint">grant constraint</a><span>, in § 4</span>
    <li><a href="#local-host">local host</a><span>, in § 3</span>
    <li><a href="#local-origin">local origin</a><span>, in § 3</span>
-   <li><a href="#local-trust-anchors">local trust anchors</a><span>, in § 2</span>
-   <li><a href="#local-trust-store">local trust store</a><span>, in § 2</span>
    <li><a href="#namespace">namespace</a><span>, in § 2</span>
-   <li><a href="#peer-grant">peer grant</a><span>, in § 4</span>
-   <li><a href="#trust-ceremony">trust ceremony</a><span>, in § 2</span>
   </ul>
   <h3 class="heading no-num no-ref settled" id="index-defined-elsewhere"><span class="content">Terms defined by reference</span><a class="self-link" href="#index-defined-elsewhere"></a></h3>
   <ul class="index">
@@ -803,6 +800,23 @@ A Matter fabric: a browser that joins a fabric as an ordinary node, as any Matte
     <a data-link-type="biblio">[HTML]</a> defines the following terms:
     <ul>
      <li><span class="dfn-paneled" id="086e3aff">origin</span>
+    </ul>
+   <li>
+    <a data-link-type="biblio">[LP2P]</a> defines the following terms:
+    <ul>
+     <li><span class="dfn-paneled" id="defc0897">acquire a local peer grant</span>
+     <li><span class="dfn-paneled" id="bff99c8d">add a trust anchor</span>
+     <li><span class="dfn-paneled" id="75c38ce7">anchor key</span>
+     <li><span class="dfn-paneled" id="f500bec2">known peer</span>
+     <li><span class="dfn-paneled" id="fc9734f5">local trust store</span>
+     <li><span class="dfn-paneled" id="e2103a37">one peer</span>
+     <li><span class="dfn-paneled" id="d9f6c3d9">peer grants</span>
+     <li><span class="dfn-paneled" id="ff812052">peer identity</span>
+     <li><span class="dfn-paneled" id="7a1a5a60">scope</span>
+     <li><span class="dfn-paneled" id="2a53019c">trust anchor</span>
+     <li><span class="dfn-paneled" id="f909c214">trust anchor checks</span>
+     <li><span class="dfn-paneled" id="0e49c53b">trust ceremony</span>
+     <li><span class="dfn-paneled" id="dce35767">vouching</span>
     </ul>
    <li>
     <a data-link-type="biblio">[URL]</a> defines the following terms:
@@ -1050,16 +1064,26 @@ function parseHTML(markup) {
 "use strict";
 {
 let dfnPanelData = {
-"086e3aff": {"dfnID":"086e3aff","dfnText":"origin","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-origin"}],"title":"4. Scopes"}],"url":"https://html.spec.whatwg.org/multipage/browsers.html#concept-origin"},
+"086e3aff": {"dfnID":"086e3aff","dfnText":"origin","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-origin"},{"id":"ref-for-concept-origin\u2460"}],"title":"4. Scopes"}],"url":"https://html.spec.whatwg.org/multipage/browsers.html#concept-origin"},
+"0e49c53b": {"dfnID":"0e49c53b","dfnText":"trust ceremony","external":true,"refSections":[{"refs":[{"id":"ref-for-trust-ceremony"}],"title":"1. Introduction"},{"refs":[{"id":"ref-for-trust-ceremony\u2460"},{"id":"ref-for-trust-ceremony\u2461"},{"id":"ref-for-trust-ceremony\u2462"}],"title":"2. Trust anchors"},{"refs":[{"id":"ref-for-trust-ceremony\u2463"}],"title":"6. User interface"}],"url":"https://wicg.github.io/local-peer-to-peer/#trust-ceremony"},
+"2a53019c": {"dfnID":"2a53019c","dfnText":"trust anchor","external":true,"refSections":[{"refs":[{"id":"ref-for-trust-anchor"},{"id":"ref-for-trust-anchor\u2460"}],"title":"2. Trust anchors"},{"refs":[{"id":"ref-for-trust-anchor\u2461"}],"title":"5. Origins, Fetch and Local Network Access"}],"url":"https://wicg.github.io/local-peer-to-peer/#trust-anchor"},
 "752d140b": {"dfnID":"752d140b","dfnText":"host","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-host"}],"title":"3. Local origins"}],"url":"https://url.spec.whatwg.org/#concept-host"},
+"75c38ce7": {"dfnID":"75c38ce7","dfnText":"anchor key","external":true,"refSections":[{"refs":[{"id":"ref-for-known-peer-anchor-key"}],"title":"4. Scopes"}],"url":"https://wicg.github.io/local-peer-to-peer/#known-peer-anchor-key"},
+"7a1a5a60": {"dfnID":"7a1a5a60","dfnText":"scope","external":true,"refSections":[{"refs":[{"id":"ref-for-trust-anchor-scope"}],"title":"2. Trust anchors"}],"url":"https://wicg.github.io/local-peer-to-peer/#trust-anchor-scope"},
 "applicable-anchors": {"dfnID":"applicable-anchors","dfnText":"applicable anchors","external":false,"refSections":[{"refs":[{"id":"ref-for-applicable-anchors"}],"title":"3. Local origins"},{"refs":[{"id":"ref-for-applicable-anchors\u2460"}],"title":"4. Scopes"},{"refs":[{"id":"ref-for-applicable-anchors\u2461"}],"title":"8. Security and privacy considerations"}],"url":"#applicable-anchors"},
+"bff99c8d": {"dfnID":"bff99c8d","dfnText":"add a trust anchor","external":true,"refSections":[{"refs":[{"id":"ref-for-add-a-trust-anchor"}],"title":"2. Trust anchors"}],"url":"https://wicg.github.io/local-peer-to-peer/#add-a-trust-anchor"},
+"d9f6c3d9": {"dfnID":"d9f6c3d9","dfnText":"peer grants","external":true,"refSections":[{"refs":[{"id":"ref-for-peer-grants"},{"id":"ref-for-peer-grants\u2460"}],"title":"4. Scopes"},{"refs":[{"id":"ref-for-peer-grants\u2461"}],"title":"5. Origins, Fetch and Local Network Access"}],"url":"https://wicg.github.io/local-peer-to-peer/#peer-grants"},
+"dce35767": {"dfnID":"dce35767","dfnText":"vouching","external":true,"refSections":[{"refs":[{"id":"ref-for-trust-anchor-scope-vouching"},{"id":"ref-for-trust-anchor-scope-vouching\u2460"}],"title":"2. Trust anchors"}],"url":"https://wicg.github.io/local-peer-to-peer/#trust-anchor-scope-vouching"},
+"defc0897": {"dfnID":"defc0897","dfnText":"acquire a local peer grant","external":true,"refSections":[{"refs":[{"id":"ref-for-acquire-a-local-peer-grant"}],"title":"4. Scopes"}],"url":"https://wicg.github.io/local-peer-to-peer/#acquire-a-local-peer-grant"},
+"e2103a37": {"dfnID":"e2103a37","dfnText":"one peer","external":true,"refSections":[{"refs":[{"id":"ref-for-trust-anchor-scope-one-peer"},{"id":"ref-for-trust-anchor-scope-one-peer\u2460"}],"title":"2. Trust anchors"}],"url":"https://wicg.github.io/local-peer-to-peer/#trust-anchor-scope-one-peer"},
+"f500bec2": {"dfnID":"f500bec2","dfnText":"known peer","external":true,"refSections":[{"refs":[{"id":"ref-for-known-peer"}],"title":"2. Trust anchors"}],"url":"https://wicg.github.io/local-peer-to-peer/#known-peer"},
+"f909c214": {"dfnID":"f909c214","dfnText":"trust anchor checks","external":true,"refSections":[{"refs":[{"id":"ref-for-trust-anchor-checks"}],"title":"2. Trust anchors"}],"url":"https://wicg.github.io/local-peer-to-peer/#trust-anchor-checks"},
+"fc9734f5": {"dfnID":"fc9734f5","dfnText":"local trust store","external":true,"refSections":[{"refs":[{"id":"ref-for-local-trust-store"}],"title":"2. Trust anchors"},{"refs":[{"id":"ref-for-local-trust-store\u2460"}],"title":"4. Scopes"}],"url":"https://wicg.github.io/local-peer-to-peer/#local-trust-store"},
+"ff812052": {"dfnID":"ff812052","dfnText":"peer identity","external":true,"refSections":[{"refs":[{"id":"ref-for-peer-peer-identity"}],"title":"4. Scopes"}],"url":"https://wicg.github.io/local-peer-to-peer/#peer-peer-identity"},
+"grant-constraint": {"dfnID":"grant-constraint","dfnText":"grant constraint","external":false,"refSections":[{"refs":[{"id":"ref-for-grant-constraint"}],"title":"3.1. Validation"},{"refs":[{"id":"ref-for-grant-constraint\u2460"}],"title":"5. Origins, Fetch and Local Network Access"}],"url":"#grant-constraint"},
 "local-host": {"dfnID":"local-host","dfnText":"local host","external":false,"refSections":[{"refs":[{"id":"ref-for-local-host"}],"title":"3. Local origins"},{"refs":[{"id":"ref-for-local-host\u2460"}],"title":"4. Scopes"}],"url":"#local-host"},
 "local-origin": {"dfnID":"local-origin","dfnText":"local origin","external":false,"refSections":[{"refs":[{"id":"ref-for-local-origin"},{"id":"ref-for-local-origin\u2460"}],"title":"3.1. Validation"},{"refs":[{"id":"ref-for-local-origin\u2461"},{"id":"ref-for-local-origin\u2462"}],"title":"5. Origins, Fetch and Local Network Access"},{"refs":[{"id":"ref-for-local-origin\u2463"}],"title":"6. User interface"}],"url":"#local-origin"},
-"local-trust-anchors": {"dfnID":"local-trust-anchors","dfnText":"local trust anchors","external":false,"refSections":[{"refs":[{"id":"ref-for-local-trust-anchors"}],"title":"5. Origins, Fetch and Local Network Access"}],"url":"#local-trust-anchors"},
-"local-trust-store": {"dfnID":"local-trust-store","dfnText":"local trust store","external":false,"refSections":[{"refs":[{"id":"ref-for-local-trust-store"}],"title":"4. Scopes"}],"url":"#local-trust-store"},
-"namespace": {"dfnID":"namespace","dfnText":"namespace","external":false,"refSections":[{"refs":[{"id":"ref-for-namespace"}],"title":"2. Local trust anchors"},{"refs":[{"id":"ref-for-namespace\u2460"}],"title":"3. Local origins"},{"refs":[{"id":"ref-for-namespace\u2461"},{"id":"ref-for-namespace\u2462"}],"title":"3.1. Validation"},{"refs":[{"id":"ref-for-namespace\u2463"}],"title":"4. Scopes"},{"refs":[{"id":"ref-for-namespace\u2464"}],"title":"5. Origins, Fetch and Local Network Access"}],"url":"#namespace"},
-"peer-grant": {"dfnID":"peer-grant","dfnText":"peer grant","external":false,"refSections":[{"refs":[{"id":"ref-for-peer-grant"}],"title":"3.1. Validation"},{"refs":[{"id":"ref-for-peer-grant\u2460"}],"title":"4. Scopes"},{"refs":[{"id":"ref-for-peer-grant\u2461"}],"title":"5. Origins, Fetch and Local Network Access"}],"url":"#peer-grant"},
-"trust-ceremony": {"dfnID":"trust-ceremony","dfnText":"trust ceremony","external":false,"refSections":[{"refs":[{"id":"ref-for-trust-ceremony"}],"title":"2. Local trust anchors"},{"refs":[{"id":"ref-for-trust-ceremony\u2460"}],"title":"6. User interface"}],"url":"#trust-ceremony"},
+"namespace": {"dfnID":"namespace","dfnText":"namespace","external":false,"refSections":[{"refs":[{"id":"ref-for-namespace"}],"title":"2. Trust anchors"},{"refs":[{"id":"ref-for-namespace\u2460"}],"title":"3. Local origins"},{"refs":[{"id":"ref-for-namespace\u2461"},{"id":"ref-for-namespace\u2462"}],"title":"3.1. Validation"},{"refs":[{"id":"ref-for-namespace\u2463"}],"title":"5. Origins, Fetch and Local Network Access"}],"url":"#namespace"},
 };
 
 document.addEventListener("DOMContentLoaded", ()=>{
@@ -1449,15 +1473,25 @@ function genLinkingSyntaxes(dfn) {
 {
 let refsData = {
 "#applicable-anchors": {"displayText":"applicable anchors","export":true,"for_":[],"level":"1","normative":true,"shortname":"local-https","spec":"local-https-1","status":"local","text":"applicable anchors","type":"dfn","url":"#applicable-anchors"},
+"#grant-constraint": {"displayText":"grant constraint","export":true,"for_":[],"level":"1","normative":true,"shortname":"local-https","spec":"local-https-1","status":"local","text":"grant constraint","type":"dfn","url":"#grant-constraint"},
 "#local-host": {"displayText":"local host","export":true,"for_":[],"level":"1","normative":true,"shortname":"local-https","spec":"local-https-1","status":"local","text":"local host","type":"dfn","url":"#local-host"},
 "#local-origin": {"displayText":"local origin","export":true,"for_":[],"level":"1","normative":true,"shortname":"local-https","spec":"local-https-1","status":"local","text":"local origin","type":"dfn","url":"#local-origin"},
-"#local-trust-anchors": {"displayText":"local trust anchors","export":true,"for_":[],"level":"1","normative":true,"shortname":"local-https","spec":"local-https-1","status":"local","text":"local trust anchors","type":"dfn","url":"#local-trust-anchors"},
-"#local-trust-store": {"displayText":"local trust store","export":true,"for_":[],"level":"1","normative":true,"shortname":"local-https","spec":"local-https-1","status":"local","text":"local trust store","type":"dfn","url":"#local-trust-store"},
 "#namespace": {"displayText":"namespace","export":true,"for_":[],"level":"1","normative":true,"shortname":"local-https","spec":"local-https-1","status":"local","text":"namespace","type":"dfn","url":"#namespace"},
-"#peer-grant": {"displayText":"peer grant","export":true,"for_":[],"level":"1","normative":true,"shortname":"local-https","spec":"local-https-1","status":"local","text":"peer grant","type":"dfn","url":"#peer-grant"},
-"#trust-ceremony": {"displayText":"trust ceremony","export":true,"for_":[],"level":"1","normative":true,"shortname":"local-https","spec":"local-https-1","status":"local","text":"trust ceremony","type":"dfn","url":"#trust-ceremony"},
 "https://html.spec.whatwg.org/multipage/browsers.html#concept-origin": {"displayText":"origin","export":true,"for_":[],"level":"1","normative":true,"shortname":"html","spec":"html","status":"current","text":"origin","type":"dfn","url":"https://html.spec.whatwg.org/multipage/browsers.html#concept-origin"},
 "https://url.spec.whatwg.org/#concept-host": {"displayText":"host","export":true,"for_":[],"level":"1","normative":true,"shortname":"url","spec":"url","status":"current","text":"host","type":"dfn","url":"https://url.spec.whatwg.org/#concept-host"},
+"https://wicg.github.io/local-peer-to-peer/#acquire-a-local-peer-grant": {"displayText":"acquire a local peer grant","export":true,"for_":[],"level":"","normative":true,"shortname":"lp2p","spec":"lp2p","status":"anchor-block","text":"acquire a local peer grant","type":"dfn","url":"https://wicg.github.io/local-peer-to-peer/#acquire-a-local-peer-grant"},
+"https://wicg.github.io/local-peer-to-peer/#add-a-trust-anchor": {"displayText":"add a trust anchor","export":true,"for_":[],"level":"","normative":true,"shortname":"lp2p","spec":"lp2p","status":"anchor-block","text":"add a trust anchor","type":"dfn","url":"https://wicg.github.io/local-peer-to-peer/#add-a-trust-anchor"},
+"https://wicg.github.io/local-peer-to-peer/#known-peer": {"displayText":"known peer","export":true,"for_":[],"level":"","normative":true,"shortname":"lp2p","spec":"lp2p","status":"anchor-block","text":"known peer","type":"dfn","url":"https://wicg.github.io/local-peer-to-peer/#known-peer"},
+"https://wicg.github.io/local-peer-to-peer/#known-peer-anchor-key": {"displayText":"anchor key","export":true,"for_":["known peer"],"level":"","normative":true,"shortname":"lp2p","spec":"lp2p","status":"anchor-block","text":"anchor key","type":"dfn","url":"https://wicg.github.io/local-peer-to-peer/#known-peer-anchor-key"},
+"https://wicg.github.io/local-peer-to-peer/#local-trust-store": {"displayText":"local trust store","export":true,"for_":[],"level":"","normative":true,"shortname":"lp2p","spec":"lp2p","status":"anchor-block","text":"local trust store","type":"dfn","url":"https://wicg.github.io/local-peer-to-peer/#local-trust-store"},
+"https://wicg.github.io/local-peer-to-peer/#peer-grants": {"displayText":"peer grants","export":true,"for_":[],"level":"","normative":true,"shortname":"lp2p","spec":"lp2p","status":"anchor-block","text":"peer grants","type":"dfn","url":"https://wicg.github.io/local-peer-to-peer/#peer-grants"},
+"https://wicg.github.io/local-peer-to-peer/#peer-peer-identity": {"displayText":"peer identity","export":true,"for_":["peer"],"level":"","normative":true,"shortname":"lp2p","spec":"lp2p","status":"anchor-block","text":"peer identity","type":"dfn","url":"https://wicg.github.io/local-peer-to-peer/#peer-peer-identity"},
+"https://wicg.github.io/local-peer-to-peer/#trust-anchor": {"displayText":"trust anchor","export":true,"for_":[],"level":"","normative":true,"shortname":"lp2p","spec":"lp2p","status":"anchor-block","text":"trust anchor","type":"dfn","url":"https://wicg.github.io/local-peer-to-peer/#trust-anchor"},
+"https://wicg.github.io/local-peer-to-peer/#trust-anchor-checks": {"displayText":"trust anchor checks","export":true,"for_":[],"level":"","normative":true,"shortname":"lp2p","spec":"lp2p","status":"anchor-block","text":"trust anchor checks","type":"dfn","url":"https://wicg.github.io/local-peer-to-peer/#trust-anchor-checks"},
+"https://wicg.github.io/local-peer-to-peer/#trust-anchor-scope": {"displayText":"scope","export":true,"for_":["trust anchor"],"level":"","normative":true,"shortname":"lp2p","spec":"lp2p","status":"anchor-block","text":"scope","type":"dfn","url":"https://wicg.github.io/local-peer-to-peer/#trust-anchor-scope"},
+"https://wicg.github.io/local-peer-to-peer/#trust-anchor-scope-one-peer": {"displayText":"one peer","export":true,"for_":["trust anchor/scope"],"level":"","normative":true,"shortname":"lp2p","spec":"lp2p","status":"anchor-block","text":"one peer","type":"dfn","url":"https://wicg.github.io/local-peer-to-peer/#trust-anchor-scope-one-peer"},
+"https://wicg.github.io/local-peer-to-peer/#trust-anchor-scope-vouching": {"displayText":"vouching","export":true,"for_":["trust anchor/scope"],"level":"","normative":true,"shortname":"lp2p","spec":"lp2p","status":"anchor-block","text":"vouching","type":"dfn","url":"https://wicg.github.io/local-peer-to-peer/#trust-anchor-scope-vouching"},
+"https://wicg.github.io/local-peer-to-peer/#trust-ceremony": {"displayText":"trust ceremony","export":true,"for_":[],"level":"","normative":true,"shortname":"lp2p","spec":"lp2p","status":"anchor-block","text":"trust ceremony","type":"dfn","url":"https://wicg.github.io/local-peer-to-peer/#trust-ceremony"},
 };
 
 function mkRefHint(link, ref) {
