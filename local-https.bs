@@ -48,6 +48,8 @@ Browsers can't reach a NAS, printer or TV on the local network over HTTPS withou
 
 The origin model, CORS, the `Origin` header and [[LOCAL-NETWORK-ACCESS|Local Network Access]] are unchanged.
 
+Local HTTPS covers the browser as a client of HTTPS servers on the local network. The browser acting as an HTTP server, for example a service worker serving peers or a receiver answering HTTP, is out of scope for now. Local Peer-to-Peer sessions are not HTTP.
+
 Trust anchors {#trust-anchors}
 ==============================
 
@@ -104,7 +106,7 @@ Scopes {#scopes}
 The <dfn>applicable anchors</dfn> for a request are:
 
 - for a navigation the user initiated, such as from the address bar or a bookmark, every [=trust anchor/scope/one peer=] anchor in the [=local trust store=], and every [=trust anchor/scope/vouching=] anchor for the hosts of [=known peers=] that chain to it. For another host in the [=namespace=] of a [=trust anchor/scope/vouching=] anchor, whose device is [=unconfirmed=], the user agent first asks the user to confirm the device, naming the referee, and adds it as a [=known peer=] if they do;
-- for a request from an [=/origin=], only the anchors that the peers it was granted through [=acquire a local peer grant=] chain to: the anchors with their recorded [=known peer/anchor key=]. A [=peer grants|peer grant=] made by accepting an incoming session, which has a requesting origin, does not count.
+- for a request from an [=/origin=], only the anchors that the peers it was granted through [=acquire a local peer grant=] chain to: the anchors with their recorded [=known peer/anchor key=]. A [=peer grants|peer grant=] made by accepting an incoming session does not count.
 
 The <dfn>grant constraint</dfn> of a request from an [=/origin=] is derived from the same peers: for each, the name it advertises and the names under it, such as `nas.local` and `*.nas.local`. It acts as an extra name constraint, so a page granted one device can't reach another device under the same referee.
 
