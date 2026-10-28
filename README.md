@@ -1,17 +1,38 @@
 # Local Peer-to-Peer API
 
-[Local Peer-to-Peer](https://WICG.github.io/local-peer-to-peer/) is a Web platform API proposal for local communication between browsers without the aid of a server.
+[Local Peer-to-Peer](https://WICG.github.io/local-peer-to-peer/) is a Web platform API proposal for secure, offline communication between nearby browsers and devices, without a server.
+
+It has three building blocks.
+
+### Trust between devices
+
+The user pairs two devices once, for example with a PIN or a QR code, and the browser keeps that trust. A site only gets the peers the user grants it; pages never see the network, keys or discovery results.
 
 ```js
-const conn = await new LP2PRequest(options).start();
-const channel = conn.createDataChannel("chat");
-
-channel.onopen = (event) => {
-  channel.send("Hi you!");
-};
+// Shows the browser's picker; resolves once the user picked a peer and it accepted.
+const conn = await new LP2PRequest().start();
 ```
 
-For a more in-dept overview of the proposal, please see the [Explainer](EXPLAINER.md).
+### Local data pipes
+
+Data channels, aligned with `RTCDataChannel`. This API isn't fully specified yet and depends on LP2P issue 29.
+
+```js
+const channel = conn.createDataChannel("chat");
+channel.onopen = () => channel.send("Hi you!");
+```
+
+WebTransport, aligned with the `WebTransport` API.
+
+```js
+const transport = await lp2p.connect({ ...options });
+```
+
+### Local HTTPS (separate draft)
+
+[Local HTTPS](https://WICG.github.io/local-peer-to-peer/local-https.html) lets the browser talk securely to HTTPS servers on the local network without public certificate authorities, using the same trust. The browser is a client, not a server.
+
+For a more in-depth overview, see the [Explainer](EXPLAINER.md).
 
 ## Status
 
