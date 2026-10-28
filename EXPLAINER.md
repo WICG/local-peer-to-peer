@@ -123,9 +123,9 @@ The main concepts:
 - **Advertising and discovery:** a page can make its user agent discoverable, or look for peers, possibly over channels other than the IP link. Discovery results are untrusted hints, and are never exposed to pages.
 - **Trust ceremony:** a one-time step the user confirms, such as entering a PIN, scanning a QR code or an NFC tap. It mutually authenticates two peers and adds a trust anchor.
 - **Local trust store:** the trust anchors the user added, kept separate from the Web PKI root store. A peer is trusted if its credentials chain to an anchor. Anchors can also be parties that vouch for devices, such as a hub.
-- **Peer grant:** the user's consent, given in a picker, for one origin to use a peer. A grant for a device covers its services by default.
+- **Peer grant:** the user's consent, given in a picker, for one origin to use a peer. A grant is for one peer; with Local HTTPS, it also covers the names under that device's name, such as its services.
 - **Session:** an authenticated connection with a peer for one origin. The side that starts it is the client, and the side that accepts it is the server. The requesting origin is asserted by the peer's user agent.
-- **Channels:** data channels and WebTransport sessions, carried over a session.
+- **Channels:** data channels and WebTransport sessions, carried over a Local Peer-to-Peer session.
 - **Transport binding:** maps all of the above onto a concrete protocol over IP, such as the Open Screen Network Protocol.
 
 ### API Design
@@ -134,25 +134,23 @@ Peer-to-Peer communication starts with service discovery. For this purpose, the 
 
 ## Shorthand APIs
 
-The specification provides shorthand APIs for the most common use cases. More granular APIs are discussed below.
+The specification provides shorthand APIs, in the `lp2p` namespace, for the most common use cases. More granular APIs are discussed below.
 
 ```js
 // Peer A
-const listener = lp2p.makeDiscoverable(options);
-
-for await (const transport of listener.incomingTransports) {
-  await transport.ready;
+for await (const transport of lp2p.makeDiscoverable({ ...options })) {
+  // Incoming transports are already ready.
 }
 ```
 
 ```js
 // Peer B
-const transport = lp2p.connect(options);
-
-await transport.ready;
+const transport = await lp2p.connect({ ...options });
 ```
 
-_Note_: the shorthand APIs are a work in progress. They are illustrative and will change, see [#35](https://github.com/WICG/local-peer-to-peer/issues/35).
+`makeDiscoverable()` returns one stream of incoming transports across all connections, combining an `LP2PReceiver` with an `LP2PQuicTransportListener` on each of its connections, which it owns. `connect()` returns a promise for a transport, which resolves once a peer is picked and the session is up, combining an `LP2PRequest` with `new LP2PQuicTransport(connection)`; it creates no listener, and a `signal` option cancels it. On both sides, `transport.connection` gives access to the connection, to open data channels or `close()` it. The shorthand covers transports only: a connection over which the peer only opens data channels never shows up in `makeDiscoverable()`. See below for the full APIs.
+
+_Note_: the shorthand APIs are a work in progress and may change, see [#35](https://github.com/WICG/local-peer-to-peer/issues/35).
 
 ## Peer discovery
 
@@ -162,12 +160,21 @@ Before any connection can be established, two peers on the local communication m
 // Peer A
 const receiver = new LP2PReceiver({
   nickname: "Peer A",
+  // Optional: also accept connections from pages of another origin.
+  allowedOrigins: ["https://partner.example"],
 });
 
 receiver.onconnection = (e) => {
   const conn = e.connection;
   console.log("Receiver: Got a connection!");
+  conn.onclose = () => console.log("Receiver: Connection closed.");
 };
+
+// Asks the user for permission to advertise.
+await receiver.start();
+
+// Later: stop advertising. Existing connections stay open.
+receiver.stop();
 ```
 
 Please refer to the [LP2PReceiver Interface](https://wicg.github.io/local-peer-to-peer/#lp2p-receiver) in the specification for more details.
@@ -178,8 +185,13 @@ const request = new LP2PRequest({
   nickname: "Peer B",
 });
 
+// Shows a peer picker. Rejects with NotAllowedError if the user dismisses
+// it, or if the chosen peer refuses the connection.
 const conn = await request.start();
 console.log("Requester: Got a connection!");
+
+// Later: close the connection on both sides.
+conn.close();
 ```
 
 Please refer to the [LP2PRequest Interface](https://wicg.github.io/local-peer-to-peer/#lp2p-request) in the specification for more details.
@@ -216,19 +228,23 @@ The `LP2PQuicTransportListener` and `LP2PQuicTransport` interfaces allow opening
 
 ```js
 // Peer A
-const listener = new LP2PQuicTransportListener(receiver);
+receiver.onconnection = async (e) => {
+  const listener = new LP2PQuicTransportListener(e.connection);
 
-for await (const transport of listener.incomingTransports) {
-  await transport.ready;
-}
+  for await (const transport of listener.incomingTransports) {
+    const stream = await transport.createBidirectionalStream();
+  }
+};
 ```
 
 ```js
 // Peer B
-const transport = new LP2PQuicTransport(request);
+const transport = new LP2PQuicTransport(conn);
 
 await transport.ready;
 ```
+
+Either peer can open a transport on a connection; the other receives it through its listener. Closing a transport leaves the connection open, while closing the connection closes its transports.
 
 Please refer to the [LP2PQuicTransport Interface](https://wicg.github.io/local-peer-to-peer/#lp2p-quic-transport) in the specification for more details.
 
@@ -272,7 +288,7 @@ Applications may still choose to use an internet-based connection, such as WebRT
 
 ### Previous and related work
 
-The Local Peer-to-Peer approach differs from earlier efforts by putting the user-agent in control during device discovery and mutual authentication. This approach allows exposing bare minimal information about the device to an origin. The list of discovered devices is never shared with the origin and individual peer descriptors such as nickname are only shared with the origin after authentication and user consent. No [communication medium topology](https://wicg.github.io/local-peer-to-peer/#communication-medium-topology) information such as IP addresses is ever shared with an origin.
+The Local Peer-to-Peer approach differs from earlier efforts by putting the user-agent in control during device discovery and mutual authentication. This approach allows exposing bare minimal information about the device to an origin. The list of discovered devices is never shared with the origin and no peer attributes are shared with the origin at all: only the user agent's user interface shows the peer's display name and nickname, to pick or accept a peer. No [communication medium topology](https://wicg.github.io/local-peer-to-peer/#communication-medium-topology) information such as IP addresses is ever shared with an origin.
 
 #### Active
 
