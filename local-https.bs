@@ -14,6 +14,23 @@ Abstract: Local HTTPS lets user agents validate HTTPS servers under `.local` aga
 Markup Shorthands: markdown yes, dfn yes, idl yes, markup yes
 </pre>
 
+<pre class="anchors">
+urlPrefix: https://wicg.github.io/local-peer-to-peer/; type: dfn; spec: LP2P
+    text: local trust store; url: #local-trust-store
+    text: trust anchor; url: #trust-anchor
+    text: scope; for: trust anchor; url: #trust-anchor-scope
+    text: one peer; for: trust anchor/scope; url: #trust-anchor-scope-one-peer
+    text: vouching; for: trust anchor/scope; url: #trust-anchor-scope-vouching
+    text: trust ceremony; url: #trust-ceremony
+    text: trust anchor checks; url: #trust-anchor-checks
+    text: add a trust anchor; url: #add-a-trust-anchor
+    text: peer grants; url: #peer-grants
+    text: acquire a local peer grant; url: #acquire-a-local-peer-grant
+    text: known peer; url: #known-peer
+    text: anchor key; for: known peer; url: #known-peer-anchor-key
+    text: peer identity; for: peer; url: #peer-peer-identity
+</pre>
+
 Note: This document was split out of the [Local Peer-to-Peer API](https://wicg.github.io/local-peer-to-peer/) specification. It is an early, unofficial draft that sets a direction. Open questions are marked as issues.
 
 Issue(34): Local HTTPS is a work in progress.
@@ -25,18 +42,18 @@ Introduction {#intro}
 
 Browsers can't reach a NAS, printer or TV on the local network over HTTPS without a public name, a certificate authority and an internet connection. Local HTTPS uses ordinary X.509 certificate path validation [[RFC5280]] instead, with two differences from the Web PKI:
 
-1. **Trust anchors are added by the user** through a trust ceremony, such as Local Peer-to-Peer [authentication](https://wicg.github.io/local-peer-to-peer/#authenticate-a-local-peer), instead of a root program. Each anchor is limited to a namespace under `.local`.
+1. **Trust anchors are added by the user** through a Local Peer-to-Peer [=trust ceremony=], instead of a root program. Each anchor is limited to a namespace under `.local`.
 2. **Requests from a page are scoped** to the anchors for devices that the page was granted.
 
 The origin model, CORS, the `Origin` header and [[LOCAL-NETWORK-ACCESS|Local Network Access]] are unchanged.
 
-Local trust anchors {#trust-anchors}
-====================================
+Trust anchors {#trust-anchors}
+==============================
 
-Local HTTPS uses the <dfn>local trust store</dfn> of [Local Peer-to-Peer](https://wicg.github.io/local-peer-to-peer/#local-trust-store), one per user profile, separate from the Web PKI root store. Its [trust anchors](https://wicg.github.io/local-peer-to-peer/#trust-anchor), here called <dfn>local trust anchors</dfn>, are added through a <dfn>trust ceremony</dfn> as defined there. For Local HTTPS, each anchor's [scope](https://wicg.github.io/local-peer-to-peer/#trust-anchor-scope) is a <dfn>namespace</dfn>, kept as name constraints in the trust store entry, as in [[RFC5914]]:
+Local HTTPS uses the Local Peer-to-Peer [=local trust store=], one per user profile, separate from the Web PKI root store. Its [=trust anchors=] are added through a [=trust ceremony=]. For Local HTTPS, each [=trust anchor=] has a <dfn>namespace</dfn>, derived from its [=trust anchor/scope=] and kept as name constraints in the trust store entry, as in [[RFC5914]]:
 
-- for a single peer, the name it advertises and the names under it;
-- for a vouching party, the namespace the user accepted in the [=trust ceremony=].
+- for [=trust anchor/scope/one peer=], the name that peer advertises and the names under it;
+- for [=trust anchor/scope/vouching=], the namespace the user accepted in the [=trust ceremony=].
 
 <div class="example">
 - A device that advertises its services under `nas` is an anchor for `nas.local` and `*.nas.local`.
@@ -44,7 +61,7 @@ Local HTTPS uses the <dfn>local trust store</dfn> of [Local Peer-to-Peer](https:
 
 </div>
 
-The namespace comes from the name the device advertises, and is trusted only once the ceremony has authenticated the device. Anchors with the same key merge, as defined by Local Peer-to-Peer. Anchors with different keys MUST NOT both be able to certify a host: the most specific [=namespace=] that contains a host decides which anchor may certify it, as with DNS delegation, and a trust ceremony MUST NOT add an anchor that would change which key certifies a host already in use, such as a known peer or a host with site data. So at most one key can certify a given host.
+The namespace comes from the name the device advertises, and is trusted only once the ceremony has authenticated the device. Anchors with the same key merge as [=add a trust anchor=] does: a [=trust anchor/scope/vouching=] anchor replaces the [=trust anchor/scope/one peer=] anchors with the same key. Anchors with different keys MUST NOT both be able to certify a host: the most specific [=namespace=] that contains a host decides which anchor may certify it, as with DNS delegation. Local HTTPS defines a [=trust anchor checks|trust anchor check=] that returns false for an anchor that would change which key certifies a host already in use, such as that of a [=known peer=] or a host with site data, so the [=trust ceremony=] fails. So at most one key can certify a given host.
 
 Issue: Define how the ceremony conveys and confirms the namespace, for devices and for referees.
 
@@ -65,7 +82,7 @@ Validation {#validation}
 The user agent finds the address of a [=local origin=] through discovery, which is untrusted, as DNS is. It sends the host in SNI and validates the certificate path [[RFC5280]] with:
 
 - the anchor with the most specific [=namespace=] that contains the host as the trust anchor;
-- that [=namespace=] and, for a request from a page, its [=peer grant=] as initial name constraints;
+- that [=namespace=] and, for a request from a page, its [=grant constraint=] as initial name constraints;
 - the host as the reference identifier, matched against the subjectAltName [[RFC9525]].
 
 Certificate errors for a [=local origin=] MUST NOT be overridable. Leaves and intermediates can be short-lived and rotate freely.
@@ -85,9 +102,9 @@ Scopes {#scopes}
 The <dfn>applicable anchors</dfn> for a request are:
 
 - for a navigation the user initiated, such as from the address bar or a bookmark, every anchor in the [=local trust store=];
-- for a request from an [=/origin=], only the anchors that origin holds a <dfn>peer grant</dfn> for, through [acquire a local peer grant](https://wicg.github.io/local-peer-to-peer/#acquire-a-local-peer-grant).
+- for a request from an [=/origin=], only the anchors that the peers in its [=peer grants=], granted through [=acquire a local peer grant=], chain to: the anchors with their recorded [=known peer/anchor key=].
 
-A [=peer grant=] covers part of a [=namespace=], by default one device and its services, such as `nas.local` and `*.nas.local`. It acts as an extra name constraint, so a page granted one device can't reach another device under the same referee.
+The <dfn>grant constraint</dfn> of a request from an [=/origin=] is derived from the [=peer/peer identities=] in its [=peer grants=]: for each granted peer, the name it advertises and the names under it, such as `nas.local` and `*.nas.local`. It acts as an extra name constraint, so a page granted one device can't reach another device under the same referee.
 
 The user agent MUST NOT resolve, connect to or probe a [=local host=] for a page outside its [=applicable anchors=].
 
@@ -100,9 +117,9 @@ Origins, Fetch and Local Network Access {#origins}
 
 A [=local origin=] has the usual tuple, for example (`https`, `nas.local`, 443), and is a secure context. Because at most one key can certify a host, the tuple is unambiguous within a profile. A different `nas` device fails validation, and an unpaired `http://nas.local` is a different origin.
 
-When a [=local trust anchor=] is removed, the user agent MUST clear site data for all hosts in its [=namespace=].
+When a [=trust anchor=] is removed, the user agent MUST clear site data for all hosts in its [=namespace=].
 
-Requests to [=local origins=] are ordinary requests [[FETCH]]: servers apply CORS based on the `Origin` header, and WebTransport servers check `Origin` [[WEBTRANSPORT]]. A [=peer grant=] satisfies the [[LOCAL-NETWORK-ACCESS|Local Network Access]] permission for the hosts it covers only. CSP is not extended: `connect-src https://*.local` works.
+Requests to [=local origins=] are ordinary requests [[FETCH]]: servers apply CORS based on the `Origin` header, and WebTransport servers check `Origin` [[WEBTRANSPORT]]. The [=peer grants=] satisfy the [[LOCAL-NETWORK-ACCESS|Local Network Access]] permission only for the hosts within the [=grant constraint=]. CSP is not extended: `connect-src https://*.local` works.
 
 Note: Unlike ["Expanding what HTTPS means"](https://lowentropy.net/posts/local-https/), this doesn't add the server's key to the origin tuple; allowing at most one key per host already makes names unambiguous.
 

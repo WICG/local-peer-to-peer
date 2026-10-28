@@ -17,6 +17,7 @@ Markup Shorthands: markdown yes, dfn yes, idl yes, markup yes
 
 <pre class="link-defaults">
 spec:html; type:dfn; text:allowed to use
+spec:html; type:dfn; for:/; text:global object
 </pre>
 
 Note: This specification is under active development and therefore incomplete. If you're looking for an overview of the proposal, please refer to the [Explainer](https://github.com/WICG/local-peer-to-peer/blob/main/EXPLAINER.md).
@@ -85,7 +86,7 @@ The user agent is in charge of managing peers.
 
 A <dfn>peer</dfn> is an equal participant in the [=local communication=]. These nodes can communicate without the need for a central coordination by a server.
 
-A user agent has an associated <dfn>local peer-to-peer manager</dfn> in charge of managing [=peers=]. Its responsibility is to [=start local peer discovery=], [=establish local peer connections=] and [=acquire a local peer grant=] on a per-origin basis. This is done to avoid exposing information about the [=communication medium topology=].
+A user agent has an associated <dfn>local peer-to-peer manager</dfn> in charge of managing [=peers=]. Its responsibility is to [=start local peer discovery=], [=establish a session|establish sessions=] and [=acquire a local peer grant=] on a per-origin basis. This is done to avoid exposing information about the [=communication medium topology=].
 
 Local state {#known-peers}
 --------------------------
@@ -95,21 +96,93 @@ The [=local peer-to-peer manager=] has:
 : <dfn>local trust store</dfn>
 :: A [=/set=] of [=trust anchors=], see [[#peer-authentication]].
 : <dfn>known peers map</dfn>
-:: An [=/ordered map=] from [=peer/peer identity=] to <dfn>known peer</dfn>: a [=peer=] the user agent has discovered or had a session with. Whether a known peer is [=/authenticated=] is not stored; it follows from the [=local trust store=].
+:: An [=/ordered map=] from [=peer/peer identity=] to <dfn>known peer</dfn>: a [=peer=] the user agent has had an [=protocol/authenticated=] session with.
 : <dfn>peer grants</dfn>
 :: An [=/ordered map=] from [=/origin=] to the [=/set=] of [=peer/peer identities=] that the origin may use.
 
-These are kept consistent:
+A [=known peer=] records the <dfn for="known peer">anchor key</dfn> and <dfn for="known peer">subject</dfn> it last chained to on an [=protocol/authenticated=] session, or null. Whether it is [=/authenticated=] is not stored: without a live session, it is evaluated on these, against the [=local trust store=]. So removing a [=trust anchor=] can tell which peers are no longer [=/authenticated=].
 
-* Removing a [=trust anchor=] removes the [=peer grants=] of peers that are no longer [=/authenticated=].
-* Removing a [=known peer=] removes it from all [=peer grants=].
-* Clearing an origin's site data or permissions removes its [=peer grants=].
+The state is changed only by the operations below. How it is stored is [=implementation-defined=].
 
-Note: [=Peer grants=] are origin-level while the [=local trust store=] is shared by all origins, so that the user doesn't need to authenticate the same peer again for every origin. Origins are kept apart by the [=peer grants=] and by the [=protocol/requesting origin=] of each session. [=Peer grants=] could be stored as the origin's permission data in the [=permission store=], as Web Bluetooth does for its allowed devices.
+Other specifications can define <dfn>trust anchor checks</dfn>: steps that, given a [=trust anchor=], return whether it may be added to the [=local trust store=]. Local HTTPS uses one to keep at most one key per host.
+
+<div algorithm>
+To <dfn>add a trust anchor</dfn> given a [=trust anchor/key=] |key|, a [=trust anchor/scope=] |scope| and, for [=trust anchor/scope/one peer=], a subject |subject|:
+
+1. Let |anchor| be a [=trust anchor=] with |key|, |scope| and, if given, |subject|.
+1. If the [=local trust store=] [=list/contains=] a [=trust anchor/scope/vouching=] [=trust anchor=] with |key|, or the same [=trust anchor/scope/one peer=] [=trust anchor=], return success.
+1. If any [=trust anchor check=] returns false given |anchor|, return failure.
+1. If |scope| is [=trust anchor/scope/vouching=], [=list/remove=] from the [=local trust store=] the [=trust anchor/scope/one peer=] [=trust anchors=] with |key|, which it covers.
+1. [=set/Append=] |anchor| to the [=local trust store=] and return success.
+
+</div>
+
+<div algorithm>
+To <dfn>remove a trust anchor</dfn> |anchor|:
+
+1. [=set/Remove=] |anchor| from the [=local trust store=].
+1. [=map/For each=] |identity| → |peer| of the [=known peers map=], if |peer| is no longer [=/authenticated=]:
+    1. [=map/For each=] |origin| → |identities| of the [=peer grants=], if |identities| [=set/contains=] |identity|, [=revoke a peer grant=] given |origin| and |identity|.
+    1. [=Close the sessions with a peer=] given |identity|.
+
+</div>
+
+<div algorithm>
+To <dfn>replace a trust anchor key</dfn> |old| with |new|:
+
+1. For each [=trust anchor=] in the [=local trust store=] whose [=trust anchor/key=] is |old|, set its [=trust anchor/key=] to |new|.
+1. For each [=known peer=] whose [=known peer/anchor key=] is |old|, set it to |new|.
+
+</div>
+
+<div algorithm>
+To <dfn>add a known peer</dfn> |peer|, which is on an [=protocol/authenticated=] session:
+
+1. Set the [=known peers map=][|peer|'s [=peer/peer identity=]] to |peer|, recording as its [=known peer/anchor key=] and [=known peer/subject=] the ones it chains to on that session.
+
+</div>
+
+<div algorithm>
+To <dfn>forget a known peer</dfn> given a [=peer/peer identity=] |identity|:
+
+1. [=map/For each=] |origin| → |identities| of the [=peer grants=], if |identities| [=set/contains=] |identity|, [=revoke a peer grant=] given |origin| and |identity|.
+1. [=Close the sessions with a peer=] given |identity|.
+1. [=map/Remove=] the [=known peers map=][|identity|].
+
+</div>
+
+<div algorithm>
+To <dfn>grant a peer</dfn> given an [=/origin=] |origin| and a [=peer/peer identity=] |identity|:
+
+1. If the [=peer grants=][|origin|] does not [=map/exist=], set it to an empty [=/set=].
+1. [=set/Append=] |identity| to the [=peer grants=][|origin|].
+
+</div>
+
+<div algorithm>
+To <dfn>revoke a peer grant</dfn> given an [=/origin=] |origin| and a [=peer/peer identity=] |identity|:
+
+1. [=set/Remove=] |identity| from the [=peer grants=][|origin|], and [=map/remove=] the [=peer grants=][|origin|] if it is then empty.
+1. [=Close the sessions with a peer=] given |identity| and |origin|.
+
+</div>
+
+When an origin's site data or permissions are cleared, the user agent runs [=revoke a peer grant=] given that origin and each [=peer/peer identity=] in its [=peer grants=].
+
+<div algorithm>
+To <dfn>close the sessions with a peer</dfn> given a [=peer/peer identity=] |identity| and an optional [=/origin=] |origin|:
+
+1. For each {{LP2PConnection}} |connection| whose {{LP2PConnection/[[Session]]}} is with the peer with |identity|, and, if |origin| is given, whose [=relevant settings object=]'s [=environment settings object/origin=] is |origin|: [=close a session|close=] |connection|.{{LP2PConnection/[[Session]]}}, and [=queue a global task=] on the [=networking task source=] given |connection|'s [=relevant global object=] to run [=LP2PConnection/finalize=] given |connection|, which fires {{LP2PConnection/close}}.
+
+</div>
+
+Note: [=Peer grants=] are origin-level while the [=local trust store=] is shared by all origins, so that the user doesn't need to authenticate the same peer again for every origin. Origins are kept apart by the [=peer grants=] and by the [=protocol/requesting origin=] of each session. [=Peer grants=] could be stored as the origin's permission data in the [=permission store=], as [Web Bluetooth](https://bluetooth.spec.whatwg.org/) does for its allowed devices.
+
+Issue: Decide whether to back [=peer grants=] with the [=permission store=], as the extra permission data of a "local-peer-to-peer" powerful feature, which would also give a permission query and revocation.
 
 Issue(WICG/local-peer-to-peer#24): Validate that a [=local trust store=] shared by all origins is appropriate, or whether [=trust anchors=] should be partitioned, for example per top-level site.
 
-The user agent may persist its [=local trust store=], [=known peers=] and/or [=peer grants=]. If the user agent chooses to do so, it must do so in accordance with the persistent state rules of the [=transport binding=] in use. Such state is said to be <dfn>persisted</dfn>. Results of [=discover peers=], such as addresses, are not part of this state. The user agent should let the user view and remove [=trust anchors=], [=known peers=] and [=peer grants=].
+The user agent may persist its [=local trust store=], [=known peers=] and/or [=peer grants=]. If the user agent chooses to do so, it must do so in accordance with the persistent state rules of the [=transport binding=] in use. Such state is said to be <dfn>persisted</dfn>. Results of [=discover peers=], such as addresses, are not part of this state. The user agent should let the user view [=trust anchors=], [=known peers=] and [=peer grants=], and remove them with [=remove a trust anchor=], [=forget a known peer=] and [=revoke a peer grant=].
 
 Peer advertisement {#peer-advertisement}
 ----------------------------------------
@@ -118,16 +191,16 @@ The user agent can make itself discoverable by advertising, using [=start advert
 
 Note: The user agent must get the user's explicit consent in order to start advertising.
 
-When advertising, the user agent must listen for incoming peer connections. In case an [=incoming session=] is received, the peer is added to the [=known peers map=]. The user agent must not directly provide access to the incoming peer connection to any origin. Instead, the user agent must prompt to [grant peer](#peer-grant) access to the origin that initiated peer advertisement.
+When advertising, the user agent must listen for [=incoming sessions=]. Once an [=incoming session=] is [=protocol/authenticated=], the user agent runs [=add a known peer=] with the peer. The user agent must not directly provide access to an [=incoming session=] to any origin. Instead, unless the peer is already in the [=peer grants=] of the origin that initiated peer advertisement, the user agent must prompt to [grant peer](#peer-grant) access to that origin. Accepting the [=incoming session=] runs [=grant a peer=] for that origin, so later sessions from the peer do not prompt again. See [[#lp2p-receiver-incoming-session]].
 
-The user agent must deliver an [=incoming session=] only to a started {{LP2PReceiver}} that <dfn lt="allows an origin">allows</dfn> the session's [=protocol/requesting origin=], and close the session if there is none. An {{LP2PReceiver}} [=allows an origin=] if that origin is [=same origin=] with the receiver's [=relevant settings object=]'s [=environment settings object/origin=], or with the [=url/origin=] of an entry of its {{LP2PReceiverOptions/allowedOrigins}}.
+The user agent must deliver an [=incoming session=] only to a started {{LP2PReceiver}} that <dfn lt="allows an origin">allows</dfn> the session's [=protocol/requesting origin=], and [=refuse=] the session if there is none. An {{LP2PReceiver}} [=allows an origin=] |origin| if |origin| is not an [=opaque origin=], and is [=same origin=] with the receiver's [=relevant settings object=]'s [=environment settings object/origin=] or with an [=list/item=] of its {{LP2PReceiver/[[AllowedOrigins]]}}.
 
 Peer discovery {#peer-discovery}
 --------------------------------
 
 When asked to <dfn>start local peer discovery</dfn>, the user agent runs [=discover peers=].
 
-If a peer is discovered, the user agent should add it to the [=known peers map=]. The user agent must never expose the full result of peer discovery with an origin. Instead, the user agent must [=acquire a local peer grant=] to grant access to a peer for the origin that initiated the peer request.
+Discovered peers are only shown in the picker, see [=acquire a local peer grant=]; they are not [=known peers=], whose entries are added or updated only from [=protocol/authenticated=] sessions, by [=add a known peer=]. The user agent must never expose the full result of peer discovery with an origin. Instead, the user agent must [=acquire a local peer grant=] to grant access to a peer for the origin that initiated the peer request.
 
 Peer authentication {#peer-authentication}
 ------------------------------------------
@@ -139,17 +212,15 @@ A <dfn>trust anchor</dfn> is a key that the user agent trusts to authenticate [=
 : <dfn for="trust anchor">scope</dfn>
 :: Either <dfn for="trust anchor/scope">one peer</dfn>, a single peer that the anchor vouches for, or <dfn for="trust anchor/scope">vouching</dfn>, any peer the anchor vouches for, within limits defined by the [=transport binding=].
 
-Adding a [=trust anchor/scope/vouching=] [=trust anchor=] removes the [=trust anchor/scope/one peer=] [=trust anchors=] with the same [=trust anchor/key=], which it covers.
+Adding a [=trust anchor/scope/vouching=] [=trust anchor=] removes the [=trust anchor/scope/one peer=] [=trust anchors=] with the same [=trust anchor/key=], which it covers; see [=add a trust anchor=].
 
-A [=trust anchor=] is added to the [=local trust store=] only by a <dfn>trust ceremony</dfn>: a run of [=authenticate a session=] in which the user takes part, for example by entering a PIN or scanning a QR code. A [=trust ceremony=] with a peer adds a [=trust anchor=] scoped to [=trust anchor/scope/one peer=]: that peer. A [=trust anchor/scope/vouching=] [=trust anchor=] is only added by a [=trust ceremony=] with the vouching party itself.
+A [=trust anchor=] is added to the [=local trust store=] only by a <dfn>trust ceremony</dfn>: a run of [=authenticate a session=] in which the user takes part, for example by entering a PIN or scanning a QR code. A [=trust ceremony=] with a peer runs [=add a trust anchor=] scoped to [=trust anchor/scope/one peer=]: that peer. If the peer is a party that vouches for others, as the [=transport binding=] defines, and the user chooses to trust it for its devices, the ceremony instead runs [=add a trust anchor=] with the peer's key scoped to [=trust anchor/scope/vouching=]. So a [=trust anchor/scope/vouching=] [=trust anchor=] is only added by a [=trust ceremony=] with the vouching party itself. If [=add a trust anchor=] returns failure, the ceremony fails.
 
 A [=peer=] is said to be <dfn>authenticated</dfn> when its credentials chain to the [=trust anchor/key=] of a [=trust anchor=] in the [=local trust store=], and the peer is within that anchor's [=trust anchor/scope=].
 
-A peer's credentials may change over time without changing its [=peer/peer identity=], as long as they chain to the same [=trust anchor/key=]. Whether a [=trust anchor/key=] can be replaced with continuity is defined by the [=transport binding=]; if so, the new key replaces the old one in every [=trust anchor=] that has it. Otherwise, a new key needs a new [=trust ceremony=].
+A peer's credentials may change over time without changing its [=peer/peer identity=], as long as they chain to the same [=trust anchor/key=]. Whether a [=trust anchor/key=] can be replaced with continuity is defined by the [=transport binding=]; if so, the user agent runs [=replace a trust anchor key=]. Otherwise, a new key needs a new [=trust ceremony=].
 
 Issue: Define how a peer can move to another [=trust anchor=]'s [=trust anchor/key=] while keeping its [=peer/peer identity=] and [=peer grants=], for example by proving that it holds both keys.
-
-When asked to <dfn>authenticate a local peer</dfn>, the user agent must [=establish local peer connection|establish a session=] with the peer, unless one exists, and run [=authenticate a session=] on it. The peer is [=/authenticated=] if this succeeds.
 
 <div class="example" id="example-trust-anchors">
     * A device paired directly that uses its own key, which makes it <dfn>self-anchored</dfn>: its key, scoped to [=trust anchor/scope/one peer=], that device.
@@ -166,7 +237,7 @@ The user agent, with the user's consent, must [=acquire a local peer grant=] for
 
 Note: The user agent must get the user's explicit consent in order to grant an origin access to a peer. For enhanced privacy protection, the user agent must provide means to dismiss any related user interface and this action must not be detectable by script or have script-observable side-effects. The user interface may provide means to revoke the grant or to make the grant [=persisted=].
 
-When asked to <dfn>acquire a local peer grant</dfn>, the user agent displays the [=known peers=] to the user through its native user interface. When the user selects a peer from the user interface, the user agent must check the selected peer is [=/authenticated=], and run the [=authenticate a local peer=] algorithm otherwise, and, if the user grants access, add the selected peer's [=peer/peer identity=] to the origin's [=peer grants=].
+When asked to <dfn>acquire a local peer grant</dfn> for an origin, the user agent displays the peers that [=discover peers=] reports to the user through its native user interface, marking those that are [=known peers=], and returns the peer the user selects, or null if the user dismisses the user interface. The user agent may leave out peers whose [=peer/capabilities=] lack the features the page needs. Selecting a peer is the user's consent. Once a session with the selected peer is [=protocol/authenticated=] and [=accepted=], the user agent runs [=grant a peer=] for the origin. See {{LP2PRequest/start()}}.
 
 Transport abstraction {#transport-abstraction}
 ==============================================
@@ -183,27 +254,33 @@ A [=peer=] has the following, provided by its [=transport binding=]. None of the
 : <dfn for="peer">peer identity</dfn>
 :: An opaque value that identifies the peer, stable across sessions, scoped to the [=transport binding=]. It is derived from the [=trust anchor/key=] that the peer's credentials chain to and the peer's subject under it; for a [=self-anchored=] peer, the subject is its own key. It is only trusted once the peer is [=/authenticated=]. The [=known peers map=] and [=peer grants=] are keyed on it.
 : <dfn for="peer">display name</dfn>
-:: A name for the peer device, for display in user agent user interface, or null. It is asserted by the peer's user agent, not by script. Trusted only if obtained after the peer is [=/authenticated=], or by other means the user agent considers trustworthy; otherwise, such as during [=discover peers=], it is a display hint.
+:: A name for the peer device, for display in user agent user interface, or null. It is asserted by the peer's user agent, not by script. Trusted only if obtained on a session that is or becomes [=protocol/authenticated=], or by other means the user agent considers trustworthy; otherwise, such as during [=discover peers=], it is a display hint.
 : <dfn for="peer">nickname</dfn>
 :: The nickname given by the remote page when it started advertising, or null. It is chosen by script and never verified.
+: <dfn for="peer">capabilities</dfn>
+:: The [=/set=] of features the peer supports: <dfn for="peer/capabilities">data channels</dfn> and <dfn for="peer/capabilities">WebTransport</dfn>. Like the [=peer/display name=], it is asserted by the peer's user agent and is only a hint until the peer is [=/authenticated=].
+
+A user agent [=refuses=] an [=incoming data channel=] or [=incoming WebTransport session=] for a feature it has not enabled.
 
 A <dfn for="protocol">Local Peer-to-Peer session</dfn> is a confidential connection with one [=peer=]. It is <dfn for="protocol">authenticated</dfn> if the credentials the peer presented in it chain to a [=trust anchor=] in the [=local trust store=], which verifies the [=peer/peer identity=] of the peer for it.
 
 A [=Local Peer-to-Peer session=] that is exposed to an origin is not shared with other origins. A binding may carry several sessions with the same peer over one underlying connection, or use a separate connection for each.
 
-For each [=Local Peer-to-Peer session=], the side that established it with [=establish local peer connection=] is the <dfn for="protocol">client</dfn>, and the side that reported it as an [=incoming session=] is the <dfn for="protocol">server</dfn>. Once established, the session is symmetric: either side can use any operation on it, except that:
+For each [=Local Peer-to-Peer session=], the side that established it with [=establish a session=] is the <dfn for="protocol">client</dfn>, and the side that reported it as an [=incoming session=] is the <dfn for="protocol">server</dfn>. Once established, the session is symmetric: either side can use any operation on it, except that:
 
 * the [=protocol/server=] validates the [=protocol/requesting origin=];
 * where the binding needs it to avoid collisions, identifiers such as [=data channel/id=]s and streams follow the role;
 * only the [=protocol/client=] opens any additional underlying connection for the session.
 
-A [=Local Peer-to-Peer session=] that is exposed to an origin has a <dfn for="protocol">requesting origin</dfn>: the [=/origin=] on whose behalf the [=protocol/client=] established it. The [=protocol/client=] conveys it inside the [=protocol/authenticated=] session, bound to that session (for example by a per-origin credential or the exporter context; defined by the [=transport binding=]). The [=protocol/server=] checks it as described in [[#peer-advertisement]].
+A [=Local Peer-to-Peer session=] that is exposed to an origin has a <dfn for="protocol">requesting origin</dfn>: the [=/origin=] on whose behalf the [=protocol/client=] established it. The [=protocol/client=] conveys it inside the session, and the [=transport binding=] binds it to the [=protocol/authenticated=] session, for example by carrying it on the channel that authentication covers. The [=protocol/server=] checks it as described in [[#peer-advertisement]].
+
+The [=protocol/requesting origin=] reveals which sites the user is using, and the origins that a [=protocol/server=] accepts reveal which sites its user is using. Neither is exposed to a peer that is not [=/authenticated=]. A [=transport binding=] may let the [=protocol/server=] find out earlier whether it would accept the [=protocol/requesting origin=], so that a [=trust ceremony=] is not wasted on a session it [=refuses=], only with a mechanism that exposes neither. Otherwise, a first [=trust ceremony=] with a peer can end in a refusal.
+
+Issue: Follow up on REQ-NAME-05, "Privacy-Preserving Discovery", of the IETF SETTLE [requirements](https://datatracker.ietf.org/doc/draft-sweet-settle-requirements/), for a mechanism that lets a [=protocol/server=] decide earlier without exposing either side's origins.
 
 The [=protocol/requesting origin=] is asserted by the peer's user agent. The binding guarantees that it is consistent for the session, not that it is authentic: it does not prove that the remote page was served by that origin. User agents must not grant anything that belongs to the [=protocol/requesting origin=], such as its permissions, storage or credentials, on the strength of it. This is the same model as the `Origin` header in [[FETCH]].
 
-Device keys, credentials and anything else that would let an origin authenticate as the user agent must not be exposed to origins. User agents should instead expose per-session keying material exporters, like those of [WebTransport over HTTP/3](https://datatracker.ietf.org/doc/draft-ietf-webtrans-http3/), so that applications can prove their origins with credentials their own origin issued.
-
-Issue: Define the keying material exporter API, for example an `exportKeyingMaterial()` method as considered for WebTransport, and whether its context includes the [=protocol/requesting origin=].
+Device keys, credentials and anything else that would let an origin authenticate as the user agent must not be exposed to origins. Instead, each [=WebTransport session=] has its own keying material exporter, see [=export keying material=], so that applications can prove their origins with credentials their own origin issued.
 
 A <dfn>data channel</dfn> is a reliable, ordered, message-preserving, bidirectional channel on a [=Local Peer-to-Peer session=]. Either side can open one. It has an <dfn for="data channel">id</dfn>, an integer between 0 and 65,534 that is unique within the session, a <dfn for="data channel">label</dfn> and a <dfn for="data channel">protocol</dfn>. A message on a [=data channel=] is a sequence of bytes, marked as either text or binary.
 
@@ -215,11 +292,11 @@ A [=transport binding=] provides the following operations. Any of them can fail,
 : To <dfn>start advertising</dfn> given a nickname
 :: Make the user agent discoverable through [=discover peers=] on other user agents, with the given [=peer/nickname=] if the binding can carry it, and accept sessions from peers. This returns an <dfn>advertisement</dfn>. Each [=Local Peer-to-Peer session=] a peer establishes with it is reported as an <dfn>incoming session</dfn> for that [=advertisement=]. To <dfn>stop advertising</dfn> given an [=advertisement=] ends both.
 : To <dfn>discover peers</dfn>
-:: Report the [=peers=] advertising on the [=local communication medium=], as they appear and disappear, until asked to <dfn>stop discovering peers</dfn>. A discovered [=peer/peer identity=] is not verified.
-: To <dfn>establish local peer connection</dfn> with a [=peer=]
-:: Establish a [=Local Peer-to-Peer session=] with the peer. On the peer, the session is reported as an [=incoming session=].
+:: Report the [=peers=] advertising on the [=local communication medium=], each with its [=peer/display name=] and [=peer/capabilities=] as far as the binding knows them, as they appear and disappear, until asked to <dfn>stop discovering peers</dfn>. A discovered [=peer/peer identity=] is not verified.
+: To <dfn>establish a session</dfn> with a [=peer=] given an [=/origin=]
+:: Establish a [=Local Peer-to-Peer session=] with the peer, with that origin as its [=protocol/requesting origin=]. On the peer, the session is reported as an [=incoming session=], which the peer's user agent later <dfn lt="accept|accepted">accepts</dfn> or <dfn lt="refuse|refused">refuses</dfn>. The [=protocol/client=] is notified of either. Refusing closes the session.
 : To <dfn>authenticate a session</dfn>
-:: Mutually authenticate the two sides of a [=Local Peer-to-Peer session=] and verify the [=peer/peer identity=] of the peer, so that the session is [=protocol/authenticated=]. If the peer's credentials do not chain to a [=trust anchor=] in the [=local trust store=], this is a [=trust ceremony=], which requires user interaction on one or both devices and adds a [=trust anchor=] scoped to that peer. Either side can initiate it.
+:: Mutually authenticate the two sides of a [=Local Peer-to-Peer session=] and verify the [=peer/peer identity=] of the peer, so that the session is [=protocol/authenticated=]. If the peer's credentials do not chain to a [=trust anchor=] in the [=local trust store=], this is a [=trust ceremony=], which requires user interaction on one or both devices and runs [=add a trust anchor=] as described in [[#peer-authentication]]. Only the [=protocol/client=] initiates it; the [=protocol/server=] only responds.
 : To <dfn>open a data channel</dfn> on an [=protocol/authenticated=] [=Local Peer-to-Peer session=] given a label, a protocol and an optional id
 :: Open a [=data channel=] with that [=data channel/label=] and [=data channel/protocol=], and with the given [=data channel/id=] or, if none is given, one chosen by the binding. The other side is notified of an <dfn>incoming data channel</dfn>, which its user agent accepts or refuses. The operation succeeds if it is accepted.
 : To <dfn>send data on a channel</dfn> given a [=data channel=] and a message
@@ -227,9 +304,15 @@ A [=transport binding=] provides the following operations. Any of them can fail,
 : To <dfn>close a data channel</dfn>
 :: Close the [=data channel=] in both directions. The other side is notified that it was closed.
 : To <dfn>close a session</dfn>
-:: Close the [=Local Peer-to-Peer session=], all of its [=data channels=] and any WebTransport session opened over it. The other side is notified that it was closed. The binding also reports a session as closed when the underlying transport fails.
+:: Close the [=Local Peer-to-Peer session=], all of its [=data channels=] and, abruptly, all of its [=WebTransport sessions=]. The other side is notified that it was closed. The binding also reports a session as closed when the underlying transport fails.
 : To <dfn>open a WebTransport session</dfn> over an [=protocol/authenticated=] [=Local Peer-to-Peer session=]
-:: Establish a session with the same peer that provides the capabilities of a WebTransport session as defined in [[!webtransport]], bound to the same [=peer/peer identity=]. The other side is notified of an incoming WebTransport session.
+:: Establish a session with the same peer that provides the capabilities of a WebTransport session as defined in [[!webtransport]], bound to the same [=peer/peer identity=]. The other side is notified of an <dfn>incoming WebTransport session</dfn>, which its user agent accepts or refuses. The operation succeeds if it is accepted. The session either delivers datagrams unreliably ("`supports-unreliable`") or, if the binding cannot lose messages, reliably ("`reliable-only`"), as WebTransport over HTTP/2 does.
+: To <dfn>close a WebTransport session</dfn> given a close code and a reason
+:: Close the [=WebTransport session=] and its streams. The other side is notified that it was closed, with that code and reason. The [=Local Peer-to-Peer session=] stays open. The binding also reports a [=WebTransport session=] as closed abruptly, without a code and reason, when it fails or its [=Local Peer-to-Peer session=] closes.
+: To <dfn>export keying material</dfn> from a [=WebTransport session=] given a label, a context and a length
+:: Return keying material of that length that both sides of the [=WebTransport session=] derive identically and that no other [=WebTransport session=] yields, including one carried over the same underlying connection. The binding derives it as [WebTransport over HTTP/3, Section 4.8](https://datatracker.ietf.org/doc/html/draft-ietf-webtrans-http3#section-4.8) does: a TLS exporter [[!RFC9846]] whose context holds an identifier of the [=WebTransport session=], the label and the context. The [=protocol/requesting origin=] need not be part of it, since a [=Local Peer-to-Peer session=] is not shared between origins.
+: To <dfn>drain a WebTransport session</dfn>
+:: Ask the other side to finish using the [=WebTransport session=] and close it. Both sides can still use it.
 
 Note: [=Data channels=] ({{LP2PDataChannel}}) and WebTransport sessions ({{LP2PQuicTransport}}) are two independent ways to communicate over a [=Local Peer-to-Peer session=]; neither is built on the other.
 
@@ -248,8 +331,110 @@ interface LP2PReceiver : EventTarget {
   constructor(optional LP2PReceiverOptions options = {});
   attribute EventHandler onconnection;
   Promise&lt;undefined&gt; start();
+  undefined stop();
 };
 </pre>
+
+An {{LP2PReceiver}} has the following internal slots:
+
+: <dfn attribute for="LP2PReceiver">\[[State]]</dfn>
+:: "`initial`", "`advertising`" or "`stopped`", initially "`initial`".
+: <dfn attribute for="LP2PReceiver">\[[StartPromise]]</dfn>
+:: A {{Promise}} or null, initially null.
+: <dfn attribute for="LP2PReceiver">\[[Advertisement]]</dfn>
+:: An [=advertisement=] or null, initially null.
+: <dfn attribute for="LP2PReceiver">\[[Nickname]]</dfn>
+:: A string.
+: <dfn attribute for="LP2PReceiver">\[[AllowedOrigins]]</dfn>
+:: A [=/list=] of [=/origins=].
+: <dfn attribute for="LP2PReceiver">\[[ConnectionSteps]]</dfn>
+:: Steps that take an {{LP2PConnection}}, run in place of the {{LP2PReceiver/connection}} event, or null.
+
+An {{LP2PReceiver}} is used once: after {{LP2PReceiver/stop()}} it cannot be started again.
+
+<div algorithm="LP2PReceiver constructor">
+The <dfn constructor for="LP2PReceiver">LP2PReceiver(|options|)</dfn> constructor steps are to [=set up an LP2PReceiver=] [=this=] given |options|.
+
+</div>
+
+<div algorithm>
+To <dfn>set up an LP2PReceiver</dfn> |receiver| given |options| and optional |connectionSteps|:
+
+1. Set |receiver|.{{LP2PReceiver/[[ConnectionSteps]]}} to |connectionSteps| if given, or null otherwise.
+1. Set |receiver|.{{LP2PReceiver/[[Nickname]]}} to |options|["{{LP2PReceiverOptions/nickname}}"] if it [=map/exists=], or the empty string otherwise.
+1. Set |receiver|.{{LP2PReceiver/[[AllowedOrigins]]}} to an empty [=/list=].
+1. [=list/For each=] |entry| of |options|["{{LP2PReceiverOptions/allowedOrigins}}"]:
+    1. Let |url| be the result of running the [=URL parser=] on |entry|.
+    1. If |url| is failure, throw a {{TypeError}}.
+    1. [=list/Append=] |url|'s [=url/origin=] to |receiver|.{{LP2PReceiver/[[AllowedOrigins]]}}. An [=opaque origin=] appended here never matches, see [=allows an origin=].
+
+</div>
+
+<div algorithm="LP2PReceiver start">
+The <dfn method for="LP2PReceiver">start()</dfn> method steps are to return the result of [=start an LP2PReceiver|starting=] [=this=].
+
+</div>
+
+<div algorithm>
+To <dfn>start an LP2PReceiver</dfn> |receiver|:
+
+1. If |receiver|.{{LP2PReceiver/[[State]]}} is "`stopped`", return [=a promise rejected with=] an "{{InvalidStateError}}" {{DOMException}}.
+1. If |receiver|.{{LP2PReceiver/[[StartPromise]]}} is not null, return it.
+1. Let |global| be |receiver|'s [=relevant global object=].
+1. If |global| is not permitted to use the "local-peer-to-peer" [=policy-controlled feature=], as described in [[#permission-policy-integration]], or |receiver|'s [=relevant settings object=]'s [=environment settings object/origin=] is an [=opaque origin=], return [=a promise rejected with=] a "{{NotAllowedError}}" {{DOMException}}.
+1. Let |promise| be [=a new promise=].
+1. Set |receiver|.{{LP2PReceiver/[[StartPromise]]}} to |promise|.
+1. Run these steps [=in parallel=]:
+    1. Ask the user for permission to advertise |receiver|.{{LP2PReceiver/[[Nickname]]}} on the [=local communication medium=] on behalf of |receiver|'s [=relevant settings object=]'s [=environment settings object/origin=], as described in [[#peer-advertisement]].
+    1. If the user did not grant permission, [=queue a global task=] on the [=networking task source=] given |global| to set |receiver|.{{LP2PReceiver/[[StartPromise]]}} to null and [=reject=] |promise| with a "{{NotAllowedError}}" {{DOMException}}, and abort these steps.
+    1. Let |advertisement| be the result of [=start advertising=] given |receiver|.{{LP2PReceiver/[[Nickname]]}}. If this fails, [=queue a global task=] on the [=networking task source=] given |global| to set |receiver|.{{LP2PReceiver/[[StartPromise]]}} to null and [=reject=] |promise| with a "{{NotAllowedError}}" {{DOMException}}, and abort these steps.
+    1. [=Queue a global task=] on the [=networking task source=] given |global| to run these steps:
+        1. If |receiver|.{{LP2PReceiver/[[State]]}} is "`stopped`", [=stop advertising=] given |advertisement| and abort these steps.
+        1. Set |receiver|.{{LP2PReceiver/[[Advertisement]]}} to |advertisement|.
+        1. Set |receiver|.{{LP2PReceiver/[[State]]}} to "`advertising`".
+        1. [=Resolve=] |promise| with undefined.
+1. Return |promise|.
+
+</div>
+
+Note: Whether the user declined to advertise or dismissed the user interface, the user agent takes the same steps, so that script cannot tell the two apart. See [[#peer-grant]].
+
+<div algorithm="LP2PReceiver stop">
+The <dfn method for="LP2PReceiver">stop()</dfn> method steps are to [=stop an LP2PReceiver|stop=] [=this=].
+
+</div>
+
+<div algorithm>
+To <dfn>stop an LP2PReceiver</dfn> |receiver|:
+
+1. If |receiver|.{{LP2PReceiver/[[State]]}} is "`stopped`", return.
+1. Set |receiver|.{{LP2PReceiver/[[State]]}} to "`stopped`".
+1. If |receiver|.{{LP2PReceiver/[[StartPromise]]}} is not null and is pending, [=reject=] it with an "{{AbortError}}" {{DOMException}}.
+1. If |receiver|.{{LP2PReceiver/[[Advertisement]]}} is not null, [=stop advertising=] given it and set |receiver|.{{LP2PReceiver/[[Advertisement]]}} to null.
+
+</div>
+
+Stopping does not affect the {{LP2PConnection}} objects already delivered; their [=Local Peer-to-Peer sessions=] stay open until closed.
+
+Incoming sessions {#lp2p-receiver-incoming-session}
+---------------------------------------------------
+
+<div algorithm="LP2PReceiver incoming session">
+When an [=incoming session=] |session| is reported, the user agent must run these steps [=in parallel=]:
+
+1. If |session| is not [=protocol/authenticated=], wait for the [=protocol/client=] to run [=authenticate a session=] on it, and respond. This may be a [=trust ceremony=]. If it fails, [=close a session|close=] |session| and abort these steps.
+1. Let |receiver| be the {{LP2PReceiver}} whose {{LP2PReceiver/[[Advertisement]]}} is the [=advertisement=] |session| was reported for, that is, the one the [=protocol/client=] picked, if its {{LP2PReceiver/[[State]]}} is "`advertising`" and it [=allows an origin|allows=] the [=protocol/requesting origin=]. Otherwise, let |receiver| be another {{LP2PReceiver}} for which this holds, chosen by the user agent, for example by asking the user. If there is none, [=refuse=] |session| and abort these steps.
+1. Let |origin| be |receiver|'s [=relevant settings object=]'s [=environment settings object/origin=].
+1. [=Add a known peer=] with the peer.
+1. If the peer's [=peer/peer identity=] is not in the [=peer grants=] of |origin|, ask the user to grant the peer access to |origin|. If the user declines or dismisses the prompt, [=refuse=] |session| and abort these steps. Otherwise, [=grant a peer=] given |origin| and the [=peer/peer identity=].
+1. [=Accept=] |session|.
+1. [=Queue a global task=] on the [=networking task source=] given |receiver|'s [=relevant global object=] to run these steps:
+    1. If |receiver|.{{LP2PReceiver/[[State]]}} is not "`advertising`", [=close a session|close=] |session| and abort these steps.
+    1. Let |connection| be the result of [=creating an LP2PConnection=] given |session| and |receiver|'s [=relevant global object=].
+    1. If |receiver|.{{LP2PReceiver/[[ConnectionSteps]]}} is not null, run them given |connection| and abort these steps.
+    1. [=Fire an event=] named {{LP2PReceiver/connection}} at |receiver| using {{LP2PConnectionEvent}} with its {{LP2PConnectionEvent/connection}} attribute initialized to |connection|.
+
+</div>
 
 LP2PReceiverOptions {#lp2p-receiver-options}
 ---------------------------------
@@ -262,7 +447,7 @@ dictionary LP2PReceiverOptions {
 </pre>
 
 : <dfn dict-member for="LP2PReceiverOptions">allowedOrigins</dfn>
-:: A list of URLs whose [=url/origins=], in addition to the receiver's own origin, the receiver [=allows an origin|allows=] as the [=protocol/requesting origin=] of an [=incoming session=]. By default, only same-origin sessions are delivered.
+:: A list of URLs whose [=url/origins=], in addition to the receiver's own origin, the receiver [=allows an origin|allows=] as the [=protocol/requesting origin=] of an [=incoming session=]. By default, only same-origin sessions are delivered. An entry that fails to parse makes the constructor throw a {{TypeError}}. An entry whose origin is an [=opaque origin=], such as a `data:` URL, never matches.
 
 Issue: Decide the granularity of {{LP2PReceiverOptions/allowedOrigins}}, the [=protocol/requesting origin=] and [=peer grants=]: per origin or per site, and whether to allow wildcards or any origin.
 
@@ -300,7 +485,7 @@ The following event is [=fire an event|fired=] at the {{LP2PReceiver}} object:
     <tr>
       <td><dfn event for="LP2PReceiver"><code>connection</code></dfn></td>
       <td>{{LP2PConnectionEvent}}</td>
-      <td>An incoming connection is received.</td>
+      <td>An [=incoming session=] was accepted; it is exposed as an {{LP2PConnection}}.</td>
     </tr>
   </tbody>
 </table>
@@ -333,14 +518,20 @@ Example: Setting up a receiver to listen for connections:
 <pre class='example' highlight='js'>
 const receiver = new LP2PReceiver({
     nickname: "example-receiver",
+    // Also accept sessions requested by this origin.
+    allowedOrigins: ["https://partner.example"],
 });
 receiver.onconnection = e => {
     console.log("Connection established!");
     const conn = e.connection;
+    conn.onclose = () => console.log("Connection closed.");
 };
 
 // Blocks until permission is received.
 await receiver.start();
+
+// Later: stop advertising. Delivered connections stay open.
+receiver.stop();
 </pre>
 
 </section>
@@ -356,9 +547,60 @@ The <dfn interface>LP2PRequest</dfn> interface represents a request for a connec
 [Exposed=(Window,Worker), SecureContext]
 interface LP2PRequest {
     constructor(optional LP2PRequestOptions options = {});
-    Promise&lt;LP2PConnection&gt; start();
+    Promise&lt;LP2PConnection&gt; start(optional LP2PRequestStartOptions options = {});
 };
 </pre>
+
+An {{LP2PRequest}} has a <dfn attribute for="LP2PRequest">\[[StartPromise]]</dfn>, a {{Promise}} or null, initially null, and a <dfn attribute for="LP2PRequest">\[[Nickname]]</dfn>, a string.
+
+<div algorithm="LP2PRequest constructor">
+The <dfn constructor for="LP2PRequest">LP2PRequest(|options|)</dfn> constructor steps are:
+
+1. Set [=this=].{{LP2PRequest/[[Nickname]]}} to |options|["{{LP2PRequestOptions/nickname}}"] if it [=map/exists=], or the empty string otherwise.
+
+</div>
+
+<div algorithm>
+The <dfn method for="LP2PRequest">start(|options|)</dfn> method steps are to return the result of [=start an LP2PRequest|starting=] [=this=] given |options|["{{LP2PRequestStartOptions/signal}}"] if it [=map/exists=], or null otherwise.
+
+</div>
+
+<div algorithm>
+To <dfn>start an LP2PRequest</dfn> |request| given an {{AbortSignal}} or null |signal|:
+
+1. If |signal| is not null and is [=AbortSignal/aborted=], return [=a promise rejected with=] |signal|'s [=AbortSignal/abort reason=].
+1. If |request|.{{LP2PRequest/[[StartPromise]]}} is not null, return it.
+1. Let |global| be |request|'s [=relevant global object=].
+1. Let |origin| be |request|'s [=relevant settings object=]'s [=environment settings object/origin=].
+1. If |global| is not permitted to use the "local-peer-to-peer" [=policy-controlled feature=], as described in [[#permission-policy-integration]], or |origin| is an [=opaque origin=], return [=a promise rejected with=] a "{{NotAllowedError}}" {{DOMException}}.
+1. Let |promise| be [=a new promise=].
+1. Set |request|.{{LP2PRequest/[[StartPromise]]}} to |promise|.
+1. Let |aborted| be false.
+1. Let |fail| be these steps: [=queue a global task=] on the [=networking task source=] given |global| to run these steps: if |aborted| is false, set |request|.{{LP2PRequest/[[StartPromise]]}} to null and [=reject=] |promise| with a "{{NotAllowedError}}" {{DOMException}}.
+1. If |signal| is not null, [=AbortSignal/add=] the following abort steps to |signal|:
+    1. If |promise| is settled, abort these steps.
+    1. Set |aborted| to true.
+    1. Set |request|.{{LP2PRequest/[[StartPromise]]}} to null.
+    1. [=Reject=] |promise| with |signal|'s [=AbortSignal/abort reason=].
+1. Run these steps [=in parallel=]. Whenever |aborted| becomes true, take down any user interface they show, [=stop discovering peers=], [=close a session|close=] |session| if it was established, and abort these steps:
+    1. [=Start local peer discovery=].
+    1. Let |peer| be the result of [=acquire a local peer grant=] for |origin|, presenting |request|.{{LP2PRequest/[[Nickname]]}} to the user.
+    1. [=Stop discovering peers=].
+    1. If |peer| is null, run |fail| and abort these steps.
+    1. Let |session| be the result of [=establish a session=] with |peer| given |origin|. If this fails, run |fail| and abort these steps.
+    1. Wait until |session| is [=protocol/authenticated=] and the [=protocol/server=] has [=accepted=] it. Meanwhile, run [=authenticate a session=] on |session| when the [=transport binding=] calls for it. This may be a [=trust ceremony=]. If authentication fails, the [=protocol/server=] [=refuses=] |session|, or |session| is closed, [=close a session|close=] |session|, run |fail| and abort these steps.
+    1. [=Add a known peer=] with |peer|, and [=grant a peer=] given |origin| and |peer|'s [=peer/peer identity=].
+    1. [=Queue a global task=] on the [=networking task source=] given |global| to run these steps:
+        1. If |aborted| is true, [=close a session|close=] |session| and abort these steps.
+        1. Let |connection| be the result of [=creating an LP2PConnection=] given |session| and |global|.
+        1. [=Resolve=] |promise| with |connection|.
+1. Return |promise|.
+
+</div>
+
+Calling {{LP2PRequest/start()}} again while the request is pending, or after it succeeded, returns the same promise, and ignores the new options. Aborting after it succeeded does nothing; close the connection instead. After a rejection, {{LP2PRequest/start()}} can be called again to start over.
+
+Every failure rejects with the same error, so that script cannot tell whether the user dismissed the picker, or picked a peer that then could not be reached, could not be [=/authenticated=] or [=refused=] the session. Refusal after the user picked a peer is expected: discovery does not carry the [=protocol/requesting origin=], so the picker can list peers whose receivers do not [=allows an origin|allow=] it.
 
 LP2PRequestOptions {#lp2p-request-options}
 ---------------------------------
@@ -367,7 +609,14 @@ LP2PRequestOptions {#lp2p-request-options}
 dictionary LP2PRequestOptions {
     DOMString nickname;
 };
+
+dictionary LP2PRequestStartOptions {
+    AbortSignal signal;
+};
 </pre>
+
+: <dfn dict-member for="LP2PRequestStartOptions">signal</dfn>
+:: Aborts {{LP2PRequest/start()}}, as {{RequestInit/signal}} aborts {{WindowOrWorkerGlobalScope/fetch()}}: the promise rejects with the signal's [=AbortSignal/abort reason=], and the picker or the session being set up is taken down.
 
 Examples {#lp2p-request-examples}
 ---------------------------------
@@ -379,9 +628,16 @@ const request = new LP2PRequest({
     nickname: "example-request",
 });
 
-// Blocks until connection is received.
-const conn = await request.start();
-console.log("Connection established!");
+try {
+    // Blocks until the user picked a peer and it accepted the session.
+    const conn = await request.start();
+    console.log("Connection established!");
+
+    // Later: close the connection, its data channels and its transports.
+    conn.close();
+} catch (e) {
+    // NotAllowedError: dismissed, refused or failed; script can't tell which.
+}
 </pre>
 
 </section>
@@ -396,59 +652,74 @@ The <dfn interface>LP2PConnection</dfn> interface represents a connection with a
 <pre class="idl">
 [Exposed=(Window,Worker), SecureContext]
 interface LP2PConnection : EventTarget {
+  undefined close();
+  attribute EventHandler onclose;
 };
 </pre>
 
-LP2PQuicTransport Interface Extensions {#lp2p-connection-quic-transport-extensions}
--------------------------------------------------------------------
+An {{LP2PConnection}} has a <dfn attribute for="LP2PConnection">\[[Session]]</dfn>, a [=Local Peer-to-Peer session=]; a <dfn attribute for="LP2PConnection">\[[Transports]]</dfn>, a [=/set=] of {{LP2PQuicTransport}} objects, initially empty; and a <dfn attribute for="LP2PConnection">\[[Closed]]</dfn>, a boolean, initially false.
 
-This {{LP2PQuicTransport}} extension allows opening a QuicTransport using an existing connection. In this case, the already established permission and grants should be used.
+<div algorithm>
+To <dfn>create an LP2PConnection</dfn> given a [=Local Peer-to-Peer session=] |session| and a [=global object=] |global|:
 
-<pre class="idl">
-[Exposed=(Window,Worker), SecureContext]
-partial interface LP2PQuicTransport {
-  constructor(LP2PConnection connection,
-              optional LP2PQuicTransportInit quicTransportDict = {});
-};
-</pre>
+1. Let |connection| be a [=new=] {{LP2PConnection}} in |global|'s [=relevant realm=].
+1. Set |connection|.{{LP2PConnection/[[Session]]}} to |session|.
+1. Return |connection|.
 
-Examples {#lp2p-connection-examples}
-----------------------------------------
+</div>
 
-Example: Open a {{LP2PQuicTransport}} using an existing connection as receiver:
+<div algorithm="LP2PConnection close">
+The <dfn method for="LP2PConnection">close()</dfn> method steps are to [=close an LP2PConnection|close=] [=this=].
 
-<pre class='example' highlight='js'>
-const receiver = new LP2PReceiver({
-    nickname: "example-receiver",
-});
-receiver.onconnection = async e => {
-    const conn = e.connection;
-    
-    const transport = new LP2PQuicTransport(conn);
+</div>
 
-    // Blocks until transport is ready.
-    await transport.ready;
-};
+<div algorithm>
+To <dfn>close an LP2PConnection</dfn> |connection|:
 
-// Blocks until permission is received.
-await receiver.start();
-</pre>
+1. If |connection|.{{LP2PConnection/[[Closed]]}} is true, return.
+1. [=Close a session|Close=] |connection|.{{LP2PConnection/[[Session]]}}.
+1. [=Queue a global task=] on the [=networking task source=] given |connection|'s [=relevant global object=] to run [=LP2PConnection/finalize=] given |connection|.
 
-Example: Open a {{LP2PQuicTransport}} using an existing connection as requester:
+</div>
 
-<pre class='example' highlight='js'>
-const request = new LP2PRequest({
-    nickname: "example-request",
-});
+When the [=transport binding=] reports that the {{LP2PConnection/[[Session]]}} of an {{LP2PConnection}} |connection| was closed, by the peer or because the underlying transport failed, the user agent must [=queue a global task=] on the [=networking task source=] given |connection|'s [=relevant global object=] to run [=LP2PConnection/finalize=] given |connection|.
 
-// Blocks until connection is received.
-const conn = await request.start();
+<div algorithm>
+To <dfn for="LP2PConnection">finalize</dfn> an {{LP2PConnection}} |connection|:
 
-const transport = new LP2PQuicTransport(conn);
+1. If |connection|.{{LP2PConnection/[[Closed]]}} is true, return.
+1. Set |connection|.{{LP2PConnection/[[Closed]]}} to true.
+1. [=set/For each=] |transport| of |connection|.{{LP2PConnection/[[Transports]]}}, fail |transport| abruptly with a {{WebTransportError}} whose `source` is "`session`", as {{WebTransport}} does when its session is terminated without a close code, unless it is already closed or failed.
+1. If |connection|.{{LP2PConnection/[[Listener]]}} is not null, [=close an LP2PQuicTransportListener|close=] it.
+1. [=Fire an event=] named {{LP2PConnection/close}} at |connection|.
 
-// Blocks until transport is ready.
-await transport.ready;
-</pre>
+</div>
+
+Issue: Decide whether {{LP2PConnection}} also gets a keying material exporter, for pages that only use [=data channels=]. It would need a per-connection context, since several connections with the same peer can share the underlying transport.
+
+The {{LP2PConnection/close}} event fires at most once. Closing the session also closes all of its [=data channels=].
+
+Events {#lp2p-connection-events}
+--------------------------------
+
+<table class="data">
+  <thead>
+    <tr>
+      <th>Event name</th>
+      <th>Interface</th>
+      <th>Fired when&mldr;</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><dfn event for="LP2PConnection"><code>close</code></dfn></td>
+      <td>{{Event}}</td>
+      <td>The connection is closed, by {{LP2PConnection/close()}}, by the peer, or because the transport failed.</td>
+    </tr>
+  </tbody>
+</table>
+
+The <dfn attribute for="LP2PConnection"><code>onclose</code></dfn> [=event handler IDL attribute=] has the [=event handler event type=] {{LP2PConnection/close}}.
 
 </section>
 
@@ -456,6 +727,8 @@ await transport.ready;
 
 The LP2PDataChannel Interface {#lp2p-data-channel}
 ==========================================
+
+Issue: This section is not yet aligned with the rest of this specification, nor fully specified.
 
 The LP2PDataChannel interface represents a bi-directional data channel between two peers. An LP2PDataChannel is created via a [factory method](#lp2p-connection-data-channel-extensions) on a LP2PConnection object. It is backed by a [=data channel=] on the connection's [=Local Peer-to-Peer session=].
 
@@ -579,6 +852,8 @@ partial interface LP2PConnection {
 };
 </pre>
 
+{{LP2PConnection/createDataChannel()}} throws a "{{NotSupportedError}}" {{DOMException}} if the [=peer/capabilities=] of the connection's peer do not include [=peer/capabilities/data channels=].
+
 LP2PDataChannelEvent {#lp2p-data-channel-event}
 ------------------------------------------------
 
@@ -617,6 +892,8 @@ The following event is [=fire an event|fired=] at the {{LP2PConnection}} object:
     </tr>
   </tbody>
 </table>
+
+An [=incoming data channel=] that is reported before its {{LP2PConnection}} is exposed to script, that is, before {{LP2PRequest/start()}} resolves or the {{LP2PReceiver/connection}} event is dispatched, is held until then, so that script can set {{LP2PConnection/ondatachannel}} first. This is the same rule as for [=incoming WebTransport sessions=].
 
 Extensions Event handlers {#lp2p-connection-data-channel-extensions-event-handlers}
 ------------------------------------------------------------------------
@@ -696,74 +973,292 @@ channel.onopen = e => {
 The LP2PQuicTransport Interface {#lp2p-quic-transport}
 ======================================================
 
-The <dfn interface>LP2PQuicTransport</dfn> Interface allows opening a [[!webtransport]] between peers. If the LP2PRequest or LP2PReceiver is not yet started, it must be started when the LP2PQuicTransport is constructed. It is backed by a session obtained with [=open a WebTransport session=].
+The <dfn interface>LP2PQuicTransport</dfn> interface is a [[!webtransport]] {{WebTransport}} over an {{LP2PConnection}}. It is backed by a <dfn>WebTransport session</dfn>: a session obtained with [=open a WebTransport session=] on the connection's {{LP2PConnection/[[Session]]}}, or an [=incoming WebTransport session=] on it.
 
 <pre class="idl">
 [Exposed=(Window,Worker), SecureContext]
 interface LP2PQuicTransport : WebTransport {
-  constructor((LP2PRequest or LP2PReceiver) source,
-              optional LP2PQuicTransportInit quicTransportDict = {});
+  constructor(LP2PConnection connection,
+              optional LP2PQuicTransportInit options = {});
+  readonly attribute LP2PConnection connection;
 };
 
 dictionary LP2PQuicTransportInit {
+  boolean requireUnreliable = false;
+  WebTransportCongestionControl congestionControl = "default";
+  [EnforceRange] unsigned short? anticipatedConcurrentIncomingUnidirectionalStreams = null;
+  [EnforceRange] unsigned short? anticipatedConcurrentIncomingBidirectionalStreams = null;
 };
 </pre>
 
-Issue: Define LP2PQuicTransportInit as needed using WebTransportOptions as reference.
+The members of {{LP2PQuicTransportInit}} have the meaning of the {{WebTransportOptions}} members of the same name. {{WebTransportOptions}} members that concern HTTP or a server, such as `allowPooling`, `serverCertificateHashes` and `protocols`, are left out.
+
+: <dfn dict-member for="LP2PQuicTransportInit">requireUnreliable</dfn>
+:: If true, the transport fails unless its [=WebTransport session=] delivers datagrams unreliably, as for an HTTP/2 fallback in [[!webtransport]]. A [=transport binding=] that cannot lose messages provides only "`reliable-only`" sessions; see [=open a WebTransport session=].
+
+{{LP2PQuicTransport}} inherits the attributes and methods of {{WebTransport}}, but not its constructor. [[!webtransport]] defines the internal slots and algorithms of {{WebTransport}} in terms of a WebTransport session over HTTP/3 or HTTP/2. For an {{LP2PQuicTransport}} they apply to its [=WebTransport session=] instead: its streams, datagrams, close and draining are those of the [=transport binding=].
+
+<div algorithm>
+To <dfn>initialize an LP2PQuicTransport</dfn> |transport| given |options|, initialize the internal slots of |transport| as the {{WebTransport}} constructor does, given the {{WebTransportOptions}} members of |options|, except that there is no URL, no HTTP headers, no server certificate hashes and no pooling, and its `protocol` is the empty string.
+
+</div>
+
+Its `exportKeyingMaterial()` method runs [=export keying material=] on its [=WebTransport session=], in place of the exporter of WebTransport over HTTP/3. Each [=WebTransport session=] has its own exporter.
+
+An {{LP2PQuicTransport}} also has a <dfn attribute for="LP2PQuicTransport">\[[Connection]]</dfn>, an {{LP2PConnection}}. The <dfn attribute for="LP2PQuicTransport">connection</dfn> getter steps are to return [=this=].{{LP2PQuicTransport/[[Connection]]}}.
+
+Issue: Ask the WebTransport editors for a hook to create a {{WebTransport}} over a session that is not HTTP, instead of initializing its internal slots here.
+
+<div algorithm="LP2PQuicTransport constructor">
+The <dfn constructor for="LP2PQuicTransport">LP2PQuicTransport(|connection|, |options|)</dfn> constructor steps are to [=set up an LP2PQuicTransport=] [=this=] given |connection| and |options|.
+
+</div>
+
+<div algorithm>
+To <dfn>set up an LP2PQuicTransport</dfn> |transport| given an {{LP2PConnection}} |connection| and |options|:
+
+1. If |connection|.{{LP2PConnection/[[Closed]]}} is true, throw an "{{InvalidStateError}}" {{DOMException}}.
+1. If the [=peer/capabilities=] of the peer of |connection|.{{LP2PConnection/[[Session]]}} do not include [=peer/capabilities/WebTransport=], throw a "{{NotSupportedError}}" {{DOMException}}. They are known when the connection exists, so this fails synchronously, as {{WebTransport}}'s constructor does for options it cannot support.
+1. [=Initialize an LP2PQuicTransport=] |transport| given |options|. Its state is "`connecting`" and its `reliability` is "`pending`".
+1. Set |transport|.{{LP2PQuicTransport/[[Connection]]}} to |connection| and [=set/append=] |transport| to |connection|.{{LP2PConnection/[[Transports]]}}.
+1. Run these steps [=in parallel=]:
+    1. Let |session| be the result of [=open a WebTransport session=] on |connection|.{{LP2PConnection/[[Session]]}}.
+    1. [=Queue a global task=] on the [=networking task source=] given |transport|'s [=relevant global object=] to run these steps:
+        1. If opening failed, or the peer refused, fail |transport| with a {{WebTransportError}} whose `source` is "`session`", as {{WebTransport}} does when establishing a session fails, and abort these steps.
+        1. If |transport|'s state is not "`connecting`", close |session| and abort these steps.
+        1. If |options|["{{LP2PQuicTransportInit/requireUnreliable}}"] is true and |session| is "`reliable-only`", close |session|, fail |transport| as above, and abort these steps.
+        1. Associate |transport| with |session|, set its `reliability` to that of |session|, set its state to "`connected`" and resolve its `ready` promise.
+
+</div>
+
+Each construction opens a new [=WebTransport session=]. If both peers construct an {{LP2PQuicTransport}} on the same connection, there are two sessions. To receive the peer's sessions, use an {{LP2PQuicTransportListener}}.
+
+Lifecycle {#lp2p-quic-transport-lifecycle}
+-----------------------------------------
+
+An {{LP2PQuicTransport}} and its {{LP2PConnection}} affect each other as follows:
+
+* {{WebTransport/close()}} on the transport runs [=close a WebTransport session=] with its `closeCode` and `reason`. The peer's transport is closed cleanly with them. The {{LP2PConnection}} stays open.
+* If the [=WebTransport session=] is closed abruptly or fails, the transport fails with a {{WebTransportError}} whose `source` is "`session`". The {{LP2PConnection}} stays open.
+* When the [=WebTransport session=] is drained by the peer with [=drain a WebTransport session=], the transport's `draining` promise resolves.
+* When the {{LP2PConnection}} closes, by {{LP2PConnection/close()}}, by the peer or because the transport failed, each of its transports fails with a {{WebTransportError}} whose `source` is "`session`", and its listener is closed, before the {{LP2PConnection/close}} event fires. See [=LP2PConnection/finalize=].
+* {{LP2PReceiver/stop()}} affects neither connections already delivered nor their transports and listeners.
 
 LP2PQuicTransportListener Interface {#lp2p-quic-transport-listener}
 -------------------------------------------------------------------
 
-The <dfn interface>LP2PQuicTransportListener</dfn> Interface allows listening for incoming {{LP2PQuicTransport}} transports. If the LP2PRequest or LP2PReceiver is not yet started, it must be started when the LP2PQuicTransportListener is constructed.
+The <dfn interface>LP2PQuicTransportListener</dfn> interface receives the [=incoming WebTransport sessions=] of an {{LP2PConnection}}.
 
 <pre class="idl">
 [Exposed=(Window,Worker), SecureContext]
 interface LP2PQuicTransportListener {
-  constructor((LP2PRequest or LP2PReceiver) source,
-              optional LP2PQuicTransportListenerInit quicTransportListenerDict = {});
-  readonly attribute Promise&lt;undefined&gt; ready;
-  /* a ReadableStream of LP2PQuicTransport objects */
+  constructor(LP2PConnection connection,
+              optional LP2PQuicTransportListenerInit options = {});
   readonly attribute ReadableStream incomingTransports;
+  undefined close();
 };
 
-dictionary LP2PQuicTransportListenerInit {
+dictionary LP2PQuicTransportListenerInit : LP2PQuicTransportInit {
 };
 </pre>
 
-Issue: Define LP2PQuicTransportListenerInit as needed using WebTransportOptions as reference.
+The options of an {{LP2PQuicTransportListener}} apply to each {{LP2PQuicTransport}} it creates.
+
+An {{LP2PQuicTransportListener}} has a <dfn attribute for="LP2PQuicTransportListener">\[[Connection]]</dfn>, an {{LP2PConnection}}; an <dfn attribute for="LP2PQuicTransportListener">\[[Options]]</dfn>, an {{LP2PQuicTransportListenerInit}}; an <dfn attribute for="LP2PQuicTransportListener">\[[IncomingTransports]]</dfn>, a {{ReadableStream}}; an <dfn attribute for="LP2PQuicTransportListener">\[[OwnsStream]]</dfn>, a boolean; and a <dfn attribute for="LP2PQuicTransportListener">\[[Closed]]</dfn>, a boolean, initially false. An {{LP2PConnection}} has a <dfn attribute for="LP2PConnection">\[[Listener]]</dfn>, an {{LP2PQuicTransportListener}} or null, initially null.
+
+<div algorithm="LP2PQuicTransportListener constructor">
+The <dfn constructor for="LP2PQuicTransportListener">LP2PQuicTransportListener(|connection|, |options|)</dfn> constructor steps are to [=set up an LP2PQuicTransportListener=] [=this=] given |connection| and |options|.
+
+</div>
+
+<div algorithm>
+To <dfn>set up an LP2PQuicTransportListener</dfn> |listener| given an {{LP2PConnection}} |connection|, |options| and an optional {{ReadableStream}} |shared|:
+
+1. If |connection|.{{LP2PConnection/[[Closed]]}} is true, or |connection|.{{LP2PConnection/[[Listener]]}} is not null, throw an "{{InvalidStateError}}" {{DOMException}}.
+1. Set |listener|.{{LP2PQuicTransportListener/[[Connection]]}} to |connection| and |listener|.{{LP2PQuicTransportListener/[[Options]]}} to |options|.
+1. If |shared| is given, set |listener|.{{LP2PQuicTransportListener/[[IncomingTransports]]}} to |shared| and |listener|.{{LP2PQuicTransportListener/[[OwnsStream]]}} to false. The listener then delivers into |shared|, and its owner closes it.
+1. Otherwise, let |stream| be a [=new=] {{ReadableStream}}. [=ReadableStream/Set up=] |stream| with <var ignore>cancelAlgorithm</var> set to an algorithm that [=close an LP2PQuicTransportListener|closes=] |listener|, and <var ignore>highWaterMark</var> set to an [=implementation-defined=] positive number. Set |listener|.{{LP2PQuicTransportListener/[[IncomingTransports]]}} to |stream| and |listener|.{{LP2PQuicTransportListener/[[OwnsStream]]}} to true.
+1. Set |connection|.{{LP2PConnection/[[Listener]]}} to |listener|.
+
+</div>
+
+There is at most one listener per {{LP2PConnection}} at a time.
+
+The <dfn attribute for="LP2PQuicTransportListener">incomingTransports</dfn> getter steps are to return [=this=].{{LP2PQuicTransportListener/[[IncomingTransports]]}}. Its chunks are {{LP2PQuicTransport}} objects.
+
+<div algorithm="LP2PQuicTransportListener close">
+The <dfn method for="LP2PQuicTransportListener">close()</dfn> method steps are to [=close an LP2PQuicTransportListener|close=] [=this=].
+
+</div>
+
+<div algorithm>
+To <dfn>close an LP2PQuicTransportListener</dfn> |listener|:
+
+1. If |listener|.{{LP2PQuicTransportListener/[[Closed]]}} is true, return.
+1. Set |listener|.{{LP2PQuicTransportListener/[[Closed]]}} to true.
+1. Set |listener|.{{LP2PQuicTransportListener/[[Connection]]}}.{{LP2PConnection/[[Listener]]}} to null.
+1. If |listener|.{{LP2PQuicTransportListener/[[OwnsStream]]}} is true, [=ReadableStream/close=] |listener|.{{LP2PQuicTransportListener/[[IncomingTransports]]}}, unless it is already closed or errored. Transports already queued can still be read.
+
+</div>
+
+After {{LP2PQuicTransportListener/close()}}, a new listener can be constructed on the same connection.
+
+<div algorithm="incoming WebTransport session">
+When an [=incoming WebTransport session=] |session| is reported on the {{LP2PConnection/[[Session]]}} of an {{LP2PConnection}} |connection|, the user agent must [=queue a global task=] on the [=networking task source=] given |connection|'s [=relevant global object=] to run these steps:
+
+1. Let |listener| be |connection|.{{LP2PConnection/[[Listener]]}}.
+1. If |listener| is null, or the [=ReadableStream/desired size to fill up to the high water mark=] of |listener|.{{LP2PQuicTransportListener/[[IncomingTransports]]}} is not a positive number, refuse |session| and abort these steps.
+1. If |listener|.{{LP2PQuicTransportListener/[[Options]]}}["{{LP2PQuicTransportInit/requireUnreliable}}"] is true and |session| is "`reliable-only`", refuse |session| and abort these steps.
+1. Let |transport| be a [=new=] {{LP2PQuicTransport}} in |connection|'s [=relevant realm=].
+1. [=Initialize an LP2PQuicTransport=] |transport| given |listener|.{{LP2PQuicTransportListener/[[Options]]}}, set |transport|.{{LP2PQuicTransport/[[Connection]]}} to |connection| and [=set/append=] |transport| to |connection|.{{LP2PConnection/[[Transports]]}}.
+1. Accept |session|, associate |transport| with it, set its `reliability` to that of |session|, set its state to "`connected`" and resolve its `ready` promise.
+1. [=ReadableStream/Enqueue=] |transport| into |listener|.{{LP2PQuicTransportListener/[[IncomingTransports]]}}.
+
+</div>
+
+So an [=incoming WebTransport session=] is refused when there is no listener, or when the listener's queue is full because script is not reading it. An [=incoming WebTransport session=] that is reported before its {{LP2PConnection}} is exposed to script, that is, before {{LP2PRequest/start()}} resolves or the {{LP2PReceiver/connection}} event is dispatched, is held until then, so that script can construct a listener first.
 
 Examples {#lp2p-quic-transport-examples}
 ----------------------------------------
 
-Example: Setting up a request for a LP2PQuicTransport:
+Example: The requester opens a {{LP2PQuicTransport}} and the receiver listens for it:
 
 <pre class='example' highlight='js'>
-const request = new LP2PRequest({
-    nickname: "example-request",
-});
-
-const transport = new LP2PQuicTransport(request);
-
-// Blocks until transport is ready.
-await transport.ready;
-</pre>
-
-Example: Receiving a LP2PQuicTransport:
-
-<pre class='example' highlight='js'>
+// Receiver
 const receiver = new LP2PReceiver({
     nickname: "example-receiver",
 });
+receiver.onconnection = async e => {
+    const listener = new LP2PQuicTransportListener(e.connection);
+    for await (const transport of listener.incomingTransports) {
+        // Incoming transports are already ready.
+        const stream = await transport.createBidirectionalStream();
+    }
+};
+await receiver.start();
 
-const listener = new LP2PQuicTransportListener(receiver);
-
-for await (const transport of listener.incomingTransports) {
-  // Blocks until transport is ready.
-  await transport.ready;
-}
+// Requester
+const request = new LP2PRequest({
+    nickname: "example-request",
+});
+const conn = await request.start();
+const transport = new LP2PQuicTransport(conn);
+await transport.ready;
 </pre>
 
+Either side can open: the receiver can construct an {{LP2PQuicTransport}} on its connection while the requester listens.
+
 Refer to the [WebTransport examples](https://www.w3.org/TR/webtransport/#examples) for usage of a [[!webtransport]] object.
+
+</section>
+
+<section algorithm="lp2p">
+
+Shorthand APIs {#lp2p-namespace}
+================================
+
+The <dfn namespace>lp2p</dfn> namespace provides shorthands for the common case of one side making itself discoverable and the other connecting, with WebTransport. They are composed from the APIs above, as if script used them, and add no capability. They cover {{LP2PQuicTransport}} only: a connection over which the peer only opens [=data channels=] never shows up in {{lp2p/makeDiscoverable()}}. On both sides, {{LP2PQuicTransport/connection}} gives access to the {{LP2PConnection}}, for example to open [=data channels=] or close it.
+
+<pre class="idl">
+[Exposed=(Window,Worker), SecureContext]
+namespace lp2p {
+  ReadableStream makeDiscoverable(optional LP2PMakeDiscoverableOptions options = {});
+  Promise&lt;LP2PQuicTransport&gt; connect(optional LP2PConnectOptions options = {});
+};
+
+dictionary LP2PMakeDiscoverableOptions : LP2PQuicTransportListenerInit {
+  DOMString nickname;
+  sequence&lt;USVString&gt; allowedOrigins = [];
+};
+
+dictionary LP2PConnectOptions : LP2PQuicTransportInit {
+  DOMString nickname;
+  AbortSignal signal;
+};
+</pre>
+
+The members of {{LP2PMakeDiscoverableOptions}} and {{LP2PConnectOptions}} have the meaning of the members of the same name of {{LP2PReceiverOptions}}, {{LP2PRequestOptions}} and {{LP2PRequestStartOptions}}.
+
+<div class="note non-normative">
+This is non-normative. {{lp2p/makeDiscoverable()}} is roughly equivalent to the following JavaScript, except that it uses no public methods or attributes, so script can't intercept it, and that its listeners share one stream. Where they differ, the algorithm wins.
+
+<pre highlight='js'>
+lp2p.makeDiscoverable = options => {
+  const receiver = new LP2PReceiver(options), listeners = new Set();
+  let controller;
+  const stream = new ReadableStream({ start: c => { controller = c; },
+    cancel: () => { receiver.stop(); listeners.forEach(l => l.close()); } });
+  receiver.onconnection = async ({ connection }) => {
+    const listener = new LP2PQuicTransportListener(connection, options);
+    listeners.add(listener);
+    for await (const transport of listener.incomingTransports) controller.enqueue(transport);
+  };
+  receiver.start().catch(e => controller.error(e));
+  return stream;
+};
+</pre>
+</div>
+
+<div algorithm>
+The <dfn method for="lp2p">makeDiscoverable(|options|)</dfn> method steps are:
+
+1. Let |realm| be the [=current global object=]'s [=relevant realm=].
+1. Let |listeners| be an empty [=/set=].
+1. Let |receiver| be a [=new=] {{LP2PReceiver}} in |realm|.
+1. Let |stream| be a [=new=] {{ReadableStream}} in |realm|. [=ReadableStream/Set up=] |stream| with <var ignore>cancelAlgorithm</var> set to an algorithm that [=stop an LP2PReceiver|stops=] |receiver| and [=close an LP2PQuicTransportListener|closes=] each [=set/item=] of |listeners|, and <var ignore>highWaterMark</var> set to an [=implementation-defined=] positive number.
+1. [=Set up an LP2PReceiver=] |receiver| given an {{LP2PReceiverOptions}} with the {{LP2PReceiverOptions/nickname}} and {{LP2PReceiverOptions/allowedOrigins}} members of |options|, and these steps given an {{LP2PConnection}} |connection|: let |listener| be a [=new=] {{LP2PQuicTransportListener}} in |realm|, [=set up an LP2PQuicTransportListener=] |listener| given |connection|, the {{LP2PQuicTransportListenerInit}} members of |options| and |stream|, and [=set/append=] |listener| to |listeners|. Rethrow any exception.
+1. [=Upon rejection=] of the result of [=start an LP2PReceiver|starting=] |receiver| with |reason|, [=ReadableStream/error=] |stream| with |reason|.
+1. Return |stream|.
+
+</div>
+
+The returned stream's chunks are {{LP2PQuicTransport}} objects, already ready. Each connection's listener enqueues into it, so when script doesn't read it and it is full, further sessions are refused, as described in [[#lp2p-quic-transport-listener]]. {{lp2p/makeDiscoverable()}} owns the listener of each connection it creates, so constructing another {{LP2PQuicTransportListener}} on it throws. Cancelling the stream stops advertising and closes the listeners; as with {{LP2PReceiver/stop()}}, connections already made stay open.
+
+<div class="note non-normative">
+This is non-normative. {{lp2p/connect()}} is roughly equivalent to the following JavaScript, except that it uses no public methods or attributes. Where they differ, the algorithm wins.
+
+<pre highlight='js'>
+lp2p.connect = async options => {
+  const connection = await new LP2PRequest(options).start(options);
+  const transport = new LP2PQuicTransport(connection, options);
+  try { await transport.ready; } catch (e) { connection.close(); throw e; }
+  return transport;
+};
+</pre>
+</div>
+
+<div algorithm>
+The <dfn method for="lp2p">connect(|options|)</dfn> method steps are:
+
+1. Let |request| be a [=new=] {{LP2PRequest}} in the [=current global object=]'s [=relevant realm=], with its {{LP2PRequest/[[Nickname]]}} set to |options|["{{LP2PConnectOptions/nickname}}"] if it [=map/exists=], or the empty string otherwise.
+1. Let |signal| be |options|["{{LP2PConnectOptions/signal}}"] if it [=map/exists=], or null otherwise.
+1. Let |promise| be [=a new promise=].
+1. Let |started| be the result of [=start an LP2PRequest|starting=] |request| given |signal|.
+1. [=Upon rejection=] of |started| with |reason|, [=reject=] |promise| with |reason|.
+1. [=Upon fulfillment=] of |started| with |connection|:
+    1. If |signal| is not null and is [=AbortSignal/aborted=], [=close an LP2PConnection|close=] |connection|, [=reject=] |promise| with |signal|'s [=AbortSignal/abort reason=], and abort these steps.
+    1. Let |transport| be a [=new=] {{LP2PQuicTransport}} in the [=current global object=]'s [=relevant realm=]. [=Set up an LP2PQuicTransport=] |transport| given |connection| and the {{LP2PQuicTransportInit}} members of |options|. If this throws an exception |error|, [=close an LP2PConnection|close=] |connection|, [=reject=] |promise| with |error|, and abort these steps.
+    1. [=Upon fulfillment=] of |transport|'s \[[Ready]] promise, [=resolve=] |promise| with |transport|.
+    1. [=Upon rejection=] of it with |reason|, [=close an LP2PConnection|close=] |connection| and [=reject=] |promise| with |reason|.
+1. Return |promise|.
+
+</div>
+
+{{lp2p/connect()}} resolves once the user picked a peer and the [=WebTransport session=] is up. It creates no listener, so script can construct one on {{LP2PQuicTransport/connection}}. Aborting {{LP2PConnectOptions/signal}} takes down the picker or the session being set up, as for {{LP2PRequest/start()}}.
+
+Examples {#lp2p-namespace-examples}
+-----------------------------------
+
+<pre class='example' highlight='js'>
+// Peer A
+for await (const transport of lp2p.makeDiscoverable({ nickname: "Peer A" })) {
+    const stream = await transport.createBidirectionalStream();
+}
+
+// Peer B
+const transport = await lp2p.connect({ nickname: "Peer B" });
+const channel = transport.connection.createDataChannel("chat");
+</pre>
 
 </section>
 
@@ -776,7 +1271,7 @@ The security and privacy considerations of the protocol underlying the [=transpo
 
 Personally identifiable information {#security-pii}
 ---------------------------------------------------
-The peer attributes, such as the nickname and device model, are provided to give minimal context to a connected peer. This information could be used in conjunction with other information for fingerprinting the user. However, this information is only available to an origin after it has been authenticated and a user has given explicit consent to make the connection to the remote peer.
+No peer attributes reach origins: the [=peer/peer identity=], [=peer/display name=], [=peer/nickname=] and [=peer/capabilities=] are only used by the user agent. Its user interface shows the [=peer/display name=] and [=peer/nickname=] to the user, to pick or accept a peer.
 
 No information is exposed to the origin during service discovery. No IP information is exposed to an origin. This is fully managed by the user agent.
 
@@ -801,7 +1296,7 @@ To limit this, a session is only delivered to an {{LP2PReceiver}} of the same or
 Device Access {#security-device-access}
 ---------------------------------------
 
-The Local Peer-to-Peer API requires user permission for a page to access any peers. The API uses purpose-fit protocols for data communication. It cannot be used to connect to raw sockets or unknowing HTTP servers. In addition, a user must [=acquire a local peer grant=] by explicitly providing consenting for an origin to connect to a peer. In addition, a user must [=authenticate a local peer=] before use.
+The Local Peer-to-Peer API requires user permission for a page to access any peers. The API uses purpose-fit protocols for data communication. It cannot be used to connect to raw sockets or unknowing HTTP servers. As in {{LP2PRequest/start()}}, the user first picks a peer in [=acquire a local peer grant=]; the session with it is then [=protocol/authenticated=], with a [=trust ceremony=] if needed, and accepted by the peer; only then is the grant recorded with [=grant a peer=].
 
 Persistent State {#security-persistent-state}
 ---------------------------------------------
@@ -814,7 +1309,7 @@ The Local Peer-to-Peer API must only be provided in a secure context.
 Binding to the Open Screen Network Protocol {#osp-binding}
 ==========================================================
 
-This section defines a [=transport binding=] to the [[!openscreen-network|Open Screen Network Protocol]] (OSP). In this binding, a [=peer=] is an OSP agent and a [=Local Peer-to-Peer session=] is an authenticated [[!RFC9000|QUIC]] connection between two agents.
+This section defines a [=transport binding=] to the [[!openscreen-network|Open Screen Network Protocol]] (OSP). In this binding, a [=peer=] is an OSP agent and a [=Local Peer-to-Peer session=] is an authenticated [[!RFC9000|QUIC]] connection between two agents. Each [=Local Peer-to-Peer session=] has its own QUIC connection, even with the same agent, so that sessions are not shared between origins.
 
 To <dfn>discover metadata</dfn> of an agent, the user agent follows [[!openscreen-network|Open Screen Network Protocol]] [transport and metadata discovery](https://www.w3.org/TR/openscreen-network/#transport).
 
@@ -850,12 +1345,16 @@ The concepts and operations of [[#transport-abstraction]] map onto OSP as follow
    <td>Not yet carried.
   </tr>
   <tr>
+   <td>[=peer/capabilities=]
+   <td>The capabilities from the [agent-info-response](https://www.w3.org/TR/openscreen-application/#agent-info-response) message, obtained by [=discover metadata=]: [=data-channels=] for [=peer/capabilities/data channels=] and [=quic-transport=] for [=peer/capabilities/WebTransport=]
+  </tr>
+  <tr>
    <td>[=protocol/client=], [=protocol/server=]
    <td>The [[!RFC9000|QUIC]] client and the [[!RFC9000|QUIC]] server of the connection
   </tr>
   <tr>
-   <td>[=protocol/requesting origin=]
-   <td>Not yet carried.
+   <td>[=protocol/requesting origin=], [=accept=], [=refuse=]
+   <td>[[#session-extension]]
   </tr>
   <tr>
    <td>[=authenticate a session=]
@@ -863,29 +1362,63 @@ The concepts and operations of [[#transport-abstraction]] map onto OSP as follow
    [authentication](https://www.w3.org/TR/openscreen-network/#authentication)
   </tr>
   <tr>
-   <td>[=establish local peer connection=], [=close a session=]
+   <td>[=establish a session=], [=close a session=]
    <td>[[!openscreen-network|Open Screen Network Protocol]]
-   [transport](https://www.w3.org/TR/openscreen-network/#transport)
+   [transport](https://www.w3.org/TR/openscreen-network/#transport), and [[#session-extension]]
   </tr>
   <tr>
    <td>[=open a data channel=], [=incoming data channel=], [=send data on a channel=], [=received message=], [=close a data channel=]
    <td>[[#data-channel-extension]]
   </tr>
   <tr>
-   <td>[=open a WebTransport session=]
+   <td>[=open a WebTransport session=], [=incoming WebTransport session=], [=close a WebTransport session=], [=drain a WebTransport session=], [=export keying material=]
    <td>[[#webtransport-extension]]
   </tr>
  </tbody>
 </table>
 
-Issue: Define how the [=peer/nickname=] and the [=protocol/requesting origin=] are carried, how a [=data channel=] is closed, and how the [=protocol/server=] asks the [=protocol/client=] to open a WebTransport session.
+Issue: Define how the [=peer/nickname=] is carried and how a [=data channel=] is closed.
 
 Part of these operations are defined below as [protocol extensions](https://www.w3.org/TR/openscreen-application/#protocol-extensions) to the [[!openscreen-network|Open Screen Network Protocol]].
+
+Session extension {#session-extension}
+--------------------------------------
+
+To [=establish a session=] with an agent given an origin, the [=protocol/client=] opens a new QUIC connection to the agent, as described in [transport](https://www.w3.org/TR/openscreen-network/#transport). Both agents send auth-capabilities when the connection starts, as in OSP, so that both know which agent presents the PSK; this message does not start authentication. Only the [=protocol/client=] starts [authentication](https://www.w3.org/TR/openscreen-network/#authentication), although OSP otherwise has an agent initiate authentication with an agent it has not verified.
+
+Issue: When the [=protocol/client=] is the PSK consumer, it starts authentication with `psk-needs-presentation`. As written, OSP requires that message to carry `pA`, which needs the PSK the presenter has not created yet. This binding assumes OSP is fixed so that the message carries no `public-value`, and the presenter then starts the presenter-initiated flow.
+
+This binding conveys the [=protocol/requesting origin=] only after authentication:
+
+* Once it has received the agent's agent-info-response, by [=discover metadata=] on that connection, the [=protocol/client=] starts authentication if it has not verified the [=protocol/server=]'s agent certificate.
+* Once it has verified it, the [=protocol/client=] sends an [=lp2p-session-request=] message on a new bidirectional QUIC stream.
+* A [=protocol/server=] that has not verified the [=protocol/client=]'s agent certificate answers with a provisional [=lp2p-session-response=] with the result `authentication-required`, without looking at the requesting-origin, and the [=protocol/client=] then starts authentication. The [=protocol/server=] sends no authentication message other than auth-capabilities before the [=protocol/client=] does.
+* Once it has verified the [=protocol/client=]'s agent certificate, the [=protocol/server=] reports the connection as an [=incoming session=], with the requesting-origin as its [=protocol/requesting origin=].
+
+So the requesting-origin is only sent to a verified [=protocol/server=], and the [=protocol/server=]'s answer about it only reaches a verified [=protocol/client=]. Agents that have verified each other run no [=trust ceremony=].
+
+The [=lp2p-session-request=] contains:
+
+: requesting-origin
+:: The [=ASCII serialization of an origin|ASCII serialization=] of the origin. The [=protocol/server=] uses the [=url/origin=] of the result of running the [=URL parser=] on this value, or an [=opaque origin=] if parsing fails.
+
+A [=protocol/client=] sends [=lp2p-session-request=] only to an agent whose [=peer/capabilities=] are not empty, and only once per QUIC connection. A [=protocol/server=] that receives a second one closes the connection.
+
+Authentication verifies the agent certificate that each agent presented in the TLS handshake of the QUIC connection that carries the [=lp2p-session-request=]: SPAKE2 uses the fingerprints of those certificates, and a certificate verified earlier is bound by the handshake itself. So the requesting-origin is bound to the [=Local Peer-to-Peer session=].
+
+The [=protocol/server=] answers on the same stream with an [=lp2p-session-response=] message, containing:
+
+: result
+:: `authentication-required`, provisional, as above; a final result follows on the same stream. `success` if the [=protocol/server=] [=accepts=] the session, or `permanent-error` if it [=refuses=] it. The [=protocol/server=] sends either only once it has verified the [=protocol/client=]'s agent certificate. After a refusal, the [=protocol/client=] ends its side of the stream, and the [=protocol/server=] closes the QUIC connection once it has, or after an [=implementation-defined=] timeout, so that the response is not lost.
+
+The [=protocol/client=] treats the session as [=accepted=] once it has received `success` and has also verified the [=protocol/server=]'s agent certificate. Both agents then end their side of the stream.
+
+The [=protocol/server=] does not send messages of the other extensions in this section on the connection before it has sent `success`, and the [=protocol/client=] not before it treats the session as [=accepted=]. The [=protocol/server=] may open data channels and [=WebTransport sessions=] right after sending `success`; the [=protocol/client=] holds streams that arrive before it treats the session as [=accepted=] until it does, and discards them if the session is not. To [=close a session=], an agent closes the QUIC connection.
 
 Data channel extension {#data-channel-extension}
 ------------------------------------------------
 
-In order to signal support for this protocol extension, the agent should include the [=data-channels=] [agent-capability](https://www.w3.org/TR/openscreen-application/#appendix-a) as part of the [agent-info-response](https://www.w3.org/TR/openscreen-application/#agent-info-response) message exchanged during [=discover metadata=].
+In order to signal support for this protocol extension, the agent should include the [=data-channels=] [agent-capability](https://www.w3.org/TR/openscreen-application/#appendix-a) as part of the [agent-info-response](https://www.w3.org/TR/openscreen-application/#agent-info-response) message exchanged during [=discover metadata=]. An agent does not send [=data-channel-open-request=] to an agent whose [=peer/capabilities=] lack [=peer/capabilities/data channels=].
 
 To [=open a data channel=], an agent may send a [=data-channel-open-request=] message on a new [[!RFC9000|QUIC]] stream. The [=Local Peer-to-Peer session=] must be authenticated. The message must contain the following values:
 
@@ -921,13 +1454,60 @@ WebTransport extension {#webtransport-extension}
 
 The protocol extension to [=send data on a channel=] provides an ergonomic way to send simple messages. An agent can [=open a WebTransport session=] for communication that requires low overhead and more granular streams control.
 
-In order to signal support for this protocol extension, the agent should include the [=quic-transport=] [agent-capability](https://www.w3.org/TR/openscreen-application/#appendix-a) as part of the [agent-info-response](https://www.w3.org/TR/openscreen-application/#agent-info-response) message exchanged during [=discover metadata=].
+An agent that supports this extension includes the [=quic-transport=] [agent-capability](https://www.w3.org/TR/openscreen-application/#appendix-a) in its [agent-info-response](https://www.w3.org/TR/openscreen-application/#agent-info-response), obtained by [=discover metadata=], and must support QUIC DATAGRAM frames [[!RFC9221]] on each connection that carries [=WebTransport sessions=], so that its sessions are "`supports-unreliable`". An agent must not send the messages of this extension to an agent whose [=peer/capabilities=] lack [=peer/capabilities/WebTransport=], since an unknown type key closes the whole connection; [=open a WebTransport session=] fails instead. The capability describes the agent, not an origin: whether a page takes a session is answered by [=data-transport-start-response=].
 
-To [=open a WebTransport session=], the [=protocol/client=] of the [=Local Peer-to-Peer session=] dials a new [[!RFC9000|QUIC]] connection using the agent certificates established during [=authenticate a session=]. During connection establishment, the ALPN token "q2q" must be used in the TLS handshake.
+A [=WebTransport session=] is carried either on the QUIC connection of its [=Local Peer-to-Peer session=], next to the other streams of that connection, or on a <dfn>dedicated connection</dfn>. Either agent can open a session on the QUIC connection of the [=Local Peer-to-Peer session=]; only the [=protocol/client=] opens a [=dedicated connection=]. So both agents can [=open a WebTransport session=], as [[#transport-concepts]] requires.
 
-The capabilities of the Local WebTransport session are defined in [[!webtransport]].
+### Sessions ### {#webtransport-sessions}
 
-Note: The WebTransport-over-QUIC protocol is yet to be defined. Potentially considering earlier work such as [draft-vvv-webtransport-quic](https://datatracker.ietf.org/doc/html/draft-vvv-webtransport-quic-02).
+To [=open a WebTransport session=], an agent opens a bidirectional QUIC stream, the session's <dfn>control stream</dfn>, and sends a [=data-transport-start-request=] message on it, containing:
+
+: exchange-id
+:: A number below 2<sup>62</sup> that identifies the session within its [=Local Peer-to-Peer session=], across that session's QUIC connection and [=dedicated connections=]. The [=protocol/client=] uses even numbers and the [=protocol/server=] odd numbers, and neither reuses one.
+
+: session-binding
+:: Only on a [=dedicated connection=], see [[#webtransport-dedicated]].
+
+The other agent reports an [=incoming WebTransport session=]. On the same stream it answers with a [=data-transport-start-response=] message, whose result is `success` if the session is accepted. Otherwise, it sends `permanent-error` and ends the stream with FIN; the session never opens. The opening agent does not open streams or send datagrams for the session before it receives `success`, and abandons a session it has had no response for by resetting the [=control stream=].
+
+### Streams and datagrams ### {#webtransport-streams}
+
+Each WebTransport stream is a QUIC stream with the same directionality, opened on the connection that carries the session. Its first message, sent by the agent that opened it, is a [=data-transport-stream=] message with the session's exchange-id. The WebTransport stream's data follows right after it, the other direction of a bidirectional stream carries only data, and FIN ends the stream. No response is sent.
+
+A WebTransport datagram is a QUIC DATAGRAM frame whose payload is the session's exchange-id, encoded as a QUIC variable-length integer [[!RFC9000]], followed by the datagram. Datagrams for a session that is not open are dropped.
+
+A WebTransport stream is reset or stopped with RESET_STREAM or STOP_SENDING. The QUIC application error code is the WebTransport stream error code, from 0 to 2<sup>32</sup>&minus;1. Codes from 2<sup>32</sup> are reserved for this binding:
+
+: <dfn>session-gone</dfn> (2<sup>32</sup>)
+:: The stream's session is closed or unknown. It is reported to script without a stream error code.
+
+An unknown code from 2<sup>32</sup> is treated as [=session-gone=]. An agent may hold, for a short time, a stream for a session that is not yet open, such as one the accepting agent opened right after sending `success`. Otherwise it refuses the stream with STOP_SENDING, and for a bidirectional stream also RESET_STREAM, with [=session-gone=]. A stream reset before its first message arrived is discarded.
+
+### Close and drain ### {#webtransport-close}
+
+To [=close a WebTransport session=], an agent sends a [=data-transport-close=] message on the [=control stream=] and then ends the stream with FIN. It contains:
+
+: close-code
+:: The close code, from 0 to 2<sup>32</sup>&minus;1.
+
+: reason
+:: The reason, UTF-8 encoded, at most 1,024 bytes.
+
+An agent that receives [=data-transport-close=] or a FIN on the [=control stream=] ends its side of it too. Both agents then reset and stop all streams of the session with [=session-gone=]. A [=control stream=] that ends with FIN without a [=data-transport-close=] closes the session with code 0 and an empty reason. A [=control stream=] that is reset, or a connection that closes, closes the session abruptly. So an agent that sent [=data-transport-close=] closes the QUIC connection only once the peer has ended its side of the [=control stream=], or after an [=implementation-defined=] timeout, so that the message is not lost.
+
+To [=drain a WebTransport session=], an agent sends a [=data-transport-drain=] message on the [=control stream=]. An agent may do so when it intends to close the session soon.
+
+### Keying material exporters ### {#webtransport-exporters}
+
+To [=export keying material=] from a [=WebTransport session=], an agent uses the TLS exporter of the QUIC connection that carries the session, with the label "`EXPORTER-WebTransport`" and, as context, the WebTransport Exporter Context of [WebTransport over HTTP/3, Section 4.8](https://datatracker.ietf.org/doc/html/draft-ietf-webtrans-http3#section-4.8), with the exchange-id as its session ID.
+
+### Dedicated connections ### {#webtransport-dedicated}
+
+The [=protocol/client=] may carry a [=WebTransport session=] on a [=dedicated connection=] instead, for example to give it its own congestion control. It opens a new QUIC connection to the agent with the ALPN token "`q2q`" and the same agent certificate as its [=Local Peer-to-Peer session=]. The [=protocol/client=] closes the connection unless the server's agent certificate has the [agent fingerprint](https://www.w3.org/TR/openscreen-network/#computing-agent-fingerprint) of the peer of that session. The [=protocol/server=] closes it unless the client's agent certificate has the fingerprint of the peer of one of its [=Local Peer-to-Peer sessions=].
+
+Each [=data-transport-start-request=] on a [=dedicated connection=] contains a session-binding: 32 bytes from the TLS exporter of the QUIC connection of the [=Local Peer-to-Peer session=], with the label "`EXPORTER-LP2P-q2q`" and an empty context. The first one binds the connection to the [=Local Peer-to-Peer session=] whose exporter yields the same bytes. The [=protocol/server=] closes the connection if there is none, or if a later request carries a different session-binding.
+
+Only the [=protocol/client=] opens sessions on a [=dedicated connection=], and only the messages of this extension are sent on it, without agent-info or authentication messages. Everything else in this section applies unchanged. The [=protocol/client=] closes the connection when its last session closes, or when the [=Local Peer-to-Peer session=] closes.
 
 Appendix A: OSP Extension Messages {#appendix-a}
 ================================================
@@ -951,6 +1531,23 @@ agent-capability /= &(
 ; data-frame (type key 24) is the Open Screen Application Protocol message;
 ; only its encoding-id (0) and payload (4) keys are used.
 
+; type key 1110
+<dfn>lp2p-session-request</dfn> = {
+  request
+  1: text ; requesting-origin
+}
+
+; type key 1111
+<dfn>lp2p-session-response</dfn> = {
+  response
+  1: lp2p-session-result ; result
+}
+
+lp2p-session-result = &amp;(
+  result,
+  authentication-required: 1110
+)
+
 ; type key 1101
 <dfn>data-channel-open-request</dfn> = {
   request
@@ -963,5 +1560,37 @@ agent-capability /= &(
 <dfn>data-channel-open-response</dfn> = {
   response
   1: &amp;result ; result
+}
+
+; type key 1201
+<dfn>data-transport-start-request</dfn> = {
+  request
+  1: exchange-id ; exchange-id
+  ? 2: bytes .size 32 ; session-binding
+}
+
+; type key 1202
+<dfn>data-transport-start-response</dfn> = {
+  response
+  1: &amp;result ; result
+}
+
+; type key 1203
+<dfn>data-transport-stream</dfn> = {
+  1: exchange-id ; exchange-id
+}
+
+exchange-id = uint .lt 4611686018427387904 ; below 2^62
+
+; type key 1204 is reserved.
+
+; type key 1205
+<dfn>data-transport-close</dfn> = {
+  0: uint .size 4 ; close-code
+  1: text .size (0..1024) ; reason
+}
+
+; type key 1206
+<dfn>data-transport-drain</dfn> = {
 }
 </pre>
