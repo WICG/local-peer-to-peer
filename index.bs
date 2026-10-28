@@ -102,7 +102,7 @@ The [=local peer-to-peer manager=] has:
 : <dfn>known peers map</dfn>
 :: An [=/ordered map=] from [=peer/peer identity=] to <dfn>known peer</dfn>: a [=peer=] the user agent has had an [=protocol/authenticated=] session with, which the user selected or accepted.
 : <dfn>peer grants</dfn>
-:: A [=/set=] of [=tuples=] of an [=/origin=], a [=peer/peer identity=] that the origin may use, and a <dfn for="peer grants">requesting origin</dfn>. The [=peer grants/requesting origin=] is null for a peer the user selected in [=acquire a local peer grant=]. For a peer whose [=incoming session=] the user accepted, it is the session's [=protocol/requesting origin=], so the grant covers only sessions requested on behalf of that origin. An origin <dfn>has a peer grant</dfn> for a [=peer/peer identity=] if the [=peer grants=] contain a [=tuple=] with both.
+:: A [=/set=] of [=tuples=] of an [=/origin=], a [=peer/peer identity=] that the origin may use, and a <dfn for="peer grants">requesting origin</dfn>. The [=peer grants/requesting origin=] is "`selected`" for a peer the user selected in [=acquire a local peer grant=]. For a peer whose [=incoming session=] the user accepted, it is the session's [=protocol/requesting origin=], possibly null, so the grant covers only sessions requested on behalf of that origin, or with no origin. An origin <dfn>has a peer grant</dfn> for a [=peer/peer identity=] if the [=peer grants=] contain a [=tuple=] with both.
 
 A [=known peer=] records the <dfn for="known peer">anchor key</dfn> and <dfn for="known peer">subject</dfn> it last chained to on an [=protocol/authenticated=] session, or null. Whether it is [=/authenticated=] is not stored: without a live session, it is evaluated on these, against the [=local trust store=]. So removing a [=trust anchor=] can tell which peers are no longer [=/authenticated=].
 
@@ -154,7 +154,7 @@ To <dfn>forget a known peer</dfn> given a [=peer/peer identity=] |identity|:
 </div>
 
 <div algorithm>
-To <dfn>grant a peer</dfn> given an [=/origin=] |origin|, a [=peer/peer identity=] |identity| and a [=peer grants/requesting origin=] |requester|, an [=/origin=] or null:
+To <dfn>grant a peer</dfn> given an [=/origin=] |origin|, a [=peer/peer identity=] |identity| and a [=peer grants/requesting origin=] |requester|, an [=/origin=], null or "`selected`":
 
 1. [=set/Append=] (|origin|, |identity|, |requester|) to the [=peer grants=].
 
@@ -204,7 +204,7 @@ Note: The user agent must get the user's explicit consent in order to start adve
 
 When advertising, the user agent must listen for [=incoming sessions=]. The user agent must not directly provide access to an [=incoming session=] to any origin. Instead, unless the origin that initiated peer advertisement already has a [=peer grants|peer grant=] for the peer and the session's [=protocol/requesting origin=], the user agent must prompt to [grant peer](#peer-grant) access to that origin. Accepting the [=incoming session=] runs [=grant a peer=] for both, so later sessions from the peer on behalf of the same [=protocol/requesting origin=] do not prompt again; only then does the user agent run [=add a known peer=] with the peer. See [[#lp2p-receiver-incoming-session]].
 
-The user agent must deliver an [=incoming session=] only to the {{LP2PReceiver}} whose [=advertisement=] it was reported for, if that receiver is started and <dfn lt="allows an origin">allows</dfn> the session's [=protocol/requesting origin=], and [=refuse=] the session otherwise. It never delivers the session to another receiver instead. A refusal is indistinguishable, to the [=protocol/client=], from the user declining. An {{LP2PReceiver}} [=allows an origin=] |origin| if |origin| is not an [=opaque origin=], and is [=same origin=] with the receiver's [=relevant settings object=]'s [=environment settings object/origin=] or with an [=list/item=] of its {{LP2PReceiver/[[AllowedOrigins]]}}.
+The user agent must deliver an [=incoming session=] only to the {{LP2PReceiver}} whose [=advertisement=] it was reported for, if that receiver is started and <dfn lt="allows an origin">allows</dfn> the session's [=protocol/requesting origin=], and [=refuse=] the session otherwise. It never delivers the session to another receiver instead. A refusal is indistinguishable, to the [=protocol/client=], from the user declining. An {{LP2PReceiver}} [=allows an origin=] |origin|, an [=/origin=] or null, if its {{LP2PReceiver/[[AllowAnyRequester]]}} is true, or if |origin| is neither null nor an [=opaque origin=], and is [=same origin=] with the receiver's [=relevant settings object=]'s [=environment settings object/origin=] or with an [=list/item=] of its {{LP2PReceiver/[[AllowedOrigins]]}}.
 
 Peer discovery {#peer-discovery}
 --------------------------------
@@ -305,7 +305,7 @@ For each [=Local Peer-to-Peer session=], the side that established it with [=est
 * where the binding needs it to avoid collisions, identifiers such as [=data channel/id=]s and streams follow the role;
 * only the [=protocol/client=] opens any additional underlying connection for the session.
 
-A [=Local Peer-to-Peer session=] that is exposed to an origin has a <dfn for="protocol">requesting origin</dfn>: the [=/origin=] on whose behalf the [=protocol/client=] established it. The [=protocol/client=] conveys it inside the session, and the [=transport binding=] binds it to the [=protocol/authenticated=] session, for example by carrying it on the channel that authentication covers. The [=protocol/server=] checks it as described in [[#peer-advertisement]].
+A [=Local Peer-to-Peer session=] that is exposed to an origin has a <dfn for="protocol">requesting origin</dfn>: the [=/origin=] on whose behalf the [=protocol/client=] established it, or null if the requester has no origin, as for a native application or headless device. A user agent always conveys the origin of the page. The [=protocol/client=] conveys it inside the session, and the [=transport binding=] binds it to the [=protocol/authenticated=] session, for example by carrying it on the channel that authentication covers. The [=protocol/server=] checks it as described in [[#peer-advertisement]].
 
 The [=protocol/requesting origin=] reveals which sites the user is using, and the origins that a [=protocol/server=] accepts reveal which sites its user is using. Neither is exposed to a peer that is not [=/authenticated=]. A [=transport binding=] may let the [=protocol/server=] find out earlier whether it would accept the [=protocol/requesting origin=], so that a [=trust ceremony=] is not wasted on a session it [=refuses=], only with a mechanism that exposes neither. Otherwise, a first [=trust ceremony=] with a peer can end in a refusal.
 
@@ -380,6 +380,8 @@ An {{LP2PReceiver}} has the following internal slots:
 :: A string.
 : <dfn attribute for="LP2PReceiver">\[[AllowedOrigins]]</dfn>
 :: A [=/list=] of [=/origins=].
+: <dfn attribute for="LP2PReceiver">\[[AllowAnyRequester]]</dfn>
+:: A boolean, initially false.
 : <dfn attribute for="LP2PReceiver">\[[ConnectionSteps]]</dfn>
 :: Steps that take an {{LP2PConnection}}, run in place of the {{LP2PReceiver/connection}} event, or null.
 
@@ -397,6 +399,7 @@ To <dfn>set up an LP2PReceiver</dfn> |receiver| given |options| and optional |co
 1. Set |receiver|.{{LP2PReceiver/[[Nickname]]}} to |options|["{{LP2PReceiverOptions/nickname}}"] if it [=map/exists=], or the empty string otherwise.
 1. Set |receiver|.{{LP2PReceiver/[[AllowedOrigins]]}} to an empty [=/list=].
 1. [=list/For each=] |entry| of |options|["{{LP2PReceiverOptions/allowedOrigins}}"]:
+    1. If |entry| is "`*`", set |receiver|.{{LP2PReceiver/[[AllowAnyRequester]]}} to true and [=iteration/continue=].
     1. Let |url| be the result of running the [=URL parser=] on |entry|.
     1. If |url| is failure, throw a {{TypeError}}.
     1. [=list/Append=] |url|'s [=url/origin=] to |receiver|.{{LP2PReceiver/[[AllowedOrigins]]}}. An [=opaque origin=] appended here never matches, see [=allows an origin=].
@@ -466,7 +469,7 @@ When an [=incoming session=] |session| is reported, the user agent must run thes
 1. Let |origin| be |receiver|'s [=relevant settings object=]'s [=environment settings object/origin=].
 1. Let |identity| be the peer's [=peer/peer identity=].
 1. If the [=peer grants=] do not [=set/contain=] (|origin|, |identity|, the [=protocol/requesting origin=]):
-    1. Ask the user to grant the peer access to |origin| for sessions requested on behalf of the [=protocol/requesting origin=]. The prompt shows the peer's [=peer/display name=], |origin|, and the [=protocol/requesting origin=] as asserted by the peer; for an [=unconfirmed=] peer, it also names the [=vouching party=], and accepting confirms the peer.
+    1. Ask the user to grant the peer access to |origin| for sessions requested on behalf of the [=protocol/requesting origin=]. The prompt shows the peer's [=peer/display name=], |origin|, and the [=protocol/requesting origin=] as asserted by the peer, or that the requester has no origin; for an [=unconfirmed=] peer, it also names the [=vouching party=], and accepting confirms the peer.
     1. If the user declines or dismisses the prompt, or |session| was closed meanwhile, run |decline| and abort these steps.
     1. [=Grant a peer=] given |origin|, |identity| and the [=protocol/requesting origin=].
 1. If |session| was closed, abort these steps.
@@ -491,9 +494,9 @@ dictionary LP2PReceiverOptions {
 </pre>
 
 : <dfn dict-member for="LP2PReceiverOptions">allowedOrigins</dfn>
-:: A list of URLs whose [=url/origins=], in addition to the receiver's own origin, the receiver [=allows an origin|allows=] as the [=protocol/requesting origin=] of an [=incoming session=]. By default, only same-origin sessions are delivered. An entry that fails to parse makes the constructor throw a {{TypeError}}. An entry whose origin is an [=opaque origin=], such as a `data:` URL, never matches.
+:: A list of URLs whose [=url/origins=], in addition to the receiver's own origin, the receiver [=allows an origin|allows=] as the [=protocol/requesting origin=] of an [=incoming session=]. By default, only same-origin sessions are delivered. An entry that fails to parse makes the constructor throw a {{TypeError}}. An entry whose origin is an [=opaque origin=], such as a `data:` URL, never matches. The entry "`*`" allows any requester, including one with no origin, such as a native application or headless device, as `*` does in CORS.
 
-Issue: Decide the granularity of {{LP2PReceiverOptions/allowedOrigins}}, the [=protocol/requesting origin=] and [=peer grants=]: per origin or per site, and whether to allow wildcards or any origin.
+Issue: Decide the granularity of {{LP2PReceiverOptions/allowedOrigins}}, the [=protocol/requesting origin=] and [=peer grants=]: per origin or per site, and whether to allow wildcards such as subdomains.
 
 LP2PConnectionEvent {#lp2p-receiver-connection-event}
 ----------------------------------------------------
@@ -637,7 +640,7 @@ To <dfn>start an LP2PRequest</dfn> |request| given an {{AbortSignal}} or null |s
     1. Let |session| be the result of [=establish a session=] with |advertisement| given |origin|. If this fails, run |fail| and abort these steps.
     1. Wait until |session| is [=protocol/authenticated=] and the [=protocol/server=] has [=accepted=] it. Meanwhile, run [=authenticate a session=] on |session| when the [=transport binding=] calls for it. This may be a [=trust ceremony=]. If authentication fails, |session| is [=protocol/authenticated=] with a [=peer/peer identity=] other than the one |peer| claimed, the [=protocol/server=] [=refuses=] |session|, or |session| is closed, [=close a session|close=] |session|, run |fail| and abort these steps.
     1. If |session| was closed, run |fail| and abort these steps.
-    1. [=Add a known peer=] with |peer|, and [=grant a peer=] given |origin|, |peer|'s [=peer/peer identity=] and null.
+    1. [=Add a known peer=] with |peer|, and [=grant a peer=] given |origin|, |peer|'s [=peer/peer identity=] and "`selected`".
     1. [=Queue a global task=] on the [=networking task source=] given |global| to run these steps:
         1. If |aborted| is true, [=close a session|close=] |session| and abort these steps.
         1. If |session| was closed, set |request|.{{LP2PRequest/[[StartPromise]]}} to null, [=reject=] |promise| with a "{{NotAllowedError}}" {{DOMException}}, and abort these steps.
@@ -1325,6 +1328,17 @@ Issue: Decide whether a document with receivers or connections may enter the bac
 Security and privacy considerations {#security-and-privacy-considerations}
 =========================================================================
 
+Three guarantees are independent of each other: **peer authentication**, that a peer is the device the user paired with or confirmed ([[#peer-authentication]]); **origin isolation**, that in each browser a session is exposed only to the origin the user granted it to ([[#peer-grant]], [[#peer-advertisement]]); and **application authorization**, which is for the application to decide. None implies another. Authenticating a peer, or accepting its asserted [=protocol/requesting origin=], must never implicitly grant any other capability, such as access to files, the network, storage or permissions.
+
+Note: An application that needs proof of the remote origin can bind credentials its own origin issued to the session, with `exportKeyingMaterial()` on an {{LP2PQuicTransport}}, see [=export keying material=]. Once provisioned, this works offline. It proves that the origin issued the credential, not what runtime holds it on the other side.
+
+Hardening before authentication {#security-hardening}
+-----------------------------------------------------
+
+Before authentication, a user agent handles traffic from any device on the [=local communication medium=]. Implementations parse it as untrusted input and bound what it can cost: limits on connections and handshakes, timeouts, resource limits against denial of service, and isolation of the implementation from the rest of the user agent.
+
+Issue: Treat hardening before authentication in more detail.
+
 Transport bindings {#security-osp}
 ------------------------------------
 The security and privacy considerations of the protocol underlying the [=transport binding=] in use must be considered when implementing this API. For [[#osp-binding]], these are the Security and Privacy considerations of the [[!openscreen-network|Open Screen Network Protocol]].
@@ -1372,7 +1386,7 @@ This document extends the Web platform with the ability to set up real-time, dir
 
 This means that data and media can be shared between applications running in different browsers, or between an application running in the browser and another user agent that is not a browser such as a headless service provided by a smart TV or smart fridge. This extends the usual barriers in the Web's security model that prevents sending data between entities with different origins.
 
-To limit this, a session is only delivered to an {{LP2PReceiver}} of the same origin as its [=protocol/requesting origin=], unless the receiver opts in to other origins with {{LP2PReceiverOptions/allowedOrigins}}. The [=protocol/requesting origin=] is asserted by the peer's user agent, so a peer can claim any origin. Such a peer is [=/authenticated=]: the user paired with it in a [=trust ceremony=], or a [=vouching party=] they trust vouches for it and they confirmed it, although they may never have paired with it. Authentication identifies the device, not its intent or the origin of the page using it.
+To limit this, a session is only delivered to an {{LP2PReceiver}} of the same origin as its [=protocol/requesting origin=], unless the receiver opts in to other origins, or with "`*`" to any requester, with {{LP2PReceiverOptions/allowedOrigins}}. The [=protocol/requesting origin=] is asserted by the peer's user agent, so a peer can claim any origin. Such a peer is [=/authenticated=]: the user paired with it in a [=trust ceremony=], or a [=vouching party=] they trust vouches for it and they confirmed it, although they may never have paired with it. Authentication identifies the device, not its intent or the origin of the page using it.
 
 Device Access {#security-device-access}
 ---------------------------------------
@@ -1492,7 +1506,7 @@ So the requesting-origin and advertisement-id are only sent to a verified [=prot
 The [=lp2p-session-request=] contains:
 
 : requesting-origin
-:: The [=ASCII serialization of an origin|ASCII serialization=] of the origin. The [=protocol/server=] uses the [=url/origin=] of the result of running the [=URL parser=] on this value, or an [=opaque origin=] if parsing fails.
+:: The [=ASCII serialization of an origin|ASCII serialization=] of the origin, or absent if the [=protocol/requesting origin=] is null. The [=protocol/server=] uses null if it is absent, and otherwise the [=url/origin=] of the result of running the [=URL parser=] on this value, or an [=opaque origin=] if parsing fails.
 
 : advertisement-id
 :: The [=advertisement/advertisement ID=] of the [=advertisement=] the [=protocol/client=] [=establish a session|establishes the session with=].
@@ -1629,7 +1643,7 @@ agent-capability /= &(
 ; type key 1110
 <dfn>lp2p-session-request</dfn> = {
   request
-  1: text ; requesting-origin
+  ? 1: text ; requesting-origin
   2: advertisement-id ; advertisement-id
 }
 

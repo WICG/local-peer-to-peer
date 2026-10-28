@@ -260,7 +260,7 @@ Figure 4: User flow to discover and share files
 
 ## Security and Privacy
 
-The Local Peer-to-Peer API has been designed specifically with security and privacy in mind. Please refer to the [Security and Privacy Self-Review](./security-privacy-questionnaire.md) for more details.
+The Local Peer-to-Peer API has been designed specifically with security and privacy in mind. Please refer to the [Security and Privacy Self-Review](./security-privacy-questionnaire.md) for more details. The spec separates three guarantees: peer authentication, origin isolation in each browser, and application authorization; see [Security and privacy considerations](https://wicg.github.io/local-peer-to-peer/#security-and-privacy-considerations).
 
 ## Considered Alternatives
 
