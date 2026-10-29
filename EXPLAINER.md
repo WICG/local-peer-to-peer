@@ -10,7 +10,7 @@ Please refer to the [specification](https://WICG.github.io/local-peer-to-peer/) 
 
 The local network is not a first-class citizen of the web. It’s easier for a browser to trust a faraway server than your NAS, TV or thermostat sitting right next to you.
 
-![motivation](./images/motivation.svg)
+![A browser reaches a server on the internet securely, but a device on the local network only insecurely](./images/motivation.svg)
 
 As a blast from the past:
 
@@ -42,15 +42,19 @@ The API is transport-agnostic. It is designed to be backed by an authenticated, 
 - Collaboration tools that work during an internet outage or emergency situations
 - Ephemeral groups support: Share files to a group with a single “push” vs. sending to each friend one at a time
 
-![G](./images/n2.svg)
+![Four people edit the same document on their own devices with no internet, their edits synced live](./images/uc-offline.svg)
 
-Figure 1: Collaborate using local communication in Google Doc
+Figure 1: Edit the same document with people nearby, without the internet
 
 ### UC2: Disaster relief
 
 - The ability for Web-based tools to work on ad-hoc networks in the absence of internet infrastructure.
 - An app that allows humanitarian field workers in remote areas with no connectivity to gather, synchronize, review, and edit data offline for several days, the data can then be synchronized with the central server when internet connection becomes available
 - A non-profit educational organization is concerned about the large file download size required for on-device speech recognition in the browser. This is problematic in low bandwidth, high latency environments such as classrooms, particularly in emerging countries. Their goal is for one student to download the file first and then easily share/distribute it with classmates without low speed internet connections any more to save time and cost
+
+![A mix of devices in a field tent with no internet or cell network, connected directly](./images/uc-disaster-relief.svg)
+
+Figure 2: Whatever devices are at hand, connected directly
 
 ### UC3: Cross-device workflows
 
@@ -59,10 +63,11 @@ Figure 1: Collaborate using local communication in Google Doc
 - Open files in "Nearby" tab in "Open a file" dialog of Google doc
 - Video editing web app that allows users to ingest footage directly from their phone.
 - Seamlessly sync private keys and other identity credentials across personal devices, securely transfer one-time pads to encrypt and decrypt messages
+- In-App Sharing, quickly share group photos or videos with friends without relying on cloud services
 
-![Web Drop](./images/drop.svg)
+![Photos move from a phone into a web app on a laptop in seconds, with no cloud and no cable](./images/uc-cross-device.svg)
 
-Figure 2: Web Drop, an In-App Sharing feature based on Local Peer-to-Peer API compare with cloud-client solution
+Figure 3: Pull photos from your phone straight into a web app on your laptop
 
 ### UC4: Home Services & IoT
 
@@ -71,16 +76,18 @@ Figure 2: Web Drop, an In-App Sharing feature based on Local Peer-to-Peer API co
 - Avoiding the need for companion native apps for services running in the home environment, e.g.: Home Assistant, Plex, BitWarden, NextCloud, ...
 - Users value the ability to connect to a baby monitor even when their ISP or a cloud service is out of action. A huge percentage of the time the viewer and the monitor are on the same LAN. There are cost/privacy benefits too. Reference: [#50](https://github.com/WICG/local-peer-to-peer/issues/50).
 
+![A browser opens https://nas.local with a padlock and connects straight to a home server and camera](./images/uc-home-services.svg)
+
+Figure 4: Reach a home server securely by name, with no cloud proxy and no certificate warning
+
 ### UC5: Local multi-player
 
-- In-App Sharing, quickly share group photos or videos with friends without relying on cloud services
 - Run a game in web app on the smart TV, use mobile phone as the game controller via this local peer-to-peer API to send control messages
-
 - Run a 2 players web game on two mobile phones, synching messages between two players instantly
 
-![Game 1](./images/n3.svg)
+![A web game on the TV, with two phones as controllers](./images/uc-multiplayer.svg)
 
-Figure 3: Play web game cross smart TV and mobile phone
+Figure 5: Play a web game on the TV, with phones as controllers
 
 ### Requirements
 
@@ -113,9 +120,17 @@ In summary, the following are the prerequisites:
 
 The Local Peer-to-Peer API lets a page connect directly to a nearby device or browser. The user agent discovers peers and mutually authenticates them, for example with a PIN the user enters once. The user then grants the page access to a specific peer, and the page gets an authenticated connection carrying data channels or WebTransport sessions. Discovery and authentication are defined by a transport binding, such as the Open Screen Network Protocol.
 
+![How it works: discover, pair once, grant, connect](./images/how-it-works.svg)
+
+Figure 6: The browser discovers, pairs and asks for consent; the page gets one authenticated session
+
 _Note_: The same trust anchors can also validate HTTPS servers on the local communication medium, see the separate [Local HTTPS](https://wicg.github.io/local-peer-to-peer/local-https.html) draft.
 
 ### Architecture
+
+![Architecture: the page uses the API; the browser holds the picker, local trust store, known peers and grants; a transport binding carries an authenticated session to the peer](./images/architecture.svg)
+
+Figure 7: What lives in the page, in the browser and in the transport binding
 
 The main concepts:
 
@@ -252,11 +267,11 @@ Please refer to the [LP2PQuicTransport Interface](https://wicg.github.io/local-p
 
 ℹ️ This section is informative.
 
-This section represents concepts of how a user could discover, connect and share files from one device to the other device nearby.
+This section sketches how a user could connect two devices: the browser shows a picker, the devices pair with a code the first time, and the browser asks for consent on the receiving side. Names chosen by the site are always marked as such, and paired devices can be reviewed and removed.
 
-![User flow](./images/userflow.svg)
+![User flow between a phone and a TV: pick, pair, allow, play](./images/user-flow.svg)
 
-Figure 4: User flow to discover and share files
+Figure 8: Connecting a phone to a TV, the first time and after
 
 ## Security and Privacy
 
@@ -272,17 +287,17 @@ When a user wants to connect between two devices on the same local communication
 
 3. _A WebRTC connection_. While WebRTC is a P2P protocol, it still requires a setup step usually referred to as 'signaling'. There is no good way to perform this step without relying on an existing connection between peers, commonly a cloud service is used.
 
+4. The _Web Share and Web Share Target_ provide a minimal API to share text and files to a user-selected share target, including to another website, utilizing the sharing mechanism of the underlying operating system.
+
+While the Web Share API partially satisfies the requirement R2 set forth above, the Web Share API by its design defines a minimal API surface that is likely not amenable to extensions required to support additional use cases and requirements outlined in this explainer. Notably, the Web Share API is a "push-based" API where content is pushed from one device to another device while the Local Peer-to-Peer API is catering to both the "push-based" as well as "pull-based" use cases as illustrated by "drop files here and share" and "import file nearby" concepts respectively. From the UX perspective, the Local Peer-to-Peer API allows for a more seamless in-web app experience in use cases where a system-provided share facility would disrupt the user flow.
+
 None of these solutions to this seemingly common task provide a compelling user experience. When the devices share a local communication medium the user's expectation is the connection process should be as seamless as any physical interaction. With a variety of [local communication](https://wicg.github.io/local-peer-to-peer/#local-communication) technologies widely supported on today's devices we believe this user experience can be vastly improved.
 
 This illustrates the gap for an optimized path for [local communication](https://wicg.github.io/local-peer-to-peer/#local-communication) by web applications.
 
-![problem](./images/problem.svg)
+![A cloud service needs the internet; WebRTC needs a signaling server; Local Peer-to-Peer connects directly and works offline](./images/problem.svg)
 
-Figure 5: Proposed Web Local Peer-to-Peer along with other existing options
-
-4. The _Web Share and Web Share Target_ provide a minimal API to share text and files to a user-selected share target, including to another website, utilizing the sharing mechanism of the underlying operating system.
-
-While the Web Share API partially satisfies the requirement R2 set forth above, the Web Share API by its design defines a minimal API surface that is likely not amenable to extensions required to support additional use cases and requirements outlined in this explainer. Notably, the Web Share API is a "push-based" API where content is pushed from one device to another device while the Local Peer-to-Peer API is catering to both the "push-based" as well as "pull-based" use cases as illustrated by "drop files here and share" and "import file nearby" concepts respectively. From the UX perspective, the Local Peer-to-Peer API allows for a more seamless in-web app experience in use cases where a system-provided share facility would disrupt the user flow.
+Figure 9: Local Peer-to-Peer compared with a cloud service and WebRTC
 
 Applications may still choose to use an internet-based connection, such as WebRTC, when no local link is available. To make that easy and to minimize conceptual weight for web developers, this API attempts to align with the established conventions and API semantics of other communication APIs such as WebTransport API, WebRTC, Fetch, and Presentation API, where applicable.
 
