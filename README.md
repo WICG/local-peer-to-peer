@@ -1,5 +1,10 @@
 # Local Peer-to-Peer API
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="images/banner-dark.svg">
+  <img alt="The browser talks to the device next to it. Securely. Offline." src="images/banner-light.svg" width="100%">
+</picture>
+
 [Local Peer-to-Peer](https://WICG.github.io/local-peer-to-peer/) is a Web platform API proposal for secure, offline communication between nearby browsers and devices, without a server.
 
 It has three building blocks.
